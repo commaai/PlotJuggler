@@ -21,6 +21,9 @@
 #include "../../../../clib/channel.hpp"
 #include <thread>
 
+
+void dynamicPrintValue(capnp::DynamicValue value);
+
 using namespace PJ;
 
 class FileReader : public QObject {

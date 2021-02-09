@@ -18,9 +18,10 @@
 #include <capnp/serialize-packed.h>
 #include <capnp/schema-parser.h>
 
-#include "../../../../../cereal/gen/cpp/log.capnp.h"
 #include "../../../../clib/channel.hpp"
 #include <thread>
+
+void dynamicPrintValue(capnp::DynamicValue::Reader value);
 
 using namespace PJ;
 
@@ -56,12 +57,13 @@ private:
   QString file;
 };
 
-typedef QMultiMap<uint64_t, cereal::Event::Reader> Events;
+//typedef QMultiMap<uint64_t, cereal::Event::Reader> Events;
+typedef QMultiMap<uint64_t, capnp::DynamicStruct::Reader> Events;
 
 class LogReader : public FileReader {
 Q_OBJECT
 public:
-  LogReader(const QString& file, Events *events_, QReadWriteLock* events_lock_, QMap<int, QPair<int, int> > *eidx_);
+  LogReader(const QString& file, Events* events_, QReadWriteLock* events_lock_, QMap<int, QPair<int, int> > *eidx_);
   ~LogReader();
 
   void readyRead();
@@ -77,10 +79,10 @@ private:
   std::thread *parser;
   int event_offset;
   channel<int> cdled;
+  Events* events;
 
   // global                                                                                              
   void mergeEvents(int dled);
-  Events *events;
   QReadWriteLock* events_lock;
   QMap<int, QPair<int, int> > *eidx;
 };

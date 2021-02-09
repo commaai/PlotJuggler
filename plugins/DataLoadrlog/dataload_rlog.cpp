@@ -21,6 +21,8 @@ const std::vector<const char*>& DataLoadrlog::compatibleFileExtensions() const{
 
 bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data){
 
+	/*
+	 //Url stuff:
 	std::string urls_file = fileload_info->filename.toStdString();
 	std::ifstream infile;
 	infile.open(urls_file);
@@ -33,6 +35,7 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 	const QString example_url = QString::fromStdString(url);
 
 	infile.close();
+	*/
 
 	Events events;
         QReadWriteLock events_lock;
@@ -48,10 +51,17 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         //QObject::connect(log_reader, SIGNAL (done()), thread, SLOT (quit()));
         thread->start();
 
-	/*
 	// temporary hack for waiting for events to load
 	sleep(3);
 
+	std::cout << "Printing..." << std::endl;
+	
+	for(auto e : events){
+		dynamicPrintValue(e);
+		printf("\n\n\n\n\n");
+	}
+
+	/*
 	int tot_lines = 0;
 	
 	for(auto e : events){

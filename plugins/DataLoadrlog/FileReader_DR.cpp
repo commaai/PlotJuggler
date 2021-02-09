@@ -74,6 +74,7 @@ void dynamicPrintValue(DynamicValue::Reader value) {
       break;
 
     }
+    /*
     case DynamicValue::ENUM: {
       auto enumValue = value.as<DynamicEnum>();
       KJ_IF_MAYBE(enumerant, enumValue.getEnumerant()) {
@@ -87,6 +88,7 @@ void dynamicPrintValue(DynamicValue::Reader value) {
       }
       break;
     }
+    */
     case DynamicValue::STRUCT: {
       std::cout << "(";
       auto structValue = value.as<DynamicStruct>();
@@ -146,7 +148,7 @@ void FileReader::readyRead() {
 ========================================
 */
 
-LogReader::LogReader(const QString& file, Events *events_, QReadWriteLock* events_lock_, QMap<int, QPair<int, int> > *eidx_) : FileReader(file), events(events_), events_lock(events_lock_), eidx(eidx_) {
+LogReader::LogReader(const QString& file, Events* events_, QReadWriteLock* events_lock_, QMap<int, QPair<int, int> > *eidx_) : FileReader(file), events(events_), events_lock(events_lock_), eidx(eidx_) {
 
         bStream.next_in = NULL;
         bStream.avail_in = 0;
@@ -201,8 +203,8 @@ void LogReader::readyRead(){
 void LogReader::mergeEvents(int dled){
 
         auto amsg = kj::arrayPtr((const capnp::word*)(raw.data() + event_offset), (dled-event_offset)/sizeof(capnp::word));
-        Events events_local;
-        QMap<int, QPair<int, int> > eidx_local;
+        Events* events_local = new Events;
+        // QMap<int, QPair<int, int> > eidx_local;
 	
 	//Parse the schema:
 	auto fs = kj::newDiskFilesystem();
@@ -224,8 +226,6 @@ void LogReader::mergeEvents(int dled){
 	capnp::ParsedSchema evnt = schema.getNested("Event");
 	capnp::StructSchema evnt_struct = evnt.asStruct();
 
-	int i = 0;
-	
         while (amsg.size() > 0){
                 // Get events
 		try {
@@ -236,16 +236,23 @@ void LogReader::mergeEvents(int dled){
       			capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::arrayPtr(amsg.begin(), cmsg.getEnd()));
 		        amsg = kj::arrayPtr(cmsg.getEnd(), amsg.end());
 
-
 			capnp::DynamicStruct::Reader event_example = tmsg->getRoot<DynamicStruct>(evnt_struct);
 
-			dynamicPrintValue(event_example);
-			if(i==5)
-				break;
-			i++;
-
+			//dynamicPrintValue(event_example);
 			
-			printf("\n\n\n\n\n\n");
+			uint64_t logMonoTime;	
+
+			for(auto field : event_example.getSchema().getFields()){
+				if(field.getProto().getName() == "logMonoTime"){
+					logMonoTime = event_example.get(field).as<uint64_t>();
+					break;
+				}
+			}
+
+			//dynamicPrintValue(event_example);
+			//printf("\n\n\n\n\n");
+
+			events_local->insert(logMonoTime, event_example);
 
 			// increment
 			event_offset = (char*)cmsg.getEnd() - raw.data();
@@ -256,9 +263,11 @@ void LogReader::mergeEvents(int dled){
 		}
         }
 
+
+
         events_lock->lockForWrite();
-        *events += events_local;
-        eidx->unite(eidx_local);
+        *events += *events_local;
+        //eidx->unite(eidx_local);
         events_lock->unlock();
 
         printf("parsed %d into %d events with offset %d\n", dled, events->size(), event_offset);
