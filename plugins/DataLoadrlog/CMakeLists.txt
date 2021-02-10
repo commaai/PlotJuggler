@@ -7,6 +7,7 @@ add_definitions(-DQT_PLUGIN)
 QT5_WRAP_UI ( UI_SRC  ../selectlistdialog.ui  )
 
 SET( SRC
+    rlog_parser.cpp
     FileReader_DR.cpp
     dataload_rlog.cpp
     )

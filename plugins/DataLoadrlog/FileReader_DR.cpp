@@ -26,7 +26,7 @@ void dynamicPrintValue(DynamicValue::Reader value) {
   // Print an arbitrary message via the dynamic API by
   // iterating over the schema.  Look at the handling
   // of STRUCT in particular.
-
+  
   switch (value.getType()) {
     case DynamicValue::VOID:
       std::cout << "";
@@ -74,21 +74,29 @@ void dynamicPrintValue(DynamicValue::Reader value) {
       break;
 
     }
-    /*
+/*
+    case DynamicValue::DATA: {
+      std::cout << "DATA" << std::endl;
+    }
+
+*/
     case DynamicValue::ENUM: {
-      auto enumValue = value.as<DynamicEnum>();
-      KJ_IF_MAYBE(enumerant, enumValue.getEnumerant()) {
+	auto enumValue = value.as<DynamicEnum>();
+        KJ_IF_MAYBE(enumerant, enumValue.getEnumerant()) {
         std::cout <<
-            enumerant->getProto().getName().cStr();
-      } else {
+        enumerant->getProto().getName().cStr();
+        } 
+	else {
         // Unknown enum value; output raw number.
+	}
         std::cout << enumValue.getRaw();
         std::cout << endl;
+     std::cout << "this was an ENUM" << std::endl;
 
-      }
+      
       break;
     }
-    */
+
     case DynamicValue::STRUCT: {
       std::cout << "(";
       auto structValue = value.as<DynamicStruct>();
@@ -100,8 +108,8 @@ void dynamicPrintValue(DynamicValue::Reader value) {
         } else {
           std::cout << ", ";
         }
-        std::cout << field.getProto().getName().cStr()
-                  << " = ";
+        std::cout << field.getProto().getName().cStr();
+	std::cout << " = ";
         dynamicPrintValue(structValue.get(field));
       }
       std::cout << ")";
@@ -238,19 +246,16 @@ void LogReader::mergeEvents(int dled){
 
 			capnp::DynamicStruct::Reader event_example = tmsg->getRoot<DynamicStruct>(evnt_struct);
 
-			//dynamicPrintValue(event_example);
-			
-			uint64_t logMonoTime;	
+			auto logMonoTime = event_example.get("logMonoTime").as<uint64_t>();
 
-			for(auto field : event_example.getSchema().getFields()){
-				if(field.getProto().getName() == "logMonoTime"){
-					logMonoTime = event_example.get(field).as<uint64_t>();
-					break;
-				}
+			// Not parsing floats correctly
+			if(event_example.has("carState")){
+				auto t = event_example.get("carState").as<DynamicStruct>();
+				auto asdf = t.get("vEgo");
+				std::cout << asdf.as<double>() << std::endl;
+				//dynamicPrintValue(asdf);
+				std::cout << std::endl;
 			}
-
-			//dynamicPrintValue(event_example);
-			//printf("\n\n\n\n\n");
 
 			events_local->insert(logMonoTime, event_example);
 

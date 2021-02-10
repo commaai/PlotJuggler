@@ -1,4 +1,5 @@
 #include "dataload_rlog.h"
+#include "rlog_parser.hpp"
 #include <iostream>
 
 /*
@@ -54,93 +55,57 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 	// temporary hack for waiting for events to load
 	sleep(3);
 
-	std::cout << "Printing..." << std::endl;
-	
-	for(auto e : events){
-		dynamicPrintValue(e);
-		printf("\n\n\n\n\n");
-	}
+	QList<uint64_t> times = events.uniqueKeys();
+	rlogMessageParser parser("", plot_data);
 
-	/*
-	int tot_lines = 0;
-	
-	for(auto e : events){
-		if(e.which() != cereal::Event::CAR_STATE)
-			continue;
-		tot_lines++;
+	//PlotDataAny& plot_consecutive = plot_data.addUserDefined("__consecutive_message_instances__")->second;
 
-		//DynamicValue::Reader value = e;
-		//auto cs = e.getCarState();
-		//std::cout << e.getLogMonoTime() << ": " << cs.getVEgo() << std::endl;
-	}
+	std::vector<uint8_t> buffer;
 
-	bool use_provided_configuration = false;
+	std::cout << "Parsing..." << std::endl;
 
-	QProgressDialog progress_dialog;
-	progress_dialog.setLabelText("Loading... please wait");
-	progress_dialog.setWindowModality(Qt::ApplicationModal);
-	progress_dialog.setRange(0, tot_lines - 1);
-	progress_dialog.setAutoClose(true);
-	progress_dialog.setAutoReset(true);
-	progress_dialog.show();
+	for(auto time : times){
 
-	int linecount = 0;
-	bool interrupted = false;
-	std::vector<PlotData*> plots_vector;
+		QList<capnp::DynamicStruct::Reader> event = events.values(time);
+		capnp::DynamicStruct::Reader current_event;
 
-	std::deque<std::string> valid_field_names;
-	valid_field_names.push_back("vEgo");
-	valid_field_names.push_back("aEgo");
-	valid_field_names.push_back("steeringAngle");
-	valid_field_names.push_back("steeringTorque");
-
-	for(auto name : valid_field_names){
-		auto it = plot_data.addNumeric(name);
-		plots_vector.push_back(&(it->second));
-	}
-
-	for(auto e : events){
-		if(e.which() != cereal::Event::CAR_STATE)
-			continue;
-
-		auto cs = e.getCarState();
-
-		double t = linecount;
-
-		double y = cs.getVEgo();
-		PlotData::Point point(t, y);
-		plots_vector[0]->pushBack(point);
-
-		y = cs.getAEgo();
-		point = PlotData::Point(t, y);
-		plots_vector[1]->pushBack(point);
-
-		y = cs.getSteeringAngle();
-		point = PlotData::Point(t, y);
-		plots_vector[2]->pushBack(point);
-
-		y = cs.getSteeringTorque();
-		point = PlotData::Point(t, y);
-		plots_vector[3]->pushBack(point);
-
-		if (linecount++ % 100 == 0)
-		{
-		  progress_dialog.setValue(linecount);
-		  QApplication::processEvents();
-		  if (progress_dialog.wasCanceled())
-		  {
-		    interrupted = true;
-	            break;
-		  }
+		// Read in time and event
+		for(auto val : event){
+			if( val.has("initData")) // not working
+				continue;
+			current_event = val;
 		}
+
+		/*
+		auto data_point = PlotDataAny::Point(time, current_event);
+		plot_consecutive.pushBack(data_point);
+
+		auto plot_pair = plot_map.user_defined.find(topic_name);
+		if(plot_pair == plot_map.user_defined.end()){
+			plot_pair = plot_map.addUserDefined(topic_name);
+		}
+		
+		PlotDataAny& plot_raw = plot_pair->second;
+		plot_raw.pushBack(data_point);
+
+		//----- skip not selected -----------
+		if (topic_selected.find(topic_name) == topic_selected.end())
+		{
+		  continue;
+		}
+
+		
+		const size_t msg_size = sizeof(current_event);
+		buffer.resize(msg_size);
+		MessageRef msg_serialized(buffer.data(), buffer.size());
+		*/
+		// parse
+		
+		parser.parseMessageImpl("", current_event, time);
+
 	}
 
-	if (interrupted)
-	{
-	  progress_dialog.cancel();
-	  plot_data.numeric.clear();
-	}
-	*/
+	std::cout << "Done parsing" << std::endl;
 
 	return true;
 }
