@@ -28,10 +28,10 @@ using namespace PJ;
 class FileReader : public QObject {
 
 /* 
-        Edits:
-        - commented out URL functionality
-        - adding bz2 file loading
-
+  Edits:
+  - commented out URL functionality
+  - adding bz2 file loading
+  
 */
 
   Q_OBJECT

@@ -26,25 +26,25 @@ bool rlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       break;
 
     case capnp::DynamicValue::LIST: {
-  // Skipping lists for now
-  // TODO: think of how to plot lists
-  break;
+      // Skipping lists for now
+      // TODO: think of how to plot lists
+      break;
     }
 
     case capnp::DynamicValue::ENUM: {
-  // TODO Fix ENUM
-        //auto enumValue = value.as<capnp::DynamicEnum>();
+      // TODO Fix ENUM
+      //auto enumValue = value.as<capnp::DynamicEnum>();
 
-  /*
-        KJ_IF_MAYBE(enumerant, enumValue.getEnumerant()) {
+      /*
+      KJ_IF_MAYBE(enumerant, enumValue.getEnumerant()) {
         std::cout <<
         enumerant->getProto().getName().cStr();
-        }
-        else {
+      }
+      else {
         // Unknown enum value; output raw number.
-        }
-  */
-        //_data_series.pushBack({time_stamp, enumValue.getRaw()});
+      }
+      */
+      //_data_series.pushBack({time_stamp, enumValue.getRaw()});
       break;
     }
 
@@ -55,14 +55,15 @@ bool rlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       for (auto field: structValue.getSchema().getFields()) {
 
         if (!structValue.has(field))
-    continue;
+          continue;
 
-  std::string name =  field.getProto().getName().cStr();
+        std::string name =  field.getProto().getName().cStr();
         parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp); 
       }
 
       break;
     }
+
     default:
       // There are other types, we aren't handling them.
       break;
