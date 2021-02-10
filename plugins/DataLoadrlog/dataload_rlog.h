@@ -19,8 +19,6 @@
 
 #include <capnp/schema-parser.h>
 
-// TODO: don't rely on generated code
-#include "/home/batman/openpilot/cereal/gen/cpp/log.capnp.h"
 #include "/home/batman/openpilot/tools/clib/channel.hpp"
 #include <thread>
 
