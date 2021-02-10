@@ -248,15 +248,6 @@ void LogReader::mergeEvents(int dled){
 
 			auto logMonoTime = event_example.get("logMonoTime").as<uint64_t>();
 
-			// Not parsing floats correctly
-			if(event_example.has("carState")){
-				auto t = event_example.get("carState").as<DynamicStruct>();
-				auto asdf = t.get("vEgo");
-				std::cout << asdf.as<double>() << std::endl;
-				//dynamicPrintValue(asdf);
-				std::cout << std::endl;
-			}
-
 			events_local->insert(logMonoTime, event_example);
 
 			// increment
