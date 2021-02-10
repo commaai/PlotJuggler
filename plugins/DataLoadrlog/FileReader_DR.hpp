@@ -18,7 +18,7 @@
 #include <capnp/serialize-packed.h>
 #include <capnp/schema-parser.h>
 
-#include "../../../../clib/channel.hpp"
+#include "/home/batman/openpilot/tools/clib/channel.hpp"
 #include <thread>
 
 void dynamicPrintValue(capnp::DynamicValue::Reader value);

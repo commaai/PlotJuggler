@@ -42,9 +42,9 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         QReadWriteLock events_lock;
         QMap<int, QPair<int, int> >eidx;
 
-	QString example_file = "/home/batman/openpilot/tools/plots/PlotJuggler/datasamples/rlog.bz2";
-	
-	LogReader* log_reader = new LogReader(example_file, &events, &events_lock, &eidx);
+	auto fn = fileload_info->filename;
+	qDebug() << "Loading: " << fn;
+	LogReader* log_reader = new LogReader(fn, &events, &events_lock, &eidx);
 
 	QThread* thread = new QThread;
         log_reader->moveToThread(thread);
@@ -71,7 +71,7 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
 		// Read in time and event
 		for(auto val : event){
-			if( val.has("initData")) // not working
+			if(val.has("initData") || val.has("sentinel")) // Skip
 				continue;
 			current_event = val;
 		}
@@ -84,7 +84,7 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 		if(plot_pair == plot_map.user_defined.end()){
 			plot_pair = plot_map.addUserDefined(topic_name);
 		}
-		
+
 		PlotDataAny& plot_raw = plot_pair->second;
 		plot_raw.pushBack(data_point);
 
@@ -94,13 +94,13 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 		  continue;
 		}
 
-		
+
 		const size_t msg_size = sizeof(current_event);
 		buffer.resize(msg_size);
 		MessageRef msg_serialized(buffer.data(), buffer.size());
 		*/
 		// parse
-		
+
 		parser.parseMessageImpl("", current_event, time);
 
 	}
