@@ -73,7 +73,7 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 		for(auto val : event){
             try
             {
-                parser.parseMessageImpl("", val, time);
+                parser.parseMessageImpl("", val, (double)time / 1e9);
             }
             catch(const std::exception& e)
             {
