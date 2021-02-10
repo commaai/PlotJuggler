@@ -63,17 +63,25 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 	std::vector<uint8_t> buffer;
 
 	std::cout << "Parsing..." << std::endl;
+    int error_count = 0;
 
 	for(auto time : times){
 
 		QList<capnp::DynamicStruct::Reader> event = events.values(time);
-		capnp::DynamicStruct::Reader current_event;
 
 		// Read in time and event
 		for(auto val : event){
-			if(val.has("initData") || val.has("sentinel")) // Skip
-				continue;
-			current_event = val;
+            try
+            {
+                parser.parseMessageImpl("", val, time);
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << "Error parsing message. logMonoTime: " << val.get("logMonoTime").as<uint64_t>() << std::endl;
+                std::cerr << e.what() << std::endl;
+                error_count++;
+                continue;
+            }
 		}
 
 		/*
@@ -100,12 +108,12 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 		MessageRef msg_serialized(buffer.data(), buffer.size());
 		*/
 		// parse
-
-		parser.parseMessageImpl("", current_event, time);
-
 	}
 
 	std::cout << "Done parsing" << std::endl;
+    if (error_count) {
+        std::cout << error_count << " messages failed to parse" << std::endl;
+    }
 
 	return true;
 }
