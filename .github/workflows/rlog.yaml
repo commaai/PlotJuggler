@@ -17,6 +17,6 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: bin.tar.gz
         asset_name: bin.tar.gz
-        tag: ${{ 1.0 }}
+        tag: "1.0" 
         overwrite: true
 
