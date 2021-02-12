@@ -1,10 +1,10 @@
-name: build_rlog_plugin
+name: rlog
 
 on: [push, pull_request]
 
 jobs:
   build_docker_image:
-    runs-on: ubuntu-20:04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - name: build
