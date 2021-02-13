@@ -10,8 +10,9 @@ jobs:
     - name: build
       run: ./build.sh
     - name: zip bin directory
-      run: cd build
-      run: tar -czf bin.tar.gz bin
+      run: | 
+        cd build
+        tar -czf bin.tar.gz bin
     - name: Upload bin.tar.gz to release
       uses: svenstaro/upload-release-action@v2
       with:

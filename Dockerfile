@@ -1,6 +1,3 @@
-FROM ubuntu:20.04
-ENV PYTHONUNBUFFERED 1
-
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
   build-essential \
