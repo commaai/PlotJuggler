@@ -21,8 +21,6 @@
 #include "/home/batman/openpilot/tools/clib/channel.hpp"
 #include <thread>
 
-void dynamicPrintValue(capnp::DynamicValue::Reader value);
-
 using namespace PJ;
 
 class FileReader : public QObject {
@@ -57,12 +55,15 @@ typedef QMultiMap<uint64_t, capnp::DynamicStruct::Reader> Events;
 class LogReader : public FileReader {
 Q_OBJECT
 public:
-  LogReader(const QString& file, Events* events_, QReadWriteLock* events_lock_, QMap<int, QPair<int, int> > *eidx_);
+  LogReader(const QString& file, Events* events_);
   ~LogReader();
 
   void readyRead();
   void done() { is_done = true; };
   bool is_done = false;
+
+  void mergeEvents(int dled);
+  channel<int> cdled;
 
 private:
   bz_stream bStream;
@@ -72,12 +73,7 @@ private:
 
   std::thread *parser;
   int event_offset;
-  channel<int> cdled;
   Events* events;
 
-  // global                                                                                              
-  void mergeEvents(int dled);
-  QReadWriteLock* events_lock;
-  QMap<int, QPair<int, int> > *eidx;
 };
 

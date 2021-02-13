@@ -19,16 +19,13 @@ const std::vector<const char*>& DataLoadrlog::compatibleFileExtensions() const{
   return _extensions;
 }
 
-
 bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data){
   
   Events events;
-  QReadWriteLock events_lock;
-  QMap<int, QPair<int, int> >eidx;
   
   auto fn = fileload_info->filename;
   qDebug() << "Loading: " << fn;
-  LogReader* log_reader = new LogReader(fn, &events, &events_lock, &eidx);
+  LogReader* log_reader = new LogReader(fn, &events);
   
   QThread* thread = new QThread;
   log_reader->moveToThread(thread);
@@ -41,8 +38,6 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   
   QList<uint64_t> times = events.uniqueKeys();
   rlogMessageParser parser("", plot_data);
-  
-  std::vector<uint8_t> buffer;
   
   std::cout << "Parsing..." << std::endl;
   int error_count = 0;

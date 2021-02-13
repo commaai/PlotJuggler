@@ -49,7 +49,7 @@ void FileReader::readyRead() {
 ========================================
 */
 
-LogReader::LogReader(const QString& file, Events* events_, QReadWriteLock* events_lock_, QMap<int, QPair<int, int> > *eidx_) : FileReader(file), events(events_), events_lock(events_lock_), eidx(eidx_) {
+LogReader::LogReader(const QString& file, Events* events_) : FileReader(file), events(events_) {
 
   bStream.next_in = NULL;
   bStream.avail_in = 0;
@@ -86,7 +86,7 @@ void LogReader::readyRead(){
   loaded_file->close();
   bStream.next_in = dat.data();
   bStream.avail_in = dat.size();
-  
+
   while (bStream.avail_in > 0) {
     int ret = BZ2_bzDecompress(&bStream);
     if (ret != BZ_OK && ret != BZ_STREAM_END) {
@@ -104,8 +104,7 @@ void LogReader::mergeEvents(int dled){
 
   auto amsg = kj::arrayPtr((const capnp::word*)(raw.data() + event_offset), (dled-event_offset)/sizeof(capnp::word));
   Events* events_local = new Events;
-  // QMap<int, QPair<int, int> > eidx_local;
-  
+
   //Parse the schema:
   auto fs = kj::newDiskFilesystem();
   capnp::SchemaParser parser;
@@ -128,32 +127,31 @@ void LogReader::mergeEvents(int dled){
 
   while (amsg.size() > 0){
     // Get events
-    try {
+    try 
+    {
       capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(amsg);
 
-        // this needed? it is
-        capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::arrayPtr(amsg.begin(), cmsg.getEnd()));
-	amsg = kj::arrayPtr(cmsg.getEnd(), amsg.end());
+      // this needed? it is
+      capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::arrayPtr(amsg.begin(), cmsg.getEnd()));
+      amsg = kj::arrayPtr(cmsg.getEnd(), amsg.end());
 
-	capnp::DynamicStruct::Reader event_example = tmsg->getRoot<DynamicStruct>(evnt_struct);
+      capnp::DynamicStruct::Reader event_example = tmsg->getRoot<DynamicStruct>(evnt_struct);
 
-	auto logMonoTime = event_example.get("logMonoTime").as<uint64_t>();
+      auto logMonoTime = event_example.get("logMonoTime").as<uint64_t>();
 
-	events_local->insert(logMonoTime, event_example);
+      events_local->insert(logMonoTime, event_example);
 
-	// increment
-	event_offset = (char*)cmsg.getEnd() - raw.data();
+      // increment
+      event_offset = (char*)cmsg.getEnd() - raw.data();
 
     }
-    catch (const kj::Exception& e){
+    catch (const kj::Exception& e)
+    {
       break;
     }
 }
 
-  events_lock->lockForWrite();
   *events += *events_local;
-  //eidx->unite(eidx_local);
-  events_lock->unlock();
   
   printf("parsed %d into %d events with offset %d\n", dled, events->size(), event_offset);
 }
