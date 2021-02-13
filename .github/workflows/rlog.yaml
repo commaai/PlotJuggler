@@ -14,6 +14,7 @@ jobs:
         cd build
         sudo tar -czf bin.tar.gz bin
     - name: Upload bin.tar.gz to release
+      if: github.ref == 'refs/heads/rlog-release' && github.event_name == 'push'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
