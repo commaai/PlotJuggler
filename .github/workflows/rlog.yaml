@@ -12,7 +12,7 @@ jobs:
     - name: zip bin directory
       run: | 
         cd build
-        tar -czf bin.tar.gz bin
+        sudo tar -czf bin.tar.gz bin
     - name: Upload bin.tar.gz to release
       uses: svenstaro/upload-release-action@v2
       with:
