@@ -10,13 +10,14 @@ jobs:
     - name: build
       run: ./build.sh
     - name: zip bin directory
-      run: tar -czf bin.tar.gz build/bin
+      run: cd build
+      run: tar -czf bin.tar.gz bin
     - name: Upload bin.tar.gz to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: bin.tar.gz
         asset_name: bin.tar.gz
-        tag: "1.0" 
+        tag: "latest" 
         overwrite: true
 
