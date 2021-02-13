@@ -21,22 +21,6 @@ const std::vector<const char*>& DataLoadrlog::compatibleFileExtensions() const{
 
 
 bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data){
-
-  /*
-   //Url stuff:
-  std::string urls_file = fileload_info->filename.toStdString();
-  std::ifstream infile;
-  infile.open(urls_file);
-  
-  std::string line;
-  std::getline(infile, line);
-  
-  std::string url = "http://data.comma.life/" + line + "/0/rlog.bz2";
-  
-  const QString example_url = QString::fromStdString(url);
-  
-  infile.close();
-  */
   
   Events events;
   QReadWriteLock events_lock;
@@ -57,8 +41,6 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   
   QList<uint64_t> times = events.uniqueKeys();
   rlogMessageParser parser("", plot_data);
-  
-  //PlotDataAny& plot_consecutive = plot_data.addUserDefined("__consecutive_message_instances__")->second;
   
   std::vector<uint8_t> buffer;
   
@@ -100,4 +82,3 @@ bool DataLoadrlog::xmlSaveState(QDomDocument& doc, QDomElement& parent_element) 
 bool DataLoadrlog::xmlLoadState(const QDomElement& parent_element){
   return false;
 }
-

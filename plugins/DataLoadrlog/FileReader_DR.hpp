@@ -38,10 +38,8 @@ class FileReader : public QObject {
 
 public:
   FileReader(const QString& file_);
-  // void startRequest(const QUrl &url);                                                                    
   ~FileReader();
   virtual void readyRead();
-  // void httpFinished();
   virtual void done() {};
 
 public slots:
@@ -49,15 +47,11 @@ public slots:
 
 protected:
   QFile* loaded_file;
-  // QNetworkReply *reply;
 
 private:
-  // QNetworkAccessManager *qnam;                                                                           
-  // QElapsedTimer timer;                                                                                   
   QString file;
 };
 
-//typedef QMultiMap<uint64_t, cereal::Event::Reader> Events;
 typedef QMultiMap<uint64_t, capnp::DynamicStruct::Reader> Events;
 
 class LogReader : public FileReader {
