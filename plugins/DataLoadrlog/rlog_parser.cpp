@@ -1,4 +1,6 @@
 #include "rlog_parser.hpp"
+#include <iostream>
+#include <string>
 
 bool rlogMessageParser::parseMessage(const MessageRef msg, double time_stamp){
   return false;
@@ -7,7 +9,7 @@ bool rlogMessageParser::parseMessage(const MessageRef msg, double time_stamp){
 bool rlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp){
 
   PJ::PlotData& _data_series = getSeries(topic_name);
-
+  
   switch (value.getType()) {
     case capnp::DynamicValue::BOOL:
       _data_series.pushBack({time_stamp, value.as<bool>()});
@@ -26,25 +28,14 @@ bool rlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       break;
 
     case capnp::DynamicValue::LIST: {
-      // Skipping lists for now
       // TODO: think of how to plot lists
       break;
     }
 
     case capnp::DynamicValue::ENUM: {
       // TODO Fix ENUM
-      //auto enumValue = value.as<capnp::DynamicEnum>();
-
-      /*
-      KJ_IF_MAYBE(enumerant, enumValue.getEnumerant()) {
-        std::cout <<
-        enumerant->getProto().getName().cStr();
-      }
-      else {
-        // Unknown enum value; output raw number.
-      }
-      */
-      //_data_series.pushBack({time_stamp, enumValue.getRaw()});
+      auto enumValue = value.as<capnp::DynamicEnum>();
+      _data_series.pushBack({time_stamp, enumValue.getRaw()});
       break;
     }
 

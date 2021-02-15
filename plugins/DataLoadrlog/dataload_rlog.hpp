@@ -4,7 +4,6 @@
 #include <QtPlugin>
 #include "PlotJuggler/dataloader_base.h"
 #include <QThread>
-#include <fstream>
 #include <QDebug>
 #include <QObject>
 #include <QProgressDialog>
@@ -16,15 +15,11 @@
 #include <capnp/schema.h>
 #include <capnp/dynamic.h>
 #include <capnp/serialize-packed.h>
-
 #include <capnp/schema-parser.h>
 
-#include "/home/batman/openpilot/tools/clib/channel.hpp"
-#include <thread>
-
-#include "FileReader_DR.hpp"
-
 using namespace PJ;
+
+typedef QMap<uint64_t, capnp::DynamicStruct::Reader> Events;
 
 class DataLoadrlog : public DataLoader {
 
