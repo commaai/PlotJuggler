@@ -12,19 +12,19 @@ bool RLogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
   
   switch (value.getType()) {
     case capnp::DynamicValue::BOOL:
-      _data_series.pushBack({time_stamp, value.as<bool>()});
+      _data_series.pushBack({time_stamp, (double)value.as<bool>()});
       break;
 
     case capnp::DynamicValue::INT:
-      _data_series.pushBack({time_stamp, value.as<int64_t>()});
+      _data_series.pushBack({time_stamp, (double)value.as<int64_t>()});
       break;
 
     case capnp::DynamicValue::UINT:
-      _data_series.pushBack({time_stamp, value.as<uint64_t>()});
+      _data_series.pushBack({time_stamp, (double)value.as<uint64_t>()});
       break;
 
     case capnp::DynamicValue::FLOAT:
-      _data_series.pushBack({time_stamp, value.as<double>()});
+      _data_series.pushBack({time_stamp, (double)value.as<double>()});
       break;
 
     case capnp::DynamicValue::LIST: {
@@ -35,7 +35,7 @@ bool RLogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::ENUM: {
       // TODO Fix ENUM
       auto enumValue = value.as<capnp::DynamicEnum>();
-      _data_series.pushBack({time_stamp, enumValue.getRaw()});
+      _data_series.pushBack({time_stamp, (double)enumValue.getRaw()});
       break;
     }
 
