@@ -2,25 +2,23 @@
 #include "rlog_parser.hpp"
 #include <iostream>
 
-//typedef QMap<uint64_t, capnp::DynamicStruct::Reader> Events;
-
 /*
 ======================================== 
-	DataLoadrlog Functions:
+	DataLoadRLog Functions:
 ======================================== 
 */
 
-DataLoadrlog::DataLoadrlog(){
+DataLoadRLog::DataLoadRLog(){
   _extensions.push_back("bz2"); }
 
-DataLoadrlog::~DataLoadrlog(){
+DataLoadRLog::~DataLoadRLog(){
 }
 
-const std::vector<const char*>& DataLoadrlog::compatibleFileExtensions() const{
+const std::vector<const char*>& DataLoadRLog::compatibleFileExtensions() const{
   return _extensions;
 }
 
-bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data){
+bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data){
   
   Events events;
   
@@ -120,7 +118,7 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   // Parse event:
   QList<uint64_t> times = events.uniqueKeys();
-  rlogMessageParser parser("", plot_data);
+  RLogMessageParser parser("", plot_data);
   
   std::cout << "Parsing..." << std::endl;
   int error_count = 0;
@@ -150,10 +148,10 @@ bool DataLoadrlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   return true;
 }
 
-bool DataLoadrlog::xmlSaveState(QDomDocument& doc, QDomElement& parent_element) const{
+bool DataLoadRLog::xmlSaveState(QDomDocument& doc, QDomElement& parent_element) const{
   return false;
 }
 
-bool DataLoadrlog::xmlLoadState(const QDomElement& parent_element){
+bool DataLoadRLog::xmlLoadState(const QDomElement& parent_element){
   return false;
 }
