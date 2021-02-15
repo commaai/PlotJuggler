@@ -56,7 +56,8 @@ bool rlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     }
 
     default:
-      // There are other types, we aren't handling them.
+      // We currently don't support:
+      // DATA, ANY_POINTER, TEXT, CAPABILITIES, VOID
       break;
   }
 

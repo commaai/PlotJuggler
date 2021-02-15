@@ -7,12 +7,6 @@
 
 using namespace PJ;
 
-enum LargeArrayPolicy : bool
-{
-  DISCARD_LARGE_ARRAYS = true,
-  KEEP_LARGE_ARRAYS = false
-};
-
 class rlogMessageParser : MessageParser{
 
 public:
