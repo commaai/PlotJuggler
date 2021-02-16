@@ -63,5 +63,3 @@ bool RLogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 
   return true;
 }
-
-

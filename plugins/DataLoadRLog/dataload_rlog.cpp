@@ -2,12 +2,6 @@
 #include "rlog_parser.hpp"
 #include <iostream>
 
-/*
-======================================== 
-	DataLoadRLog Functions:
-======================================== 
-*/
-
 DataLoadRLog::DataLoadRLog(){
   _extensions.push_back("bz2"); }
 
@@ -132,8 +126,6 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   if(progress_dialog.wasCanceled())
     return false;
 
-  
-
   // Parse event:
   QList<uint64_t> times = events.uniqueKeys();
   RLogMessageParser parser("", plot_data);
@@ -167,7 +159,6 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   QApplication::processEvents();
   if(progress_dialog.wasCanceled())
     return false;
-
 
   return true;
 }

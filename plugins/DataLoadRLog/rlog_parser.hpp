@@ -2,7 +2,6 @@
 
 #include <PlotJuggler/plotdata.h>
 #include <PlotJuggler/messageparser_base.h>
-
 #include <capnp/dynamic.h>
 
 using namespace PJ;
@@ -21,5 +20,3 @@ protected:
   bool _use_message_stamp;
 
 };
-
-

@@ -32,4 +32,3 @@ elseif(COMPILING_WITH_AMENT)
 else()
   install(TARGETS DataLoadRLog DESTINATION bin  )
 endif()
-
