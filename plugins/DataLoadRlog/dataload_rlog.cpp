@@ -83,7 +83,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   capnp::StructSchema event_struct = event.asStruct();
 
   RlogMessageParser parser("", plot_data);
-  int error_count = 0;
 
   while(amsg.size() > 0)
   {
@@ -96,17 +95,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
       capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(event_struct);
 
-      try
-      {
-        parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9);
-      }
-      catch(const std::exception& e)
-      {
-          std::cerr << "Error parsing message. logMonoTime: " << event_example.get("logMonoTime").as<uint64_t>() << std::endl;
-          std::cerr << e.what() << std::endl;
-          error_count++;
-          continue;
-      }
+      parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9);
 
       // increment
       event_offset = (char*)cmsg.getEnd() - raw.data();
