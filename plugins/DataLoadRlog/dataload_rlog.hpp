@@ -21,18 +21,18 @@ using namespace PJ;
 
 typedef QMap<uint64_t, capnp::DynamicStruct::Reader> Events;
 
-class DataLoadRLog : public DataLoader {
+class DataLoadRlog : public DataLoader {
 
   Q_OBJECT
   Q_PLUGIN_METADATA(IID "facontidavide.PlotJuggler3.DataLoader")
   Q_INTERFACES(PJ::DataLoader)
 
 public:
-  DataLoadRLog();
-  virtual ~DataLoadRLog();
+  DataLoadRlog();
+  virtual ~DataLoadRlog();
   virtual bool readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data);
   virtual const std::vector<const char*>& compatibleFileExtensions() const override;
-  virtual const char* name() const override { return "DataLoad RLog"; }
+  virtual const char* name() const override { return "DataLoad Rlog"; }
   virtual bool xmlSaveState(QDomDocument& doc, QDomElement& parent_element) const override;
   virtual bool xmlLoadState(const QDomElement& parent_element) override;
 

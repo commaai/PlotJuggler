@@ -10,9 +10,9 @@ SET( SRC
   dataload_rlog.cpp
   )
 
-add_library(DataLoadRLog SHARED ${SRC} ${UI_SRC}  )
+add_library(DataLoadRlog SHARED ${SRC} ${UI_SRC}  )
 
-target_link_libraries(DataLoadRLog
+target_link_libraries(DataLoadRlog
   ${Qt5Widgets_LIBRARIES}
   ${Qt5Xml_LIBRARIES}
   -lcapnp
@@ -22,13 +22,13 @@ target_link_libraries(DataLoadRLog
   plotjuggler_plugin_base)
 
 if(COMPILING_WITH_CATKIN)
-  install(TARGETS DataLoadRLog
+  install(TARGETS DataLoadRlog
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION} )
 elseif(COMPILING_WITH_AMENT)
-  install(TARGETS DataLoadRLog
+  install(TARGETS DataLoadRlog
     DESTINATION  lib/${PROJECT_NAME} )
 else()
-  install(TARGETS DataLoadRLog DESTINATION bin  )
+  install(TARGETS DataLoadRlog DESTINATION bin  )
 endif()

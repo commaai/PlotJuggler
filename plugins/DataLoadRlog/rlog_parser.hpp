@@ -6,10 +6,10 @@
 
 using namespace PJ;
 
-class RLogMessageParser : MessageParser{
+class RlogMessageParser : MessageParser{
 
 public:
-  RLogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data):
+  RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data):
     MessageParser(topic_name, plot_data) {}
 
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp);

@@ -245,7 +245,7 @@ add_subdirectory( src )
 
 add_subdirectory( plugins/DataLoadCSV )
 add_subdirectory( plugins/DataLoadULog )
-add_subdirectory( plugins/DataLoadRLog )
+add_subdirectory( plugins/DataLoadRlog )
 add_subdirectory( plugins/DataStreamSample )
 add_subdirectory( plugins/DataStreamWebsocket )
 add_subdirectory( plugins/DataStreamUDP )

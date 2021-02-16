@@ -2,11 +2,11 @@
 #include <iostream>
 #include <string>
 
-bool RLogMessageParser::parseMessage(const MessageRef msg, double time_stamp){
+bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp){
   return false;
 }
 
-bool RLogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp){
+bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp){
 
   PJ::PlotData& _data_series = getSeries(topic_name);
   
