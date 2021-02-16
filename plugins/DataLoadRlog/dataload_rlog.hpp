@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <PlotJuggler/dataloader_base.h>
 #include <bzlib.h>
+#include <PlotJuggler/dataloader_base.h>
 #include <capnp/serialize-packed.h>
 #include <capnp/schema-parser.h>
 #include <rlog_parser.hpp>
