@@ -6,7 +6,8 @@
 
 using namespace PJ;
 
-class RlogMessageParser : MessageParser{
+class RlogMessageParser : MessageParser
+{
 
 public:
   RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data):

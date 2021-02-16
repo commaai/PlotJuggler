@@ -19,7 +19,8 @@
 
 using namespace PJ;
 
-class DataLoadRlog : public DataLoader {
+class DataLoadRlog : public DataLoader 
+{
 
   Q_OBJECT
   Q_PLUGIN_METADATA(IID "facontidavide.PlotJuggler3.DataLoader")

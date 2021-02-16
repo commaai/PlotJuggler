@@ -2,15 +2,18 @@
 #include <iostream>
 #include <string>
 
-bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp){
+bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
+{
   return false;
 }
 
-bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp){
+bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp)
+{
 
   PJ::PlotData& _data_series = getSeries(topic_name);
   
-  switch (value.getType()) {
+  switch (value.getType()) 
+  {
     case capnp::DynamicValue::BOOL:
       _data_series.pushBack({time_stamp, (double)value.as<bool>()});
       break;
@@ -27,28 +30,33 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       _data_series.pushBack({time_stamp, (double)value.as<double>()});
       break;
 
-    case capnp::DynamicValue::LIST: {
+    case capnp::DynamicValue::LIST: 
+    {
       // TODO: Parse lists properly
       int i = 0;
-      for(auto element : value.as<capnp::DynamicList>()){
+      for(auto element : value.as<capnp::DynamicList>())
+      {
         parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp);
         i++;
       }
       break;
     }
 
-    case capnp::DynamicValue::ENUM: {
+    case capnp::DynamicValue::ENUM: 
+    {
       // TODO Fix ENUM
       auto enumValue = value.as<capnp::DynamicEnum>();
       _data_series.pushBack({time_stamp, (double)enumValue.getRaw()});
       break;
     }
 
-    case capnp::DynamicValue::STRUCT: {
+    case capnp::DynamicValue::STRUCT: 
+    {
       auto structValue = value.as<capnp::DynamicStruct>();
       bool first = true;
 
-      for (auto field: structValue.getSchema().getFields()) {
+      for (auto field: structValue.getSchema().getFields()) 
+      {
 
         if (!structValue.has(field))
           continue;
