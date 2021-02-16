@@ -16,6 +16,12 @@ const std::vector<const char*>& DataLoadRlog::compatibleFileExtensions() const
 
 bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data)
 {
+
+  QProgressDialog progress_dialog;
+  progress_dialog.setLabelText("Decompressing log...");
+  progress_dialog.setWindowModality(Qt::ApplicationModal);
+  progress_dialog.show();
+
   auto fn = fileload_info->filename;
   qDebug() << "Loading: " << fn;
 
@@ -62,6 +68,12 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   int dled = raw.size() - bStream.avail_out;
   auto amsg = kj::arrayPtr((const capnp::word*)(raw.data() + event_offset), (dled-event_offset)/sizeof(capnp::word));
 
+  int max_amsg_size = amsg.size();
+
+  progress_dialog.setLabelText("Parsing log...");
+  progress_dialog.setRange(0, max_amsg_size);
+  progress_dialog.show();
+
   //Parse the schema:
   auto fs = kj::newDiskFilesystem();
   capnp::SchemaParser schema_parser;
@@ -103,6 +115,13 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
     catch (const kj::Exception& e)
     {
       break;
+    }
+
+    progress_dialog.setValue(max_amsg_size - amsg.size());
+    QApplication::processEvents();
+    if(progress_dialog.wasCanceled())
+    {
+      return false;
     }
   }
 

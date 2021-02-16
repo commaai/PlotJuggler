@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QProgressDialog>
+
 #include <iostream>
 #include <bzlib.h>
 #include <PlotJuggler/dataloader_base.h>
