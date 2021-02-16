@@ -15,8 +15,4 @@ public:
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp);
 
   bool parseMessage(const MessageRef serialized_msg, double timestamp);
-
-protected:
-  bool _use_message_stamp;
-
 };

@@ -28,7 +28,12 @@ bool RLogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       break;
 
     case capnp::DynamicValue::LIST: {
-      // TODO: think of how to plot lists
+      // TODO: Parse lists properly
+      int i = 0;
+      for(auto element : value.as<capnp::DynamicList>()){
+        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp);
+        i++;
+      }
       break;
     }
 

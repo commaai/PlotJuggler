@@ -3,7 +3,8 @@
 #include <iostream>
 
 DataLoadRLog::DataLoadRLog(){
-  _extensions.push_back("bz2"); }
+  _extensions.push_back("bz2"); 
+}
 
 DataLoadRLog::~DataLoadRLog(){
 }
@@ -20,7 +21,6 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   progress_dialog.setLabelText("Loading... please wait");
   progress_dialog.setWindowModality(Qt::ApplicationModal);
   progress_dialog.setRange(0, 3);
-  progress_dialog.setValue(0);
   progress_dialog.show();
   
   auto fn = fileload_info->filename;
@@ -94,27 +94,20 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   capnp::StructSchema evnt_struct = evnt.asStruct();
 
   while(amsg.size() > 0){
-    // Get events
-    try
+    try // Get events
     {
       capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(amsg);
 
-      // this needed? it is
       capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::arrayPtr(amsg.begin(), cmsg.getEnd()));
       amsg = kj::arrayPtr(cmsg.getEnd(), amsg.end());
 
       capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(evnt_struct);
-
-      auto logMonoTime = event_example.get("logMonoTime").as<uint64_t>();
-
-      events.insert(logMonoTime, event_example);
+      events.insert(event_example.get("logMonoTime").as<uint64_t>(), event_example);
 
       // increment
       event_offset = (char*)cmsg.getEnd() - raw.data();
-
     }
-    catch (const kj::Exception& e)
-    {
+    catch (const kj::Exception& e){
       break;
     }
   }
@@ -151,9 +144,8 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   }
 
   std::cout << "Done parsing" << std::endl;
-  if (error_count) {
+  if (error_count) 
     std::cout << error_count << " messages failed to parse" << std::endl;
-  }
 
   progress_dialog.setValue(3);
   QApplication::processEvents();
