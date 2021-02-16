@@ -21,6 +21,13 @@ const std::vector<const char*>& DataLoadRLog::compatibleFileExtensions() const{
 bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data){
   
   Events events;
+
+  QProgressDialog progress_dialog;
+  progress_dialog.setLabelText("Loading... please wait");
+  progress_dialog.setWindowModality(Qt::ApplicationModal);
+  progress_dialog.setRange(0, 3);
+  progress_dialog.setValue(0);
+  progress_dialog.show();
   
   auto fn = fileload_info->filename;
   qDebug() << "Loading: " << fn;
@@ -55,6 +62,7 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   bStream.avail_in = dat.size();
 
   while(bStream.avail_in > 0){
+    std::cout << bStream.avail_in << std::endl;
     int ret = BZ2_bzDecompress(&bStream);
     if(ret != BZ_OK && ret != BZ_STREAM_END){
       qWarning() << "bz2 decompress failed";
@@ -64,8 +72,12 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   }
 
   int dled = raw.size() - bStream.avail_out;
-
   auto amsg = kj::arrayPtr((const capnp::word*)(raw.data() + event_offset), (dled-event_offset)/sizeof(capnp::word));
+
+  progress_dialog.setValue(1);
+  QApplication::processEvents();
+  if(progress_dialog.wasCanceled())
+    return false;
 
   //Parse the schema:
   auto fs = kj::newDiskFilesystem();
@@ -114,6 +126,12 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   }
 
   printf("parsed %d into %d events with offset %d\n", dled, events.size(), event_offset);
+
+  progress_dialog.setValue(2);
+  QApplication::processEvents();
+  if(progress_dialog.wasCanceled())
+    return false;
+
   
 
   // Parse event:
@@ -144,6 +162,12 @@ bool DataLoadRLog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   if (error_count) {
     std::cout << error_count << " messages failed to parse" << std::endl;
   }
+
+  progress_dialog.setValue(3);
+  QApplication::processEvents();
+  if(progress_dialog.wasCanceled())
+    return false;
+
 
   return true;
 }
