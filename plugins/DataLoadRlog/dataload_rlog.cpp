@@ -2,27 +2,22 @@
 #include "rlog_parser.hpp"
 #include <iostream>
 
-DataLoadRlog::DataLoadRlog(){
+DataLoadRlog::DataLoadRlog()
+{
   _extensions.push_back("bz2"); 
 }
 
-DataLoadRlog::~DataLoadRlog(){
+DataLoadRlog::~DataLoadRlog()
+{
 }
 
-const std::vector<const char*>& DataLoadRlog::compatibleFileExtensions() const{
+const std::vector<const char*>& DataLoadRlog::compatibleFileExtensions() const
+{
   return _extensions;
 }
 
-bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data){
-  
-  Events events;
-
-  QProgressDialog progress_dialog;
-  progress_dialog.setLabelText("Loading... please wait");
-  progress_dialog.setWindowModality(Qt::ApplicationModal);
-  progress_dialog.setRange(0, 3);
-  progress_dialog.show();
-  
+bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data)
+{
   auto fn = fileload_info->filename;
   qDebug() << "Loading: " << fn;
 
@@ -55,10 +50,12 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   bStream.next_in = dat.data();
   bStream.avail_in = dat.size();
 
-  while(bStream.avail_in > 0){
+  while(bStream.avail_in > 0)
+  {
     std::cout << bStream.avail_in << std::endl;
     int ret = BZ2_bzDecompress(&bStream);
-    if(ret != BZ_OK && ret != BZ_STREAM_END){
+    if(ret != BZ_OK && ret != BZ_STREAM_END)
+    {
       qWarning() << "bz2 decompress failed";
       break;
     }
@@ -67,11 +64,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   int dled = raw.size() - bStream.avail_out;
   auto amsg = kj::arrayPtr((const capnp::word*)(raw.data() + event_offset), (dled-event_offset)/sizeof(capnp::word));
-
-  progress_dialog.setValue(1);
-  QApplication::processEvents();
-  if(progress_dialog.wasCanceled())
-    return false;
 
   //Parse the schema:
   auto fs = kj::newDiskFilesystem();
@@ -90,10 +82,14 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse("home/batman/openpilot/cereal/log.capnp"), importDirs);
 
-  capnp::ParsedSchema evnt = schema.getNested("Event");
-  capnp::StructSchema evnt_struct = evnt.asStruct();
+  capnp::ParsedSchema event = schema.getNested("Event");
+  capnp::StructSchema event_struct = event.asStruct();
 
-  while(amsg.size() > 0){
+  RlogMessageParser parser("", plot_data);
+  int error_count = 0;
+
+  while(amsg.size() > 0)
+  {
     try // Get events
     {
       capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(amsg);
@@ -101,64 +97,40 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::arrayPtr(amsg.begin(), cmsg.getEnd()));
       amsg = kj::arrayPtr(cmsg.getEnd(), amsg.end());
 
-      capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(evnt_struct);
-      events.insert(event_example.get("logMonoTime").as<uint64_t>(), event_example);
+      capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(event_struct);
+
+      try
+      {
+        parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9);
+      }
+      catch(const std::exception& e)
+      {
+          std::cerr << "Error parsing message. logMonoTime: " << event_example.get("logMonoTime").as<uint64_t>() << std::endl;
+          std::cerr << e.what() << std::endl;
+          error_count++;
+          continue;
+      }
 
       // increment
       event_offset = (char*)cmsg.getEnd() - raw.data();
     }
-    catch (const kj::Exception& e){
+    catch (const kj::Exception& e)
+    {
       break;
     }
   }
 
   printf("parsed %d into %d events with offset %d\n", dled, events.size(), event_offset);
 
-  progress_dialog.setValue(2);
-  QApplication::processEvents();
-  if(progress_dialog.wasCanceled())
-    return false;
-
-  // Parse event:
-  QList<uint64_t> times = events.uniqueKeys();
-  RlogMessageParser parser("", plot_data);
-  
-  std::cout << "Parsing..." << std::endl;
-  int error_count = 0;
-  
-  for(auto time : times){
-
-    capnp::DynamicStruct::Reader val = events.value(time);
-
-    try
-    {
-      parser.parseMessageImpl("", val, (double)time / 1e9);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << "Error parsing message. logMonoTime: " << val.get("logMonoTime").as<uint64_t>() << std::endl;
-        std::cerr << e.what() << std::endl;
-        error_count++;
-        continue;
-    }
-  }
-
-  std::cout << "Done parsing" << std::endl;
-  if (error_count) 
-    std::cout << error_count << " messages failed to parse" << std::endl;
-
-  progress_dialog.setValue(3);
-  QApplication::processEvents();
-  if(progress_dialog.wasCanceled())
-    return false;
-
   return true;
 }
 
-bool DataLoadRlog::xmlSaveState(QDomDocument& doc, QDomElement& parent_element) const{
+bool DataLoadRlog::xmlSaveState(QDomDocument& doc, QDomElement& parent_element) const
+{
   return false;
 }
 
-bool DataLoadRlog::xmlLoadState(const QDomElement& parent_element){
+bool DataLoadRlog::xmlLoadState(const QDomElement& parent_element)
+{
   return false;
 }

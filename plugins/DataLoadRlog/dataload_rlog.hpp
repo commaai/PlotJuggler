@@ -19,8 +19,6 @@
 
 using namespace PJ;
 
-typedef QMap<uint64_t, capnp::DynamicStruct::Reader> Events;
-
 class DataLoadRlog : public DataLoader {
 
   Q_OBJECT
