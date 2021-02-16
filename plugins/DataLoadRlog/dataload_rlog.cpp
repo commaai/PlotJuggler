@@ -52,7 +52,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   while(bStream.avail_in > 0)
   {
-    std::cout << bStream.avail_in << std::endl;
     int ret = BZ2_bzDecompress(&bStream);
     if(ret != BZ_OK && ret != BZ_STREAM_END)
     {
@@ -90,7 +89,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   while(amsg.size() > 0)
   {
-    try // Get events
+    try
     {
       capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(amsg);
 
@@ -119,8 +118,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       break;
     }
   }
-
-  printf("parsed %d into %d events with offset %d\n", dled, events.size(), event_offset);
 
   return true;
 }
