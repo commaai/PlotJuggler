@@ -1,6 +1,4 @@
-#include "dataload_rlog.hpp"
-#include "rlog_parser.hpp"
-#include <iostream>
+#include <dataload_rlog.hpp>
 
 DataLoadRlog::DataLoadRlog()
 {

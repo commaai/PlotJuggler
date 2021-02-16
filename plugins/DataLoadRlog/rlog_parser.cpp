@@ -1,6 +1,4 @@
 #include "rlog_parser.hpp"
-#include <iostream>
-#include <string>
 
 bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
 {

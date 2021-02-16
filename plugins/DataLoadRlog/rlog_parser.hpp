@@ -1,8 +1,8 @@
 #pragma once
 
-#include <PlotJuggler/plotdata.h>
 #include <PlotJuggler/messageparser_base.h>
 #include <capnp/dynamic.h>
+#include <iostream>
 
 using namespace PJ;
 

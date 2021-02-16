@@ -1,21 +1,11 @@
 #pragma once
 
-#include <QObject>
-#include <QtPlugin>
-#include "PlotJuggler/dataloader_base.h"
-#include <QThread>
-#include <QDebug>
-#include <QObject>
-#include <QProgressDialog>
-#include <QtNetwork>
-
-#include <unistd.h>
+#include <iostream>
+#include <PlotJuggler/dataloader_base.h>
 #include <bzlib.h>
-
-#include <capnp/schema.h>
-#include <capnp/dynamic.h>
 #include <capnp/serialize-packed.h>
 #include <capnp/schema-parser.h>
+#include <rlog_parser.hpp>
 
 using namespace PJ;
 
