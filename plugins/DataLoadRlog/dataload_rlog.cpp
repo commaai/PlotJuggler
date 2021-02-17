@@ -14,7 +14,9 @@ QByteArray* load_bytes(const char* fn)
   raw->resize(dled);
 
   if(bzError != BZ_STREAM_END) qWarning() << "buffer size too small for log";
+
   BZ2_bzReadClose(&bzError, bytes);
+  fclose(f);
 
   return raw;
 }
@@ -64,7 +66,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   openpilot_dir = QDir(openpilot_dir).filePath("cereal/log.capnp");
   openpilot_dir.remove(0, 1);
 
-  //Parse the schema:
+  // Parse the schema:
   auto fs = kj::newDiskFilesystem();
   capnp::SchemaParser schema_parser;
   capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(openpilot_dir.toStdString()), nullptr);
@@ -90,7 +92,8 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       event_offset = (char*)cmsg.getEnd() - raw->data();
     }
     catch (const kj::Exception& e)
-    {
+    { 
+      std::cerr << e.getDescription().cStr() << std::endl;
       break;
     }
 
