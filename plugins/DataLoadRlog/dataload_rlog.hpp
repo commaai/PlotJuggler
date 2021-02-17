@@ -1,8 +1,12 @@
 #pragma once
 
 #include <QProgressDialog>
+#include <QDir>
 
 #include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 #include <bzlib.h>
 #include <PlotJuggler/dataloader_base.h>
 #include <capnp/serialize-packed.h>

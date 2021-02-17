@@ -1,9 +1,20 @@
 #include <dataload_rlog.hpp>
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
-#include <QDir>
+QByteArray* load_bytes(const char* fn, int& dled)
+{
+  int bzError;
+  FILE* f = fopen(fn, "rb");
+  QByteArray* raw = new QByteArray;
+  // 64MB buffer
+  raw->resize(1024*1024*64);
+
+  BZFILE *bytes = BZ2_bzReadOpen(&bzError, f, 0, 0, NULL, 0);
+  if(bzError != BZ_OK && bzError != BZ_STREAM_END) qWarning() << "bz2 decompress failed";
+  dled += BZ2_bzRead(&bzError, bytes, raw->data(), raw->size());
+  BZ2_bzReadClose(&bzError, bytes);
+
+  return raw;
+}
 
 DataLoadRlog::DataLoadRlog()
 {
@@ -31,47 +42,11 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   qDebug() << "Loading: " << fn;
 
   // Load file:
-  bz_stream bStream;
-  bStream.next_in = NULL;
-  bStream.avail_in = 0;
-  bStream.bzalloc = NULL;
-  bStream.bzfree = NULL;
-  bStream.opaque = NULL;
-
-  int ret = BZ2_bzDecompressInit(&bStream, 0, 0);
-  if (ret != BZ_OK) qWarning() << "bz2 init failed";
-
-  QByteArray raw;
-  // 64MB buffer
-  raw.resize(1024*1024*64);
-
-  // auto increment?
-  bStream.next_out = raw.data();
-  bStream.avail_out = raw.size();
-
+  int dled = 0;
   int event_offset = 0;
+  QByteArray* raw = load_bytes(fn.toStdString().c_str(), dled);
 
-  QFile* loaded_file = new QFile(fn);
-  loaded_file->open(QIODevice::ReadOnly);
-  QByteArray dat = loaded_file->readAll();
-  loaded_file->close();
-
-  bStream.next_in = dat.data();
-  bStream.avail_in = dat.size();
-
-  while(bStream.avail_in > 0)
-  {
-    int ret = BZ2_bzDecompress(&bStream);
-    if(ret != BZ_OK && ret != BZ_STREAM_END)
-    {
-      qWarning() << "bz2 decompress failed";
-      break;
-    }
-    qDebug() << "got" << dat.size() << "with" << bStream.avail_out << "size" << raw.size();
-  }
-
-  int dled = raw.size() - bStream.avail_out;
-  auto amsg = kj::arrayPtr((const capnp::word*)(raw.data() + event_offset), (dled-event_offset)/sizeof(capnp::word));
+  kj::ArrayPtr<const capnp::word> amsg = kj::arrayPtr((const capnp::word*)(raw->data() + event_offset), (dled-event_offset)/sizeof(capnp::word));
 
   int max_amsg_size = amsg.size();
 
@@ -110,7 +85,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9);
 
       // increment
-      event_offset = (char*)cmsg.getEnd() - raw.data();
+      event_offset = (char*)cmsg.getEnd() - raw->data();
     }
     catch (const kj::Exception& e)
     {
