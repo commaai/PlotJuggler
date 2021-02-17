@@ -77,20 +77,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   //Parse the schema:
   auto fs = kj::newDiskFilesystem();
   capnp::SchemaParser schema_parser;
-
-  auto fs_imp = kj::newDiskFilesystem();
-  auto import = fs_imp->getRoot().openSubdir(kj::Path::parse("home/batman/openpilot/cereal"));
-
-  // TODO: improve this
-  // ---
-  kj::ArrayBuilder<const kj::ReadableDirectory* const> builder = kj::heapArrayBuilder<const kj::ReadableDirectory* const>(1);
-  builder.add(import);
-
-  auto importDirs = builder.finish().asPtr();
-  // ---
-
-  capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse("home/batman/openpilot/cereal/log.capnp"), importDirs);
-
+  capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse("home/batman/openpilot/cereal/log.capnp"), nullptr);
   capnp::ParsedSchema event = schema.getNested("Event");
   capnp::StructSchema event_struct = event.asStruct();
 
