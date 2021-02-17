@@ -109,6 +109,7 @@ else()
 ENDIF()
 
 find_package(ZMQ)
+find_package(Rlog)
 
 include_directories(
     ${Qt5Core_INCLUDE_DIRS}
@@ -241,7 +242,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/3rdparty/liblsl/CMakeLists.txt" AND NOT WIN32)
     add_subdirectory( plugins/DataStreamLSL )
 endif()
 
-if(NOT COMPILING_WITH_CATKIN AND NOT COMPILING_WITH_AMENT)
+if(Rlog_FOUND)
     add_subdirectory( plugins/DataLoadRlog )
 endif()
 
