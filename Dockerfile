@@ -13,6 +13,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libdwarf-dev \
   libdw-dev \
   libbz2-dev \
-  libcapnp-dev \
-  bzip2 \
-  capnproto
+  libcapnp-dev
