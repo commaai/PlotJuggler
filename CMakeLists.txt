@@ -142,11 +142,7 @@ qt5_wrap_cpp(PLOTJUGGLER_BASE_MOCS
 add_library( plotjuggler_plugin_base STATIC ${PLOTJUGGLER_BASE_MOCS})
 target_link_libraries( plotjuggler_plugin_base PRIVATE
     ${Qt5Widgets_LIBRARIES}
-    ${catkin_LIBRARIES} 
-    -lcapnp
-    -lcapnpc
-    -lbz2
-    -lkj )
+    ${catkin_LIBRARIES} )
 
 #########################  INSTALL  ####################################
 
