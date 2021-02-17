@@ -1,5 +1,8 @@
 include_directories(  ../ )
 
+add_definitions(${QT_DEFINITIONS})
+add_definitions(-DQT_PLUGIN)
+
 SET( SRC
   rlog_parser.cpp
   dataload_rlog.cpp
