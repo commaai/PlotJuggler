@@ -64,7 +64,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   qDebug() << "Loading: " << fn;
 
   // Load file:
-  int event_offset = 0;
   QByteArray raw;
   if (fn.endsWith(".bz2")){
     raw = read_bz2_file(fn.toStdString().c_str());
@@ -76,7 +75,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   }
   qDebug() << "Done loading";
 
-  kj::ArrayPtr<const capnp::word> amsg = kj::ArrayPtr((const capnp::word*)(raw.data() + event_offset), (raw.size()-event_offset)/sizeof(capnp::word));
+  kj::ArrayPtr<const capnp::word> amsg = kj::ArrayPtr((const capnp::word*)raw.data(), raw.size()/sizeof(capnp::word));
 
   int max_amsg_size = amsg.size();
 
@@ -87,7 +86,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   QString schema_path(std::getenv("BASEDIR"));
   if(schema_path.isNull())
   {
-    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot");
+    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot"); // fallback to $HOME/openpilot
   }
   schema_path = QDir(schema_path).filePath("cereal/log.capnp");
   schema_path.remove(0, 1);
@@ -111,10 +110,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
       capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(event_struct);
 
-      parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9);
-
-      // increment
-      event_offset = (char*)cmsg.getEnd() - raw.data();
+      parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9)
     }
     catch (const kj::Exception& e)
     { 
