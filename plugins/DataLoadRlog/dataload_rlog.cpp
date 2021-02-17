@@ -2,19 +2,30 @@
 
 QByteArray* read_file(const char* fn)
 {
-  int bzError;
+  int bzError = BZ_OK;
   FILE* f = fopen(fn, "rb");
   QByteArray* raw = new QByteArray;
-  // 64MB buffer
-  raw->resize(1024*1024*64);
-  
+
   BZFILE *bytes = BZ2_bzReadOpen(&bzError, f, 0, 0, NULL, 0);
-  if(bzError != BZ_OK && bzError != BZ_STREAM_END) qWarning() << "bz2 decompress failed";
-  int dled = BZ2_bzRead(&bzError, bytes, raw->data(), raw->size());
-  raw->resize(dled);
+  if(bzError != BZ_OK) qWarning() << "bz2 open failed";
 
-  if(bzError != BZ_STREAM_END) qWarning() << "buffer size too small for log";
+  const size_t chunk_size = 1024*1024*64;
+  size_t cur = 0;
+  while (true){
+    raw->resize(cur + chunk_size);
 
+    int dled = BZ2_bzRead(&bzError, bytes, raw->data() + cur, chunk_size);
+    if(bzError == BZ_STREAM_END){
+      raw->resize(cur + dled);
+      break;
+    } else if (bzError != BZ_OK){
+      qWarning() << "bz2 decompress error";
+      break;
+    }
+
+    cur += chunk_size;
+  }
+  
   BZ2_bzReadClose(&bzError, bytes);
   fclose(f);
 
