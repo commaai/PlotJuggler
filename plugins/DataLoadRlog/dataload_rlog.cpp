@@ -66,12 +66,12 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   openpilot_dir = QDir(openpilot_dir).filePath("cereal/log.capnp");
   openpilot_dir.remove(0, 1);
 
-  // Parse the schema:
+  // Parse the schema
   auto fs = kj::newDiskFilesystem();
+
   capnp::SchemaParser schema_parser;
   capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(openpilot_dir.toStdString()), nullptr);
-  capnp::ParsedSchema event = schema.getNested("Event");
-  capnp::StructSchema event_struct = event.asStruct();
+  capnp::StructSchema event_struct = schema.getNested("Event").asStruct();
 
   RlogMessageParser parser("", plot_data);
 
@@ -79,6 +79,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   {
     try
     {
+      //TODO: I feel like this could be improved
       capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(amsg);
 
       capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::arrayPtr(amsg.begin(), cmsg.getEnd()));
