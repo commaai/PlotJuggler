@@ -1,5 +1,10 @@
 #include <dataload_rlog.hpp>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <QDir>
+
 DataLoadRlog::DataLoadRlog()
 {
   _extensions.push_back("bz2"); 
@@ -74,10 +79,18 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   progress_dialog.setRange(0, max_amsg_size);
   progress_dialog.show();
 
+  QString openpilot_dir(std::getenv("BASEDIR"));
+  if(openpilot_dir.isNull())
+  {
+    openpilot_dir = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot");
+  }
+  openpilot_dir = QDir(openpilot_dir).filePath("cereal/log.capnp");
+  openpilot_dir.remove(0, 1);
+
   //Parse the schema:
   auto fs = kj::newDiskFilesystem();
   capnp::SchemaParser schema_parser;
-  capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse("home/batman/openpilot/cereal/log.capnp"), nullptr);
+  capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(openpilot_dir.toStdString()), nullptr);
   capnp::ParsedSchema event = schema.getNested("Event");
   capnp::StructSchema event_struct = event.asStruct();
 
