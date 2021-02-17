@@ -1,16 +1,19 @@
 #include <dataload_rlog.hpp>
 
-QByteArray* load_bytes(const char* fn, int& dled)
+QByteArray* load_bytes(const char* fn)
 {
   int bzError;
   FILE* f = fopen(fn, "rb");
   QByteArray* raw = new QByteArray;
   // 64MB buffer
   raw->resize(1024*1024*64);
-
+  
   BZFILE *bytes = BZ2_bzReadOpen(&bzError, f, 0, 0, NULL, 0);
   if(bzError != BZ_OK && bzError != BZ_STREAM_END) qWarning() << "bz2 decompress failed";
-  dled += BZ2_bzRead(&bzError, bytes, raw->data(), raw->size());
+  int dled = BZ2_bzRead(&bzError, bytes, raw->data(), raw->size());
+  raw->resize(dled);
+
+  if(bzError != BZ_STREAM_END) qWarning() << "buffer size too small for log";
   BZ2_bzReadClose(&bzError, bytes);
 
   return raw;
@@ -42,11 +45,10 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   qDebug() << "Loading: " << fn;
 
   // Load file:
-  int dled = 0;
   int event_offset = 0;
-  QByteArray* raw = load_bytes(fn.toStdString().c_str(), dled);
+  QByteArray* raw = load_bytes(fn.toStdString().c_str());
 
-  kj::ArrayPtr<const capnp::word> amsg = kj::arrayPtr((const capnp::word*)(raw->data() + event_offset), (dled-event_offset)/sizeof(capnp::word));
+  kj::ArrayPtr<const capnp::word> amsg = kj::arrayPtr((const capnp::word*)(raw->data() + event_offset), (raw->size()-event_offset)/sizeof(capnp::word));
 
   int max_amsg_size = amsg.size();
 
