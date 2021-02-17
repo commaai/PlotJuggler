@@ -1,6 +1,6 @@
 #include <dataload_rlog.hpp>
 
-QByteArray* load_bytes(const char* fn)
+QByteArray* read_file(const char* fn)
 {
   int bzError;
   FILE* f = fopen(fn, "rb");
@@ -48,9 +48,9 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   // Load file:
   int event_offset = 0;
-  QByteArray* raw = load_bytes(fn.toStdString().c_str());
+  QByteArray* raw = read_file(fn.toStdString().c_str());
 
-  kj::ArrayPtr<const capnp::word> amsg = kj::arrayPtr((const capnp::word*)(raw->data() + event_offset), (raw->size()-event_offset)/sizeof(capnp::word));
+  kj::ArrayPtr<const capnp::word> amsg = kj::ArrayPtr((const capnp::word*)(raw->data() + event_offset), (raw->size()-event_offset)/sizeof(capnp::word));
 
   int max_amsg_size = amsg.size();
 
@@ -58,19 +58,19 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   progress_dialog.setRange(0, max_amsg_size);
   progress_dialog.show();
 
-  QString openpilot_dir(std::getenv("BASEDIR"));
-  if(openpilot_dir.isNull())
+  QString schema_path(std::getenv("BASEDIR"));
+  if(schema_path.isNull())
   {
-    openpilot_dir = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot");
+    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot");
   }
-  openpilot_dir = QDir(openpilot_dir).filePath("cereal/log.capnp");
-  openpilot_dir.remove(0, 1);
+  schema_path = QDir(schema_path).filePath("cereal/log.capnp");
+  schema_path.remove(0, 1);
 
   // Parse the schema
   auto fs = kj::newDiskFilesystem();
 
   capnp::SchemaParser schema_parser;
-  capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(openpilot_dir.toStdString()), nullptr);
+  capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(schema_path.toStdString()), nullptr);
   capnp::StructSchema event_struct = schema.getNested("Event").asStruct();
 
   RlogMessageParser parser("", plot_data);
@@ -79,11 +79,9 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   {
     try
     {
-      //TODO: I feel like this could be improved
       capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(amsg);
-
-      capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::arrayPtr(amsg.begin(), cmsg.getEnd()));
-      amsg = kj::arrayPtr(cmsg.getEnd(), amsg.end());
+      capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::ArrayPtr(amsg.begin(), cmsg.getEnd()));
+      amsg = kj::ArrayPtr(cmsg.getEnd(), amsg.end());
 
       capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(event_struct);
 

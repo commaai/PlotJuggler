@@ -42,7 +42,6 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 
     case capnp::DynamicValue::ENUM: 
     {
-      // TODO Fix ENUM
       auto enumValue = value.as<capnp::DynamicEnum>();
       _data_series.pushBack({time_stamp, (double)enumValue.getRaw()});
       break;
