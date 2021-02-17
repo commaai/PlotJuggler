@@ -12,7 +12,6 @@ else (Rlog_LIBRARIES AND Rlog_INCLUDE_DIRS)
       /usr/local/include
       /opt/local/include
       /sw/include
-
   )
   
   set(Rlog_INCLUDE_DIRS
@@ -25,4 +24,3 @@ else (Rlog_LIBRARIES AND Rlog_INCLUDE_DIRS)
   mark_as_advanced(Rlog_INCLUDE_DIRS)
 
 endif(Rlog_INCLUDE_DIRS)
-  
