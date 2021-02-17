@@ -47,10 +47,9 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   qDebug() << "Loading: " << fn;
 
   // Load file:
-  int event_offset = 0;
   QByteArray* raw = read_file(fn.toStdString().c_str());
 
-  kj::ArrayPtr<const capnp::word> amsg = kj::ArrayPtr((const capnp::word*)(raw->data() + event_offset), (raw->size()-event_offset)/sizeof(capnp::word));
+  kj::ArrayPtr<const capnp::word> amsg = kj::ArrayPtr((const capnp::word*)raw->data(), raw->size()/sizeof(capnp::word));
 
   int max_amsg_size = amsg.size();
 
@@ -86,9 +85,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(event_struct);
 
       parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9);
-
-      // increment
-      event_offset = (char*)cmsg.getEnd() - raw->data();
     }
     catch (const kj::Exception& e)
     { 
