@@ -1,29 +1,46 @@
 #include <dataload_rlog.hpp>
 
-QByteArray* read_file(const char* fn)
-{
-  int bzError;
+QByteArray read_bz2_file(const char* fn){
+  int bzError = BZ_OK;
   FILE* f = fopen(fn, "rb");
-  QByteArray* raw = new QByteArray;
-  // 64MB buffer
-  raw->resize(1024*1024*64);
-  
+  QByteArray raw;
+
   BZFILE *bytes = BZ2_bzReadOpen(&bzError, f, 0, 0, NULL, 0);
-  if(bzError != BZ_OK && bzError != BZ_STREAM_END) qWarning() << "bz2 decompress failed";
-  int dled = BZ2_bzRead(&bzError, bytes, raw->data(), raw->size());
-  raw->resize(dled);
+  if(bzError != BZ_OK) qWarning() << "bz2 open failed";
 
-  if(bzError != BZ_STREAM_END) qWarning() << "buffer size too small for log";
+  const size_t chunk_size = 1024*1024*64;
+  size_t cur = 0;
+  while (true){
+    raw.resize(cur + chunk_size);
 
+    int dled = BZ2_bzRead(&bzError, bytes, raw.data() + cur, chunk_size);
+    if(bzError == BZ_STREAM_END){
+      raw.resize(cur + dled);
+      break;
+    } else if (bzError != BZ_OK){
+      qWarning() << "bz2 decompress error";
+      break;
+    }
+
+    cur += chunk_size;
+  }
+  
   BZ2_bzReadClose(&bzError, bytes);
   fclose(f);
 
-  return raw;
+  return std::move(raw);
+}
+
+QByteArray read_raw_file(QString fn){
+  auto file = QFile(fn);
+  file.open(QIODevice::ReadOnly);
+  return std::move(file.readAll());
 }
 
 DataLoadRlog::DataLoadRlog()
 {
   _extensions.push_back("bz2"); 
+  _extensions.push_back("rlog");
 }
 
 DataLoadRlog::~DataLoadRlog()
@@ -47,9 +64,18 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   qDebug() << "Loading: " << fn;
 
   // Load file:
-  QByteArray* raw = read_file(fn.toStdString().c_str());
+  QByteArray raw;
+  if (fn.endsWith(".bz2")){
+    raw = read_bz2_file(fn.toStdString().c_str());
+  } else {
+    raw = read_raw_file(fn);
+    if (raw.size() == 0) {
+      qDebug() << "Raw file read failed, larger than 2GB?";
+    }
+  }
+  qDebug() << "Done loading";
 
-  kj::ArrayPtr<const capnp::word> amsg = kj::ArrayPtr((const capnp::word*)raw->data(), raw->size()/sizeof(capnp::word));
+  kj::ArrayPtr<const capnp::word> amsg = kj::ArrayPtr((const capnp::word*)raw.data(), raw.size()/sizeof(capnp::word));
 
   int max_amsg_size = amsg.size();
 
@@ -84,7 +110,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
       capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(event_struct);
 
-      parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9);
+      parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9)
     }
     catch (const kj::Exception& e)
     { 
