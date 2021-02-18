@@ -96,7 +96,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   capnp::SchemaParser schema_parser;
   capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(schema_path.toStdString()), nullptr);
-  capnp::StructSchema event_struct = schema.getNested("Event").asStruct();
+  capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
 
   RlogMessageParser parser("", plot_data);
 
@@ -108,9 +108,9 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::ArrayPtr(amsg.begin(), cmsg.getEnd()));
       amsg = kj::ArrayPtr(cmsg.getEnd(), amsg.end());
 
-      capnp::DynamicStruct::Reader event_example = tmsg->getRoot<capnp::DynamicStruct>(event_struct);
+      capnp::DynamicStruct::Reader event = tmsg->getRoot<capnp::DynamicStruct>(event_struct_schema);
 
-      parser.parseMessageImpl("", event_example, (double)event_example.get("logMonoTime").as<uint64_t>() / 1e9);
+      parser.parseMessageImpl("", event, (double)event.get("logMonoTime").as<uint64_t>() / 1e9);
     }
     catch (const kj::Exception& e)
     { 
