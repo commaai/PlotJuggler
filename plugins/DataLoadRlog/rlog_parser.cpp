@@ -53,14 +53,11 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 
       for (auto field : structValue.getSchema().getFields()) 
       {
-
-        if (!structValue.has(field))
+        if (structValue.has(field))
         {
-          continue;
+          std::string name = field.getProto().getName();
+          parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp); 
         }
-
-        std::string name = field.getProto().getName();
-        parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp); 
       }
 
       break;
