@@ -9,7 +9,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 {
 
   PJ::PlotData& _data_series = getSeries(topic_name);
-  
+
   switch (value.getType()) 
   {
     case capnp::DynamicValue::BOOL: 
@@ -38,12 +38,17 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 
     case capnp::DynamicValue::LIST: 
     {
-      // TODO: Parse lists properly
-      int i = 0;
-      for(auto element : value.as<capnp::DynamicList>())
-      {
-        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp);
-        i++;
+      auto listValue = value.as<capnp::DynamicList>();
+      if (topic_name.compare("/can") == 0) {
+        parseCanMessage(topic_name, listValue, time_stamp);
+      } else {
+        // TODO: Parse lists properly
+        int i = 0;
+        for(auto element : listValue)
+        {
+          parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp);
+          i++;
+        }
       }
       break;
     }
@@ -58,13 +63,12 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::STRUCT: 
     {
       auto structValue = value.as<capnp::DynamicStruct>();
-
       for (auto field : structValue.getSchema().getFields()) 
       {
         if (structValue.has(field))
         {
           std::string name = field.getProto().getName();
-          parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp); 
+          parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp);
         }
       }
       break;
@@ -74,6 +78,29 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     {
       // We currently don't support: DATA, ANY_POINTER, TEXT, CAPABILITIES, VOID
       break;
+    }
+  }
+  return true;
+}
+
+bool RlogMessageParser::parseCanMessage(
+  const std::string& topic_name, capnp::DynamicList::Reader listValue, double time_stamp) 
+{
+  for(auto elem : listValue) {
+    auto value = elem.as<capnp::DynamicStruct>();
+    uint8_t bus = value.get("src").as<uint8_t>();
+    if (bus == 1) {
+      if (parser == nullptr) {
+        parser = new CANParser(1, "honda_accord_s2t_2018_can_generated");
+        packer = new CANPacker("honda_accord_s2t_2018_can_generated");
+      }
+
+      parser->UpdateCans((uint64_t)(time_stamp), value);
+      for (auto& sg : parser->query_latest()) {
+        PJ::PlotData& _data_series = getSeries(
+          topic_name + '/' + packer->lookup_message(sg.address).name + '/' + sg.name);
+        _data_series.pushBack({time_stamp, (double)sg.value});
+      }
     }
   }
   return true;
