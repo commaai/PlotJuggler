@@ -1,10 +1,14 @@
 #include "rlog_parser.hpp"
 
-void RlogMessageParser::loadDBC(std::string dbc_str) {
-  dbc_name = dbc_str;
-  if (!dbc_name.empty()) {
+bool RlogMessageParser::loadDBC(std::string dbc_str) {
+  if (!dbc_str.empty()) {
+    if (dbc_lookup(dbc_str) == nullptr) {
+      return false;
+    }
+    dbc_name = dbc_str;  // is used later to instantiate CANParser
     packer = std::make_shared<CANPacker>(dbc_name);
   }
+  return true;
 }
 
 bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)

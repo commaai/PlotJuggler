@@ -24,7 +24,7 @@ public:
   RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data):
     MessageParser(topic_name, plot_data) { };
 
-  void loadDBC(std::string dbc_str);
+  bool loadDBC(std::string dbc_str);
 
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp);
   bool parseCanMessage(const std::string& topic_name, capnp::DynamicList::Reader node, double timestamp);

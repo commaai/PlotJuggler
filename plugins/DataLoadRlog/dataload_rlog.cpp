@@ -116,7 +116,9 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
           dbc_name = SelectDBCDialog();
         }
         if (!dbc_name.empty()) {
-          parser.loadDBC(dbc_name);
+          if (!parser.loadDBC(dbc_name)) {
+            qDebug() << "Could not load specified DBC file";
+          }
         }
         can_dialog_tried = true;
       }
