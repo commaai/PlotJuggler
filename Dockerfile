@@ -17,3 +17,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3 \
   python3-pip
 RUN pip3 install jinja2
+ENV PYTHONPATH /tmp/plotjuggler/3rdparty
