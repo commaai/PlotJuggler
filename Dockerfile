@@ -14,4 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libdw-dev \
   libbz2-dev \
   libcapnp-dev \
-  python
+  python3 \
+  python3-pip
+RUN pip3 install jinja2

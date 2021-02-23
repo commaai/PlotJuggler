@@ -22,15 +22,15 @@ foreach(dbc ${dbc_FILES})
   )
 endforeach()
 
-file(GLOB opendbc_out_SRC ../../3rdparty/opendbc/can/dbc_out/*.cc)
+file(GLOB opendbc_out_SRC ${CMAKE_CURRENT_SOURCE_DIR}../../3rdparty/opendbc/can/dbc_out/*.cc)
 
 SET(SRC
   rlog_parser.cpp
   dataload_rlog.cpp
-  ../../3rdparty/opendbc/can/common.cc
-  ../../3rdparty/opendbc/can/dbc.cc
-  ../../3rdparty/opendbc/can/packer.cc
-  ../../3rdparty/opendbc/can/parser.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}../../3rdparty/opendbc/can/common.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}../../3rdparty/opendbc/can/dbc.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}../../3rdparty/opendbc/can/packer.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}../../3rdparty/opendbc/can/parser.cc
   ${opendbc_out_SRC}
 )
 
