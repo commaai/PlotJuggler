@@ -4,7 +4,7 @@ add_definitions(${QT_DEFINITIONS})
 add_definitions(-DQT_PLUGIN)
 add_definitions(-DDYNAMIC_CAPNP)
 
-file(GLOB opendbc_out_SRC "../../3rdparty/opendbc/can/dbc_out/*.cc")
+file(GLOB opendbc_out_SRC ../../3rdparty/opendbc/can/dbc_out/*.cc)
 
 SET(SRC
   rlog_parser.cpp

@@ -32,7 +32,10 @@ public:
   virtual bool xmlSaveState(QDomDocument& doc, QDomElement& parent_element) const override;
   virtual bool xmlLoadState(const QDomElement& parent_element) override;
 
+  std::string SelectDBCDialog();
+
 private:
   std::vector<const char*> _extensions;
   std::string _default_time_axis;
+  bool can_dialog_tried = false;
 };
