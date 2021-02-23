@@ -17,8 +17,9 @@ using namespace PJ;
 class RlogMessageParser : MessageParser
 {
 private:
-  CANParser* parser = nullptr;
-  CANPacker* packer = nullptr;
+  std::string dbc_name;
+  std::unordered_map<uint8_t, std::shared_ptr<CANParser>> parsers;
+  std::shared_ptr<CANPacker> packer;
 public:
   RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data, std::string dbc_str);
 

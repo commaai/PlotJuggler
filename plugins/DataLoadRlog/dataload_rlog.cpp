@@ -61,7 +61,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   }
   bool dbc_selected;
   QString selected_str = QInputDialog::getItem(
-    nullptr, tr("Select DBC"), tr("DBC:"), dbc_items, 0, false, &dbc_selected);
+    nullptr, tr("Select DBC"), tr("Parse CAN using DBC:"), dbc_items, 0, false, &dbc_selected);
   std::string dbc_str("");
   if (dbc_selected && !selected_str.isEmpty()) {
     dbc_str = selected_str.toStdString();

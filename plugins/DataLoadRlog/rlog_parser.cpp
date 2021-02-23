@@ -2,11 +2,11 @@
 
 RlogMessageParser::RlogMessageParser(
     const std::string& topic_name, PJ::PlotDataMapRef& plot_data, std::string dbc_str):
-  MessageParser(topic_name, plot_data) 
+  MessageParser(topic_name, plot_data)
 {
-  if (!dbc_str.empty()) {
-    parser = new CANParser(1, dbc_str);
-    packer = new CANPacker(dbc_str);
+  dbc_name = dbc_str;
+  if (!dbc_name.empty()) {
+    packer = std::make_shared<CANPacker>(dbc_name);
   }
 };
 
@@ -49,7 +49,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::LIST: 
     {
       auto listValue = value.as<capnp::DynamicList>();
-      if (topic_name.compare("/can") == 0) {
+      if (topic_name.compare("/can") == 0 || topic_name.compare("/sendcan") == 0) {
         parseCanMessage(topic_name, listValue, time_stamp);
       } else {
         // TODO: Parse lists properly
@@ -96,18 +96,21 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 bool RlogMessageParser::parseCanMessage(
   const std::string& topic_name, capnp::DynamicList::Reader listValue, double time_stamp) 
 {
+  if (dbc_name.empty()) {
+    return false;
+  }
   for(auto elem : listValue) {
     auto value = elem.as<capnp::DynamicStruct>();
     uint8_t bus = value.get("src").as<uint8_t>();
-    if (bus == 1) {
-      if (parser != nullptr && packer != nullptr) {
-        parser->UpdateCans((uint64_t)(time_stamp), value);
-        for (auto& sg : parser->query_latest()) {
-          PJ::PlotData& _data_series = getSeries(
-            topic_name + '/' + packer->lookup_message(sg.address)->name + '/' + sg.name);
-          _data_series.pushBack({time_stamp, (double)sg.value});
-        }
-      }
+    if (parsers.find(bus) == parsers.end()) {
+      parsers[bus] = std::make_shared<CANParser>(bus, dbc_name, true, true);
+    }
+
+    parsers[bus]->UpdateCans((uint64_t)(time_stamp), value);
+    for (auto& sg : parsers[bus]->query_latest()) {
+      PJ::PlotData& _data_series = getSeries(topic_name + '/' + std::to_string(bus) + '/' + 
+          packer->lookup_message(sg.address)->name + '/' + sg.name);
+      _data_series.pushBack({time_stamp, (double)sg.value});
     }
   }
   return true;
