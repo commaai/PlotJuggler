@@ -6,8 +6,11 @@
 #include <capnp/serialize.h>
 #include <iostream>
 
-#include "common.h"
-#include "cereal_gen_cpp_copy/log.capnp.h"
+#ifndef DYNAMIC_CAPNP
+#define DYNAMIC_CAPNP  // Do not depend on generated log.capnp.h structure
+#endif
+#include "../../3rdparty/opendbc/can/common.h"
+#include "../../3rdparty/opendbc/can/common_dbc.h"
 
 using namespace PJ;
 
@@ -17,8 +20,7 @@ private:
   CANParser* parser = nullptr;
   CANPacker* packer = nullptr;
 public:
-  RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data):
-    MessageParser(topic_name, plot_data) {};
+  RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data, std::string dbc_str);
 
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp);
   bool parseCanMessage(const std::string& topic_name, capnp::DynamicList::Reader node, double timestamp);

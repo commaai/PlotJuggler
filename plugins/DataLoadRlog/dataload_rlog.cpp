@@ -54,6 +54,18 @@ const std::vector<const char*>& DataLoadRlog::compatibleFileExtensions() const
 
 bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef& plot_data)
 {
+  QStringList dbc_items;
+  dbc_items.append("");
+  for (auto dbc : get_dbcs()) {
+    dbc_items.append(dbc->name);
+  }
+  bool dbc_selected;
+  QString selected_str = QInputDialog::getItem(
+    nullptr, tr("Select DBC"), tr("DBC:"), dbc_items, 0, false, &dbc_selected);
+  std::string dbc_str("");
+  if (dbc_selected && !selected_str.isEmpty()) {
+    dbc_str = selected_str.toStdString();
+  }
 
   QProgressDialog progress_dialog;
   progress_dialog.setLabelText("Decompressing log...");
@@ -96,7 +108,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(schema_path.toStdString()), nullptr);
   capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
 
-  RlogMessageParser parser("", plot_data);
+  RlogMessageParser parser("", plot_data, dbc_str);
 
   while(amsg.size() > 0)
   {

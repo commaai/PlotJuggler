@@ -1,5 +1,15 @@
 #include "rlog_parser.hpp"
 
+RlogMessageParser::RlogMessageParser(
+    const std::string& topic_name, PJ::PlotDataMapRef& plot_data, std::string dbc_str):
+  MessageParser(topic_name, plot_data) 
+{
+  if (!dbc_str.empty()) {
+    parser = new CANParser(1, dbc_str);
+    packer = new CANPacker(dbc_str);
+  }
+};
+
 bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
 {
   return false;
@@ -90,16 +100,13 @@ bool RlogMessageParser::parseCanMessage(
     auto value = elem.as<capnp::DynamicStruct>();
     uint8_t bus = value.get("src").as<uint8_t>();
     if (bus == 1) {
-      if (parser == nullptr) {
-        parser = new CANParser(1, "honda_accord_s2t_2018_can_generated");
-        packer = new CANPacker("honda_accord_s2t_2018_can_generated");
-      }
-
-      parser->UpdateCans((uint64_t)(time_stamp), value);
-      for (auto& sg : parser->query_latest()) {
-        PJ::PlotData& _data_series = getSeries(
-          topic_name + '/' + packer->lookup_message(sg.address).name + '/' + sg.name);
-        _data_series.pushBack({time_stamp, (double)sg.value});
+      if (parser != nullptr && packer != nullptr) {
+        parser->UpdateCans((uint64_t)(time_stamp), value);
+        for (auto& sg : parser->query_latest()) {
+          PJ::PlotData& _data_series = getSeries(
+            topic_name + '/' + packer->lookup_message(sg.address)->name + '/' + sg.name);
+          _data_series.pushBack({time_stamp, (double)sg.value});
+        }
       }
     }
   }

@@ -1,25 +1,25 @@
-include_directories(  ../ )
+include_directories( ../ ../../3rdparty/opendbc/can/ )
+
 
 add_definitions(${QT_DEFINITIONS})
 add_definitions(-DQT_PLUGIN)
+add_definitions(-DDYNAMIC_CAPNP)
 
-SET( SRC
+file(GLOB opendbc_out_SRC "../../3rdparty/opendbc/can/dbc_out/*.cc")
+
+SET(SRC
+  rlog_parser.hpp
   rlog_parser.cpp
+  dataload_rlog.hpp
   dataload_rlog.cpp
-  parser.cc
-  packer.cc
-  common.h
-  common.cc
-  common_dbc.h
-  dbc.cc
-  cereal_gen_cpp_copy/log.capnp.h
-  cereal_gen_cpp_copy/log.capnp.c++
-  cereal_gen_cpp_copy/car.capnp.h
-  cereal_gen_cpp_copy/car.capnp.c++
-  cereal_gen_cpp_copy/legacy.capnp.h
-  cereal_gen_cpp_copy/legacy.capnp.c++
-  dbc_out/honda_accord_s2t_2018_can_generated.cc
-  )
+  ../../3rdparty/opendbc/can/common.h
+  ../../3rdparty/opendbc/can/common_dbc.h
+  ../../3rdparty/opendbc/can/common.cc
+  ../../3rdparty/opendbc/can/dbc.cc
+  ../../3rdparty/opendbc/can/packer.cc
+  ../../3rdparty/opendbc/can/parser.cc
+  ${opendbc_out_SRC}
+)
 
 add_library(DataLoadRlog SHARED ${SRC} ${UI_SRC}  )
 

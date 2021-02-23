@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QProgressDialog>
+#include <QComboBox>
+#include <QInputDialog>
 #include <QDir>
 
 #include <iostream>
@@ -17,7 +19,6 @@ using namespace PJ;
 
 class DataLoadRlog : public DataLoader 
 {
-
   Q_OBJECT
   Q_PLUGIN_METADATA(IID "facontidavide.PlotJuggler3.DataLoader")
   Q_INTERFACES(PJ::DataLoader)
