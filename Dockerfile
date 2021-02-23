@@ -2,10 +2,10 @@ FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  autoconf \
+  automake \
   build-essential \
-  wget \
   cmake \
-  qtbase5-dev \
   libqt5svg5-dev \
   libqt5websockets5-dev \
   libqt5opengl5-dev \
@@ -14,9 +14,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libdwarf-dev \
   libdw-dev \
   libboost-all-dev \
-  autoconf \
-  automake \
-  libqwt-dev
+  libqwt-dev \
+  python3 \
+  python3-pip \
+  qtbase5-dev \
+  wget
+ 
+RUN pip3 install jinja2
+ENV PYTHONPATH /tmp/plotjuggler/3rdparty
 
 RUN set -e && \
     cd /tmp && \
