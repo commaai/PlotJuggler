@@ -16,7 +16,7 @@ foreach(dbc ${dbc_FILES})
   add_custom_command(
     TARGET compile_dbcs
     PRE_BUILD
-    COMMAND python process_dbc.py ../ ${dbc}
+    COMMAND ${PYTHON_EXECUTABLE} process_dbc.py ../ ${dbc}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/
     DEPENDS ${dbc}
   )
