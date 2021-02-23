@@ -101,6 +101,7 @@ bool RlogMessageParser::parseCanMessage(
     uint8_t bus = value.get("src").as<uint8_t>();
     if (parsers.find(bus) == parsers.end()) {
       parsers[bus] = std::make_shared<CANParser>(bus, dbc_name, true, true);
+      parsers[bus]->last_sec = 1;
     }
 
     updated_busses.insert(bus);
@@ -112,6 +113,7 @@ bool RlogMessageParser::parseCanMessage(
           packer->lookup_message(sg.address)->name + '/' + sg.name);
       _data_series.pushBack({time_stamp, (double)sg.value});
     }
+    parsers[bus]->last_sec = (uint64_t)(time_stamp);
   }
   return true;
 }
