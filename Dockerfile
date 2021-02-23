@@ -34,4 +34,4 @@ RUN cd /tmp && \
     cd bzip2-1.0.8 && \
     CFLAGS="-fPIC" make -f Makefile-libbz2_so && \
     make && \
-    make install && \
+    make install
