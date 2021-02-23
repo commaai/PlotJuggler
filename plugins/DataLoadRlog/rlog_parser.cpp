@@ -95,7 +95,7 @@ bool RlogMessageParser::parseCanMessage(
   if (dbc_name.empty()) {
     return false;
   }
-  std::vector<uint8_t> updated_busses;
+  std::set<uint8_t> updated_busses;
   for(auto elem : listValue) {
     auto value = elem.as<capnp::DynamicStruct>();
     uint8_t bus = value.get("src").as<uint8_t>();
@@ -103,7 +103,7 @@ bool RlogMessageParser::parseCanMessage(
       parsers[bus] = std::make_shared<CANParser>(bus, dbc_name, true, true);
     }
 
-    updated_busses.push_back(bus);
+    updated_busses.insert(bus);
     parsers[bus]->UpdateCans((uint64_t)(time_stamp), value);
   }
   for (uint8_t bus : updated_busses) {

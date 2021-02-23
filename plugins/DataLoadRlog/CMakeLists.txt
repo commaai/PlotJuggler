@@ -1,8 +1,26 @@
 include_directories(  ../ )
 
+find_package(PythonInterp REQUIRED)
+
 add_definitions(${QT_DEFINITIONS})
 add_definitions(-DQT_PLUGIN)
 add_definitions(-DDYNAMIC_CAPNP)
+
+add_custom_target(
+  compile_dbcs ALL
+)
+file(GLOB dbc_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/*.dbc)
+foreach(dbc ${dbc_FILES})
+  string(REPLACE ".dbc" ".cc" dbc ${dbc})
+  string(REPLACE "/3rdparty/opendbc/" "/3rdparty/opendbc/can/dbc_out/" dbc ${dbc})
+  add_custom_command(
+    TARGET compile_dbcs
+    PRE_BUILD
+    COMMAND python process_dbc.py ../ ${dbc}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/
+    DEPENDS ${dbc}
+  )
+endforeach()
 
 file(GLOB opendbc_out_SRC ../../3rdparty/opendbc/can/dbc_out/*.cc)
 
@@ -17,6 +35,7 @@ SET(SRC
 )
 
 add_library(DataLoadRlog SHARED ${SRC} ${UI_SRC}  )
+add_dependencies(DataLoadRlog compile_dbcs  )
 
 target_link_libraries(DataLoadRlog
   ${Qt5Widgets_LIBRARIES}
