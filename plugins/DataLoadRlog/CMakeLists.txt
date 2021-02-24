@@ -1,10 +1,10 @@
 include_directories(  ../ )
 
-find_package(PythonInterp REQUIRED)
-
 add_definitions(${QT_DEFINITIONS})
 add_definitions(-DQT_PLUGIN)
 add_definitions(-DDYNAMIC_CAPNP)
+
+set(CMAKE_CXX_COMPILER c++)
 
 SET(SRC
   rlog_parser.cpp
@@ -18,6 +18,7 @@ SET(SRC
 add_custom_target(
   compile_dbcs ALL
 )
+
 file(GLOB dbc_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/*.dbc)
 foreach(dbc ${dbc_FILES})
   string(REPLACE ".dbc" ".cc" dbc_out ${dbc})
@@ -25,7 +26,7 @@ foreach(dbc ${dbc_FILES})
   set(SRC ${SRC} ${dbc_out})
   add_custom_command(
     PRE_BUILD
-    COMMAND ${PYTHON_EXECUTABLE} opendbc/can/process_dbc.py opendbc/ ${dbc_out}
+    COMMAND python3 opendbc/can/process_dbc.py opendbc/ ${dbc_out}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/
     DEPENDS ${dbc}
     OUTPUT ${dbc_out}

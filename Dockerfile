@@ -19,12 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3-pip \
   qtbase5-dev \
   wget
- 
+
 RUN pip3 install jinja2
 ENV PYTHONPATH /tmp/plotjuggler/3rdparty
 
-RUN set -e && \
-    cd /tmp && \
+RUN cd /tmp && \
     VERSION=0.7.0 && \
     wget --no-check-certificate https://capnproto.org/capnproto-c++-${VERSION}.tar.gz && \
     tar xvf capnproto-c++-${VERSION}.tar.gz && \
