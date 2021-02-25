@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libdw-dev \
   python3 \
   python3-pip \
-  wget
+  wget \
+  software-properties-common
 
 RUN cd /tmp && \
     VERSION=0.7.0 && \
@@ -33,20 +34,8 @@ RUN apt-get update
 RUN pip3 install jinja2
 ENV PYTHONPATH /tmp/plotjuggler/3rdparty
 
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic main restricted" > /etc/apt/sources.list.d/bionic.list
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic-updates main restricted" >> /etc/apt/sources.list.d/bionic.list
-
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic universe" >> /etc/apt/sources.list.d/bionic.list
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic-updates universe" >> /etc/apt/sources.list.d/bionic.list
-
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic multiverse" >> /etc/apt/sources.list.d/bionic.list
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic-updates multiverse" >> /etc/apt/sources.list.d/bionic.list
-
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic-backports main restricted universe multiverse" >> /etc/apt/sources.list.d/bionic.list
-
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic-security main restricted" >> /etc/apt/sources.list.d/bionic.list
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic-security universe" >> /etc/apt/sources.list.d/bionic.list
-RUN echo "deb http://archive.ubuntu.com/ubuntu bionic-security multiverse" >> /etc/apt/sources.list.d/bionic.list
+RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic main restricted"
+RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic universe"
 
 RUN apt-get update && apt-get install -y --no-install-recommends -t bionic \
     qt5-default \
