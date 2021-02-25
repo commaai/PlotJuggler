@@ -29,8 +29,6 @@ RUN cd /tmp && \
     make && \
     make install
 
-RUN apt-get update
-
 RUN pip3 install jinja2
 ENV PYTHONPATH /tmp/plotjuggler/3rdparty
 
