@@ -34,8 +34,8 @@ RUN apt-get update
 RUN pip3 install jinja2
 ENV PYTHONPATH /tmp/plotjuggler/3rdparty
 
-RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic main restricted"
-RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic universe"
+RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic main restricted" && \
+    add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic universe"
 
 RUN apt-get update && apt-get install -y --no-install-recommends -t bionic \
     qt5-default \
