@@ -74,7 +74,6 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
         if (structValue.has(field))
         {
           std::string name = field.getProto().getName();
-
           if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
             parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, show_deprecated);
           }
