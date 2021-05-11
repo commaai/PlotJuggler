@@ -69,7 +69,6 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::STRUCT: 
     {
       auto structValue = value.as<capnp::DynamicStruct>();
-
       if (is_root) {  // add global fields to each sub-struct (valid, logMonoTime, etc.)
         std::string struct_name;
         KJ_IF_MAYBE(e_, structValue.which()) { struct_name = e_->getProto().getName(); }
