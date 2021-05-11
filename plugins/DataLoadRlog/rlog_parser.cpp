@@ -73,10 +73,8 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
         std::string struct_name;
         KJ_IF_MAYBE(e_, structValue.which()) { struct_name = e_->getProto().getName(); }
         for (auto field : structValue.getSchema().getNonUnionFields()) {
-          if (structValue.has(field)) {
-            std::string name = field.getProto().getName();
-            parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), time_stamp, false, show_deprecated);
-          }
+          std::string name = field.getProto().getName();
+          parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), time_stamp, false, show_deprecated);
         }
       }
 
