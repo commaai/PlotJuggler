@@ -126,12 +126,13 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       }
 
       double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
+      bool valid = (bool)event.get("valid").as<bool>();
       if (event.has("can")) {
         parser.parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
       } else if (event.has("sendcan")) {
         parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
       } else {
-        parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+        parser.parseMessageImpl("", event, time_stamp, valid, show_deprecated);
       }
     }
     catch (const kj::Exception& e)
