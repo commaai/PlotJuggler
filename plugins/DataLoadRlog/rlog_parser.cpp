@@ -16,7 +16,7 @@ bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
   return false;
 }
 
-bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp, bool valid, bool show_deprecated)
+bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp, bool show_deprecated)
 {
 
   PJ::PlotData& _data_series = getSeries(topic_name);
@@ -53,7 +53,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       int i = 0;
       for(auto element : value.as<capnp::DynamicList>())
       {
-        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp, valid, show_deprecated);
+        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp, show_deprecated);
         i++;
       }
       break;
@@ -74,16 +74,19 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       KJ_IF_MAYBE(e_, structValue.which()) {
         struct_name = e_->getProto().getName();
       }
-      parseMessageImpl(topic_name + '/' + struct_name + "/log_logMonoTime", time_stamp, time_stamp, valid, show_deprecated);
-      parseMessageImpl(topic_name + '/' + struct_name + "/log_valid", valid, time_stamp, valid, show_deprecated);
+      std::vector<std::string> global_fields {"logMonoTime", "valid"};
 
       for (auto field : structValue.getSchema().getFields())
       {
+        std::string name = field.getProto().getName();
         if (structValue.has(field))
         {
-          std::string name = field.getProto().getName();
           if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
-            parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, valid, show_deprecated);
+            if (std::find(global_fields.begin(), global_fields.end(), name) != global_fields.end()) {
+              parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), time_stamp, show_deprecated);
+            } else {
+              parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, show_deprecated);
+            }
           }
         }
       }
