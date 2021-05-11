@@ -16,7 +16,7 @@ bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
   return false;
 }
 
-bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp, bool show_deprecated)
+bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, vector<capnp::DynamicValue::Reader> test, double time_stamp, bool show_deprecated)
 {
 
   PJ::PlotData& _data_series = getSeries(topic_name);
@@ -53,7 +53,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       int i = 0;
       for(auto element : value.as<capnp::DynamicList>())
       {
-        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp, show_deprecated);
+        parseMessageImpl(topic_name + '/' + std::to_string(i), element, test, time_stamp, show_deprecated);
         i++;
       }
       break;
@@ -69,12 +69,32 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::STRUCT: 
     {
       auto structValue = value.as<capnp::DynamicStruct>();
-
       std::string struct_name;
       KJ_IF_MAYBE(e_, structValue.which()) {
         struct_name = e_->getProto().getName();
       }
-      std::vector<std::string> global_fields {"logMonoTime", "valid"};
+//      std::vector<std::string> global_fields {"logMonoTime", "valid"};
+
+//      for (auto field : non_unions) {
+////        if (structValue.has(field)) {
+////          std::string name = field.first;
+//          std::string name = field.first.getProto().getName();
+//          std::string value = field.second;
+//          qDebug() << "non union:" << name.c_str();
+////          field.getProto().getConst().getValue();
+////          qDebug() << structValue.get(field);
+////          parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, value, non_unions, time_stamp, show_deprecated);
+////        }
+//      }
+//      for (auto field : non_unions) {
+////        if (structValue.has(field)) {
+//          std::string name = field.getProto().getName();
+//          qDebug() << "non union:" << name.c_str();
+//          field.getProto().getConst().getValue();
+////          qDebug() << structValue.get(field);
+//          parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), non_unions, time_stamp, show_deprecated);
+////        }
+//      }
 
       for (auto field : structValue.getSchema().getFields())
       {
@@ -82,11 +102,13 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
         if (structValue.has(field))
         {
           if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
-            if (std::find(global_fields.begin(), global_fields.end(), name) != global_fields.end()) {
-              parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), time_stamp, show_deprecated);
-            } else {
-              parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, show_deprecated);
-            }
+//            if (std::find(global_fields.begin(), global_fields.end(), name) != global_fields.end()) {
+//            if (!structValue.getSchema().getProto().isStruct()) {
+//              qDebug() << "adding" << name.c_str() << "to" << struct_name.c_str();
+//              parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), time_stamp, show_deprecated);
+//            } else {
+              parseMessageImpl(topic_name + '/' + name, structValue.get(field), test, time_stamp, show_deprecated);
+//            }
           }
         }
       }
