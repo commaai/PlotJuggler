@@ -126,25 +126,13 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       }
 
       double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
-
-//      std::map<capnp::StructSchema::Field, capnp::DynamicValue::Reader> non_unions;
-      vector<capnp::DynamicValue::Reader> test;
-      for (auto field : event.getSchema().getNonUnionFields()) {
-//        std::string name = field.getProto().getName();
-//        qDebug() << "non union:" << name.c_str();
-//        non_unions.insert(std::make_pair(field, event.get(field)));
-        test.push_back(event.get(field));
-//        qDebug() << "output:" << event.get(field);
-//        parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), time_stamp, show_deprecated);
-      }
-
       if (event.has("can")) {
         parser.parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
       } else if (event.has("sendcan")) {
         parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
       } else {
-//        capnp::StructSchema::FieldSubset non_unions = event.getSchema().getNonUnionFields();
-        parser.parseMessageImpl("", event, test, time_stamp, show_deprecated);
+        parser.parseMessageImpl("", event, time_stamp, true, show_deprecated);
+        break;
       }
     }
     catch (const kj::Exception& e)
