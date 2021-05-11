@@ -69,12 +69,10 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::STRUCT: 
     {
       auto structValue = value.as<capnp::DynamicStruct>();
-      std::string struct_name;
-      KJ_IF_MAYBE(e_, structValue.which()) {
-        struct_name = e_->getProto().getName();
-      }
 
-      if (is_root) {
+      if (is_root) {  // add global fields to each sub-struct (valid, logMonoTime, etc.)
+        std::string struct_name;
+        KJ_IF_MAYBE(e_, structValue.which()) { struct_name = e_->getProto().getName(); }
         for (auto field : structValue.getSchema().getNonUnionFields()) {
           if (structValue.has(field)) {
             std::string name = field.getProto().getName();
@@ -83,13 +81,13 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
         }
       }
 
-
       for (auto field : structValue.getSchema().getFields())
       {
-        std::string name = field.getProto().getName();
         if (structValue.has(field))
         {
-          if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
+          std::string name = field.getProto().getName();
+          if (show_deprecated || name.find("DEPRECATED") == std::string::npos)
+          {
             parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false, show_deprecated);
           }
         }
