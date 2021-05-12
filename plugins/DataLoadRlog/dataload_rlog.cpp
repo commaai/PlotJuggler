@@ -131,7 +131,8 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       } else if (event.has("sendcan")) {
         parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
       } else {
-        parser.parseMessageImpl("", event, time_stamp, true, show_deprecated);
+        parser.parseMessageImpl("", event, event, time_stamp, true, show_deprecated);
+//        break;
       }
     }
     catch (const kj::Exception& e)

@@ -16,7 +16,7 @@ bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
   return false;
 }
 
-bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp, bool is_root, bool show_deprecated)
+bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, capnp::DynamicStruct::Reader event, double time_stamp, bool is_root, bool show_deprecated)
 {
 
   PJ::PlotData& _data_series = getSeries(topic_name);
@@ -25,6 +25,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
   {
     case capnp::DynamicValue::BOOL: 
     {
+//      if (event.has(value)) break;
       _data_series.pushBack({time_stamp, (double)value.as<bool>()});
       break;
     }
@@ -53,7 +54,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       int i = 0;
       for(auto element : value.as<capnp::DynamicList>())
       {
-        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp, false, show_deprecated);
+        parseMessageImpl(topic_name + '/' + std::to_string(i), element, event, time_stamp, false, show_deprecated);
         i++;
       }
       break;
@@ -69,33 +70,55 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::STRUCT: 
     {
       auto structValue = value.as<capnp::DynamicStruct>();
-      if (is_root) {  // add global fields to each sub-struct (valid, logMonoTime, etc.)
+//      if (is_root) {  // add global fields to each sub-struct (valid, logMonoTime, etc.)
         std::string struct_name;
         KJ_IF_MAYBE(e_, structValue.which()) { struct_name = e_->getProto().getName(); }
-        for (auto field : structValue.getSchema().getNonUnionFields()) {
+//        for (auto field : structValue.getSchema().getNonUnionFields()) {
+////          structValue.getSchema().has(field);
+////          capnp::DynamicStruct::Builder test = value.initRoot<capnp::DynamicStruct>(structValue.getSchema());
+//
+//          std::string name = field.getProto().getName();
+//          parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), event, time_stamp, false, show_deprecated);
+//        }
+//
+//        for (auto field : structValue.getSchema().getUnionFields()) {
+//          if (structValue.has(field)) {
+//            std::string name = field.getProto().getName();
+//            if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
+//              parseMessageImpl(topic_name + '/' + name, structValue.get(field), event, time_stamp, false, show_deprecated);
+//            }
+//          }
+//        }
+//
+//      } else {
+
+        for (auto field : event.getSchema().getNonUnionFields()) {
+//          capnp::Event::Reader event;
           std::string name = field.getProto().getName();
-          parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), time_stamp, false, show_deprecated);
+//          qDebug() << name.c_str();
+          parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, event.get(field), event, time_stamp, false, show_deprecated);
         }
 
-        for (auto field : structValue.getSchema().getUnionFields()) {
-          if (structValue.has(field)) {
-            std::string name = field.getProto().getName();
-            if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
-              parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false, show_deprecated);
-            }
-          }
-        }
-
-      } else {
         for (auto field : structValue.getSchema().getFields()) {
+//          capnp::Event::Reader event;
+//          qDebug() << event.has(field);
+//          if (is_root) {
+//            qDebug() << event.has(field) << structValue.has(field);
+//          }
           if (structValue.has(field)) {
+//            qDebug() << field.getProto().isStruct();
             std::string name = field.getProto().getName();
+            if (structValue.get(field).getType() != capnp::DynamicValue::STRUCT && is_root) {
+              qDebug() << name.c_str();
+              continue;
+            }
             if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
-              parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false, show_deprecated);
+              parseMessageImpl(topic_name + '/' + name, structValue.get(field), event, time_stamp, false, show_deprecated);
             }
           }
         }
-      }
+//        qDebug() << "\n";
+//      }
       break;
     }
 
