@@ -81,7 +81,6 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
             if (structValue.get(field).getType() != capnp::DynamicValue::STRUCT && is_root) {
               continue;  // skip adding root non-struct fields
             }
-
             std::string name = field.getProto().getName();
             if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
               parseMessageImpl(topic_name + '/' + name, structValue.get(field), event, time_stamp, false, show_deprecated);
