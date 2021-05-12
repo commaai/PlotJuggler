@@ -76,16 +76,23 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
           std::string name = field.getProto().getName();
           parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, structValue.get(field), time_stamp, false, show_deprecated);
         }
-      }
 
-      for (auto field : structValue.getSchema().getFields())
-      {
-        if (structValue.has(field))
-        {
-          std::string name = field.getProto().getName();
-          if (show_deprecated || name.find("DEPRECATED") == std::string::npos)
-          {
-            parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false, show_deprecated);
+        for (auto field : structValue.getSchema().getUnionFields()) {
+          if (structValue.has(field)) {
+            std::string name = field.getProto().getName();
+            if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
+              parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false, show_deprecated);
+            }
+          }
+        }
+
+      } else {
+        for (auto field : structValue.getSchema().getFields()) {
+          if (structValue.has(field)) {
+            std::string name = field.getProto().getName();
+            if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
+              parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false, show_deprecated);
+            }
           }
         }
       }
