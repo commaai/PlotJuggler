@@ -131,6 +131,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       } else if (event.has("sendcan")) {
         parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
       } else {
+        // second event never changes, to add root fields to all structs
         parser.parseMessageImpl("", event, event, time_stamp, true, show_deprecated);
       }
     }
