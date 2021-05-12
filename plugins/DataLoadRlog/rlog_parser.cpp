@@ -69,24 +69,29 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::STRUCT: 
     {
       auto structValue = value.as<capnp::DynamicStruct>();
-        std::string struct_name;
-        KJ_IF_MAYBE(e_, structValue.which()) { struct_name = e_->getProto().getName(); }
-        for (auto field : event.getSchema().getNonUnionFields()) {  // add root fields to each sub-struct recursively (valid, logMonoTime, etc.)
-          std::string name = field.getProto().getName();
-          parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, event.get(field), event, time_stamp, false, show_deprecated);
-        }
+      std::string struct_name;
+      KJ_IF_MAYBE(e_, structValue.which()) { struct_name = e_->getProto().getName(); }
+      for (auto field : event.getSchema().getNonUnionFields())
+      {  // add root fields to each sub-struct recursively (valid, logMonoTime, etc.)
+        std::string name = field.getProto().getName();
+        parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, event.get(field), event, time_stamp, false, show_deprecated);
+      }
 
-        for (auto field : structValue.getSchema().getFields()) {
-          if (structValue.has(field)) {
-            if (structValue.get(field).getType() != capnp::DynamicValue::STRUCT && is_root) {
-              continue;  // skip adding root non-struct fields
-            }
-            std::string name = field.getProto().getName();
-            if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
-              parseMessageImpl(topic_name + '/' + name, structValue.get(field), event, time_stamp, false, show_deprecated);
-            }
+      for (auto field : structValue.getSchema().getFields())
+      {
+        if (structValue.has(field))
+        {
+          if (structValue.get(field).getType() != capnp::DynamicValue::STRUCT && is_root)
+          {
+            continue;  // skip adding root non-struct fields
+          }
+          std::string name = field.getProto().getName();
+          if (show_deprecated || name.find("DEPRECATED") == std::string::npos)
+          {
+            parseMessageImpl(topic_name + '/' + name, structValue.get(field), event, time_stamp, false, show_deprecated);
           }
         }
+      }
       break;
     }
 
