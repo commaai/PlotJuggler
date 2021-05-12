@@ -1,3 +1,5 @@
+#include <chrono>
+using namespace std::chrono;
 #include <dataload_rlog.hpp>
 
 QByteArray read_bz2_file(const char* fn){
@@ -99,6 +101,8 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   RlogMessageParser parser("", plot_data);
 
+  auto start = high_resolution_clock::now();
+
   while(amsg.size() > 0)
   {
     try
@@ -121,6 +125,8 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
           if (!parser.loadDBC(dbc_name)) {
             qDebug() << "Could not load specified DBC file";
           }
+        } else {
+          qDebug() << "dbc empty but has can!";
         }
         can_dialog_tried = true;
       }
@@ -147,6 +153,10 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       return false;
     }
   }
+
+  auto stop = high_resolution_clock::now();
+  auto duration = duration_cast<microseconds>(stop - start);
+  qDebug() << "Total time:" << duration.count() / 1000.;
 
   qDebug() << "Done reading Rlog data"; // unit tests rely on this signal
   return true;
