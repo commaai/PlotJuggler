@@ -71,13 +71,15 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       auto structValue = value.as<capnp::DynamicStruct>();
       std::string struct_name;
       KJ_IF_MAYBE(e_, structValue.which()) { struct_name = e_->getProto().getName(); }
-      for (auto field : event.getSchema().getNonUnionFields())
+
+      if (!show_deprecated && struct_name.find("DEPRECATED") != std::string::npos) break;
+      for (const auto &field : event.getSchema().getNonUnionFields())
       {  // add root fields to each sub-struct recursively (valid, logMonoTime, etc.)
         std::string name = field.getProto().getName();
         parseMessageImpl(topic_name + '/' + struct_name + "/event_" + name, event.get(field), event, time_stamp, false, show_deprecated);
       }
 
-      for (auto field : structValue.getSchema().getFields())
+      for (const auto &field : structValue.getSchema().getFields())
       {
         if (structValue.has(field))
         {
