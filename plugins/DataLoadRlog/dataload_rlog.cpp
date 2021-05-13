@@ -87,7 +87,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   if(schema_path.isNull())
   {
-    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot"); // fallback to $HOME/openpilot
+    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot/openpilot"); // fallback to $HOME/openpilot
   }
   schema_path = QDir(schema_path).filePath("cereal/log.capnp");
   schema_path.remove(0, 1);
@@ -102,6 +102,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   RlogMessageParser parser("", plot_data);
 
   auto start = high_resolution_clock::now();
+  int i = 0;
 
   while(amsg.size() > 0)
   {
@@ -138,6 +139,8 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
       } else {
         parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+        if (i > 1000) break;
+        i++;
       }
     }
     catch (const kj::Exception& e)
@@ -156,7 +159,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   auto stop = high_resolution_clock::now();
   auto duration = duration_cast<microseconds>(stop - start);
-  qDebug() << "Total time:" << duration.count() / 1000.;
+  qDebug() << "Total time:" << duration.count() / 1000. << "ms";
 
   qDebug() << "Done reading Rlog data"; // unit tests rely on this signal
   return true;
