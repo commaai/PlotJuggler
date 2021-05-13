@@ -1,4 +1,6 @@
 #include <dataload_rlog.hpp>
+#include <chrono>
+using namespace std::chrono;
 
 QByteArray read_bz2_file(const char* fn){
   int bzError = BZ_OK;
@@ -99,6 +101,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   RlogMessageParser parser("", plot_data);
 
+  auto start = high_resolution_clock::now();
   int i = 0;
 
   while(amsg.size() > 0)
@@ -111,32 +114,32 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
       capnp::DynamicStruct::Reader event = tmsg->getRoot<capnp::DynamicStruct>(event_struct_schema);
 
-      if (!can_dialog_tried && (event.has("can") || event.has("sendcan"))) {
-        std::string dbc_name;
-        if (std::getenv("DBC_NAME") != nullptr) {
-          dbc_name = std::getenv("DBC_NAME");
-        }
-        else {
-          dbc_name = SelectDBCDialog();
-        }
-        if (!dbc_name.empty()) {
-          if (!parser.loadDBC(dbc_name)) {
-            qDebug() << "Could not load specified DBC file";
-          }
-        }
-        can_dialog_tried = true;
-      }
+//      if (!can_dialog_tried && (event.has("can") || event.has("sendcan"))) {
+//        std::string dbc_name;
+//        if (std::getenv("DBC_NAME") != nullptr) {
+//          dbc_name = std::getenv("DBC_NAME");
+//        }
+//        else {
+//          dbc_name = SelectDBCDialog();
+//        }
+//        if (!dbc_name.empty()) {
+//          if (!parser.loadDBC(dbc_name)) {
+//            qDebug() << "Could not load specified DBC file";
+//          }
+//        }
+//        can_dialog_tried = true;
+//      }
 
       double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
-      if (event.has("can")) {
-        parser.parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
-      } else if (event.has("sendcan")) {
-        parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
-      } else {
+//      if (event.has("can")) {
+//        parser.parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
+//      } else if (event.has("sendcan")) {
+//        parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
+//      } else {
         parser.parseMessageImpl("", event, time_stamp, show_deprecated);
-        if (i > 200) break;
         i++;
-      }
+        if (i > 50000) break;
+//      }
     }
     catch (const kj::Exception& e)
     {
@@ -151,6 +154,10 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       return false;
     }
   }
+
+  auto stop = high_resolution_clock::now();
+  auto duration = duration_cast<microseconds>(stop - start);
+  qDebug() << "Total time:" << duration.count() / 1000. << "ms";
 
   qDebug() << "Done reading Rlog data"; // unit tests rely on this signal
   return true;
