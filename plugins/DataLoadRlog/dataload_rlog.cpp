@@ -108,13 +108,9 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   {
     try
     {
-//      auto start = high_resolution_clock::now();
       capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(amsg);
       capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::ArrayPtr(amsg.begin(), cmsg.getEnd()));
       amsg = kj::ArrayPtr(cmsg.getEnd(), amsg.end());
-//      auto stop = high_resolution_clock::now();
-//      auto duration = duration_cast<microseconds>(stop - start);
-//      total_time += duration.count() / 1000.;
 
       capnp::DynamicStruct::Reader event = tmsg->getRoot<capnp::DynamicStruct>(event_struct_schema);
 
@@ -142,7 +138,11 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 //      } else if (event.has("sendcan")) {
 //        parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
 //      } else {
+        auto start = high_resolution_clock::now();
         parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        total_time += duration.count() / 1000.;
         if (i > 1000) break;
         i++;
 //      }
@@ -164,7 +164,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 //  auto stop = high_resolution_clock::now();
 //  auto duration = duration_cast<microseconds>(stop - start);
 //  qDebug() << "Total time:" << duration.count() / 1000. << "ms";
-  qDebug() << "Total tim!!!!!e:" << total_time << "ms";
+  qDebug() << "Total tim:" << total_time << "ms";
 
   qDebug() << "Done reading Rlog data"; // unit tests rely on this signal
   return true;
