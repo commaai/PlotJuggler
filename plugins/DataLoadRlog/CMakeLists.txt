@@ -35,7 +35,6 @@ foreach(dbc ${dbc_FILES})
 endforeach()
 
 add_library(DataLoadRlog SHARED ${SRC} ${UI_SRC}  )
-set_target_properties(DataLoadRlog PROPERTIES DEBUG_POSTFIX "d")
 add_dependencies(DataLoadRlog compile_dbcs  )
 
 target_link_libraries(DataLoadRlog

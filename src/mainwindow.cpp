@@ -1,7 +1,6 @@
 #include <functional>
 #include <stdio.h>
 #include <numeric>
-//#include <valgrind/callgrind.h>
 
 #include <QApplication>
 #include <QActionGroup>
@@ -522,7 +521,7 @@ QStringList MainWindow::initializePlugins(QString directory_name)
 
       if (loader)
       {
-        qDebug() << filename << ": is a DataLoader plugin!!!!!!!!!!1";
+        qDebug() << filename << ": is a DataLoader plugin";
         if (!_test_option && loader->isDebugPlugin())
         {
           qDebug() << filename << "...but will be ignored unless the argument -t is used.";
@@ -1332,16 +1331,6 @@ bool MainWindow::loadDataFromFile(const FileLoadInfo& info)
     {
       PlotDataMapRef mapped_data;
       FileLoadInfo new_info = info;
-
-//      CALLGRIND_START_INSTRUMENTATION;
-//      CALLGRIND_TOGGLE_COLLECT;
-//      dataloader->readDataFromFile(&new_info, mapped_data);
-//      CALLGRIND_TOGGLE_COLLECT;
-//      CALLGRIND_STOP_INSTRUMENTATION;
-      qDebug() << "starting rlog parsing plugin!";
-//      dataloader->readDataFromFile(&new_info, mapped_data);
-//      _Exit(0);
-
 
       if (dataloader->readDataFromFile(&new_info, mapped_data))
       {

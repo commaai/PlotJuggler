@@ -87,7 +87,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   if(schema_path.isNull())
   {
-    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot/openpilot"); // fallback to $HOME/openpilot
+    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot"); // fallback to $HOME/openpilot
   }
   schema_path = QDir(schema_path).filePath("cereal/log.capnp");
   schema_path.remove(0, 1);
