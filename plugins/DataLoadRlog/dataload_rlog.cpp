@@ -85,7 +85,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   if(schema_path.isNull())
   {
-    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot"); // fallback to $HOME/openpilot
+    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot/openpilot"); // fallback to $HOME/openpilot
   }
   schema_path = QDir(schema_path).filePath("cereal/log.capnp");
   schema_path.remove(0, 1);
@@ -98,6 +98,8 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
 
   RlogMessageParser parser("", plot_data);
+
+  int i = 0;
 
   while(amsg.size() > 0)
   {
@@ -132,6 +134,8 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
       } else {
         parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+        if (i > 200) break;
+        i++;
       }
     }
     catch (const kj::Exception& e)
