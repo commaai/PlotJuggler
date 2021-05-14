@@ -42,7 +42,7 @@ target_link_libraries(DataLoadRlog
   ${Qt5Xml_LIBRARIES}
   bz2.a
   capnpc.a
-  capnp.a
+  -lcapnp
   kj.a
   plotjuggler_plugin_base)
 
