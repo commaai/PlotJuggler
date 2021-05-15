@@ -17,7 +17,7 @@ RUN cd /tmp && \
     wget --no-check-certificate https://capnproto.org/capnproto-c++-${VERSION}.tar.gz && \
     tar xvf capnproto-c++-${VERSION}.tar.gz && \
     cd capnproto-c++-${VERSION} && \
-    CXXFLAGS="-fPIC" ./configure --enable-shared=no && \
+    CXXFLAGS="-fPIC -O2" ./configure --enable-shared=no && \
     make -j$(nproc) && \
     make install
 
