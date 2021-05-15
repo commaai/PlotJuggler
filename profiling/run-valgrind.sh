@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+# Add this flag to cmake in build.sh if you cannot get debug symbols: -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
 export LD_PROFILE_OUTPUT=$(pwd)
 export LD_PROFILE=libDataLoadRlog.so
 rm -f $LD_PROFILE.profile
