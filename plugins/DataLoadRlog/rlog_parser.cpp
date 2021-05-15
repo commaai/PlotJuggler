@@ -91,7 +91,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 
       for (const auto &field : structValue.getSchema().getFields())
       {
-        // skip adding root non-struct fields
+        // skip adding root non-union fields
         if (structValue.has(field) && (!is_root || (structValue.get(field).getType() == capnp::DynamicValue::STRUCT)))
         {
           std::string name = field.getProto().getName();
