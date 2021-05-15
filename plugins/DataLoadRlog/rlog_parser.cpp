@@ -76,7 +76,6 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       }
 
       if (!show_deprecated && structName.find("DEPRECATED") != std::string::npos) break;
-
       if (is_root)
       {
         for (const auto &field : structValue.getSchema().getNonUnionFields())
