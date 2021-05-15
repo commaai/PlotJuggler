@@ -137,8 +137,8 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
       } else {
         parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+        if (i > 1000000) break;
         i++;
-        if (i > 500000) break;
       }
     }
     catch (const kj::Exception& e)
@@ -157,7 +157,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   auto stop = high_resolution_clock::now();
   auto duration = duration_cast<microseconds>(stop - start);
-  qDebug() << "Total time for" << i << "Event structs (dynamic capnp):" << duration.count() / 1000. << "ms";
+  qDebug() << "Total time for" << i << "Event structs:" << duration.count() / 1000. << "ms";
 
 
   qDebug() << "Done reading Rlog data"; // unit tests rely on this signal
