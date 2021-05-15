@@ -1,6 +1,4 @@
 #include <dataload_rlog.hpp>
-#include <chrono>
-using namespace std::chrono;
 
 QByteArray read_bz2_file(const char* fn){
   int bzError = BZ_OK;
@@ -101,9 +99,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   RlogMessageParser parser("", plot_data);
 
-  auto start = high_resolution_clock::now();
-  int i = 0;
-
   while(amsg.size() > 0)
   {
     try
@@ -137,8 +132,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
       } else {
         parser.parseMessageImpl("", event, time_stamp, show_deprecated);
-        if (i > 1000000) break;
-        i++;
       }
     }
     catch (const kj::Exception& e)
@@ -154,11 +147,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
       return false;
     }
   }
-
-  auto stop = high_resolution_clock::now();
-  auto duration = duration_cast<microseconds>(stop - start);
-  qDebug() << "Total time for" << i << "Event structs:" << duration.count() / 1000. << "ms";
-
 
   qDebug() << "Done reading Rlog data"; // unit tests rely on this signal
   return true;
