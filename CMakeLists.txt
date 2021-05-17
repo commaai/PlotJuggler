@@ -111,7 +111,6 @@ ENDIF()
 
 find_package(ZMQ)
 find_package(Rlog)
-# find_package(Cereal)
 
 include_directories(
     ${Qt5Core_INCLUDE_DIRS}
@@ -251,9 +250,7 @@ if(Rlog_FOUND)
     add_subdirectory( plugins/DataLoadRlog )
 endif()
 
-# if(Cereal_FOUND)
 add_subdirectory( plugins/DataStreamCereal )
-# endif()
 
 add_subdirectory( src )
 
