@@ -6,33 +6,32 @@
 #include "PlotJuggler/datastreamer_base.h"
 #include "PlotJuggler/messageparser_base.h"
 #include "ui_datastream_cereal.h"
-//#include "zmq.hpp"
 //#include "cereal/gen/cpp/car.capnp.h"
-//#include "cereal/messaging/messaging.h"
+#include "cereal/messaging/messaging.h"
 
-class StreamZMQDialog : public QDialog
+class StreamCerealDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit StreamZMQDialog(QWidget *parent = nullptr);
-  ~StreamZMQDialog();
+  explicit StreamCerealDialog(QWidget *parent = nullptr);
+  ~StreamCerealDialog();
 
-  Ui::DataStreamZMQ *ui;
+  Ui::DataStreamCereal *ui;
 
 };
 
 
-class DataStreamZMQ : public PJ::DataStreamer
+class DataStreamCereal : public PJ::DataStreamer
 {
   Q_OBJECT
   Q_PLUGIN_METADATA(IID "facontidavide.PlotJuggler3.DataStreamer")
   Q_INTERFACES(PJ::DataStreamer)
 
 public:
-  DataStreamZMQ();
+  DataStreamCereal();
 
-  virtual ~DataStreamZMQ() override;
+  virtual ~DataStreamCereal() override;
 
   virtual bool start(QStringList*) override;
 
@@ -45,7 +44,7 @@ public:
 
   virtual const char* name() const override
   {
-    return "ZMQ Subscriber";
+    return "Cereal Subscriber";
   }
 
   virtual bool isDebugPlugin() override
@@ -55,7 +54,7 @@ public:
 
 private:
   bool _running;
-  zmq::context_t _zmq_context;
+  zmq::context_t _zmq_context;  // todo: replace with sm and pm (or just sm if we make another plugin for publishing)
   zmq::socket_t _zmq_socket;
   PJ::MessageParserPtr _parser;
   std::string _socket_address;

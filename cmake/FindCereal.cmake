@@ -4,8 +4,16 @@ if (Cereal_INCLUDE_DIRS)
   message("Cereal found!")
 else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
   message("cereal not found! searching...")
+  message(${CMAKE_CURRENT_SOURCE_DIR})
 
   find_path(Cereal_INCLUDE_DIRS /home/batman/openpilot/openpilot/cereal/messaging/messaging.h)
+
+  find_path(Rlog_INCLUDE_DIRS
+    NAMES
+      messaging.h
+    PATHS
+      ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cereal
+  )
   
   set(Cereal_INCLUDE_DIRS
     ${Cereal_INCLUDE_DIRS}

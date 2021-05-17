@@ -18,7 +18,6 @@ target_include_directories(
 target_link_libraries(DataStreamCereal
     ${Qt5Widgets_LIBRARIES}
     plotjuggler_plugin_base
-    zmq
     )
 
 

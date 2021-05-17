@@ -1,6 +1,5 @@
 #include "datastream_cereal.h"
 #include "ui_datastream_cereal.h"
-#include "cereal/messaging/messaging.h"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -9,15 +8,15 @@
 #include <QIntValidator>
 #include <chrono>
 
-StreamZMQDialog::StreamZMQDialog(QWidget *parent) :
+StreamCerealDialog::StreamCerealDialog(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::DataStreamZMQ)
+  ui(new Ui::DataStreamCereal)
 {
   ui->setupUi(this);
   ui->lineEditPort->setValidator( new QIntValidator() );
 }
 
-StreamZMQDialog::~StreamZMQDialog()
+StreamCerealDialog::~StreamCerealDialog()
 {
   while( ui->layoutOptions->count() > 0)
   {
@@ -27,19 +26,19 @@ StreamZMQDialog::~StreamZMQDialog()
   delete ui;
 }
 
-DataStreamZMQ::DataStreamZMQ():
+DataStreamCereal::DataStreamCereal():
   _running(false),
   _zmq_context(),
   _zmq_socket(_zmq_context, zmq::socket_type::sub)
 {
 }
 
-DataStreamZMQ::~DataStreamZMQ()
+DataStreamCereal::~DataStreamCereal()
 {
   shutdown();
 }
 
-bool DataStreamZMQ::start(QStringList*)
+bool DataStreamCereal::start(QStringList*)
 {
   if (_running)
   {
@@ -55,7 +54,7 @@ bool DataStreamZMQ::start(QStringList*)
 
   bool ok = false;
 
-  StreamZMQDialog* dialog = new StreamZMQDialog();
+  StreamCerealDialog* dialog = new StreamCerealDialog();
 
   for( const auto& it: *availableParsers())
   {
@@ -127,13 +126,13 @@ bool DataStreamZMQ::start(QStringList*)
   qDebug() << "ZMQ listening on address" << QString::fromStdString( _socket_address );
   _running = true;
 
-  _receive_thread = std::thread(&DataStreamZMQ::receiveLoop, this);
+  _receive_thread = std::thread(&DataStreamCereal::receiveLoop, this);
 
   dialog->deleteLater();
   return _running;
 }
 
-void DataStreamZMQ::shutdown()
+void DataStreamCereal::shutdown()
 {
   if( _running )
   {
@@ -147,7 +146,7 @@ void DataStreamZMQ::shutdown()
   }
 }
 
-void DataStreamZMQ::receiveLoop()
+void DataStreamCereal::receiveLoop()
 {
   while( _running )
   {
