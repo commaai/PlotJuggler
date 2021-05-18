@@ -6,10 +6,10 @@ docker build --cache-from docker.io/commaai/cereal:latest -t cereal -f Dockerfil
 docker run --rm --volume ${PWD}:/tmp/plotjuggler/3rdparty/cereal --workdir /tmp/plotjuggler/3rdparty/cereal --shm-size 1G --name cereal cereal \
   /bin/sh -c "scons -c && scons -j8"
 
-cd ../
+cd ../opendbc
 # todo: do opendbc here
 
-cd ../
+cd ../../
 docker build -f Dockerfile -t plotjuggler:latest .
 
 docker run --rm --volume $PWD:/tmp/plotjuggler --workdir /tmp/plotjuggler plotjuggler:latest \
