@@ -128,7 +128,7 @@ bool DataStreamCereal::start(QStringList*)
 //  qDebug() << "ZMQ listening on address" << QString::fromStdString( _socket_address );
 //  _running = true;
 //
-//  _receive_thread = std::thread(&DataStreamCereal::receiveLoop, this);
+  _receive_thread = std::thread(&DataStreamCereal::receiveLoop, this);
 //
 //  dialog->deleteLater();
   return _running;
