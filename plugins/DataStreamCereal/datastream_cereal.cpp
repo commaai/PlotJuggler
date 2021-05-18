@@ -27,8 +27,8 @@ StreamCerealDialog::~StreamCerealDialog()
 }
 
 DataStreamCereal::DataStreamCereal():
-  _running(false)
-//  sm({"deviceState"})
+  _running(false),
+  sm({"deviceState"})
 {
 }
 
@@ -66,7 +66,8 @@ bool DataStreamCereal::start(QStringList*)
     }
   }
 
-  SubMaster sm({"deviceState"});
+  _running = true;
+  qDebug() << "started!";
 
   // load previous values
 //  QSettings settings;  // todo: could be useful
@@ -150,9 +151,11 @@ void DataStreamCereal::shutdown()
 
 void DataStreamCereal::receiveLoop()
 {
+  qDebug() << "entering receive loop...";
   while( _running )
   {
-//    sm.update(0);
+    sm.update(0);
+    qDebug() << "battery temp:" << sm["deviceState"].getDeviceState().getBatteryTempC();
 //    zmq::message_t recv_msg;
 //    zmq::recv_result_t result = _zmq_socket.recv(recv_msg);
 

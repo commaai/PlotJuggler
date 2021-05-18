@@ -54,7 +54,7 @@ public:
 
 private:
   bool _running;
-//  SubMaster sm;  // todo: replace with sm and pm (or just sm if we make another plugin for publishing)
+  SubMaster sm;  // todo: replace with sm and pm (or just sm if we make another plugin for publishing)
 //  zmq::socket_t _zmq_socket;
   PJ::MessageParserPtr _parser;
   std::string _socket_address;
