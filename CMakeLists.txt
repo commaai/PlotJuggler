@@ -251,9 +251,9 @@ if(Rlog_FOUND)
     add_subdirectory( plugins/DataLoadRlog )
 endif()
 
-if(Cereal_FOUND)
-    add_subdirectory( plugins/DataStreamCereal )
-endif()
+# if(Cereal_FOUND)
+#     add_subdirectory( plugins/DataStreamCereal )
+# endif()
 
 add_subdirectory( src )
 
