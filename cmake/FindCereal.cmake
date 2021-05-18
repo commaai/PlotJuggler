@@ -1,14 +1,9 @@
 if (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
   # in cache already
   set(Cereal_FOUND TRUE)
-  message("Cereal found: ${Cereal_INCLUDE_DIRS}")
 else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
-  message("cereal not found! searching...")
-  message(${CMAKE_CURRENT_SOURCE_DIR})
 
-  # find_path(Cereal_INCLUDE_DIRS /home/batman/openpilot/openpilot/cereal/messaging/messaging.h)
-
-  find_path(Cereal_INCLUDE_DIRS
+  find_path(Cereal_INCLUDE_DIRS  # todo: not sure if we need any of these. probably capnp at least
     NAMES
       bzlib.h
       capnp
@@ -24,14 +19,14 @@ else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
     ${Cereal_INCLUDE_DIRS}
   )
 
-  find_library(Cereal_LIBRARY1
+  find_library(Cereal_LIBRARY_CEREAL
     NAMES
       cereal
     PATHS
       ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cereal
   )
 
-  find_library(Cereal_LIBRARY2
+  find_library(Cereal_LIBRARY_MESSAGING
     NAMES
       messaging
     PATHS
@@ -40,8 +35,8 @@ else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
 
   set(Cereal_LIBRARIES
       ${Cereal_LIBRARIES}
-      ${Cereal_LIBRARY1}
-      ${Cereal_LIBRARY2}
+      ${Cereal_LIBRARY_CEREAL}
+      ${Cereal_LIBRARY_MESSAGING}
   )
 
   include(FindPackageHandleStandardArgs)
@@ -51,5 +46,5 @@ else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
 
 endif(Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
 
-message("cereal include dirs: ${Cereal_INCLUDE_DIRS}")
-message("cereal LIBs: ${Cereal_LIBRARIES}")
+message("Cereal include dirs: ${Cereal_INCLUDE_DIRS}")
+message("Cereal libs: ${Cereal_LIBRARIES}")

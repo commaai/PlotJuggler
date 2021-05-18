@@ -44,7 +44,6 @@ target_link_libraries(DataLoadRlog
   capnpc.a
   capnp.a
   kj.a
-  # /tmp/PlotJuggler/3rdparty/cereal/libcereal.a
   plotjuggler_plugin_base)
 
 install(TARGETS DataLoadRlog DESTINATION bin  )

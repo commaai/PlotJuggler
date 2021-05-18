@@ -1,4 +1,3 @@
-
 include_directories(../)
 
 add_definitions(${QT_DEFINITIONS})
@@ -12,13 +11,9 @@ add_library(DataStreamCereal SHARED ${SRC} ${UI_SRC}  )
 
 target_include_directories(
     DataStreamCereal
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal  # todo: these two needed?
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal/messaging
     )
-
-message("debug! ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal/messaging")
-message("debug2! ${Cereal_INCLUDE_DIRS}")
-message("debug2! ${Cereal_LIBRARIES}")
 
 target_link_libraries(DataStreamCereal
     ${Qt5Widgets_LIBRARIES}
@@ -41,5 +36,3 @@ elseif(COMPILING_WITH_AMENT)
 else()
     install(TARGETS DataStreamCereal DESTINATION bin  )
 endif()
-
-

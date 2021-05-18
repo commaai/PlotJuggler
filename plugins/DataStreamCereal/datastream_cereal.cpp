@@ -151,6 +151,14 @@ void DataStreamCereal::shutdown()
 
 void DataStreamCereal::receiveLoop()
 {
+
+  capnp::SchemaParser schema_parser;
+  capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(schema_path.toStdString()), nullptr);
+  capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
+
+  RlogMessageParser parser("", plot_data);
+
+
   qDebug() << "entering receive loop...";
   while( _running )
   {
@@ -159,30 +167,30 @@ void DataStreamCereal::receiveLoop()
 //    zmq::message_t recv_msg;
 //    zmq::recv_result_t result = _zmq_socket.recv(recv_msg);
 
-//    if( recv_msg.size() > 0 )
+//    if( recv_msg.size() > 0 )  // todo: loop through each updated service only
 //    {
-//      using namespace std::chrono;
-//      auto ts = high_resolution_clock::now().time_since_epoch();
-//      double timestamp = 1e-6* double( duration_cast<microseconds>(ts).count() );
+      using namespace std::chrono;
+      auto ts = high_resolution_clock::now().time_since_epoch();
+      double timestamp = 1e-6* double( duration_cast<microseconds>(ts).count() );  // todo: use logMonoTime?
 //
 //      PJ::MessageRef msg ( reinterpret_cast<uint8_t*>(recv_msg.data()), recv_msg.size() );
 //
-//      try {
-//        std::lock_guard<std::mutex> lock(mutex());
-//        _parser->parseMessage(msg, timestamp);
-//      } catch (std::exception& err)
-//      {
-//        QMessageBox::warning(nullptr,
-//                             tr("ZMQ Subscriber"),
-//                             tr("Problem parsing the message. ZMQ Subscriber will be stopped.\n%1").arg(err.what()),
-//                             QMessageBox::Ok);
-//
-//        _zmq_socket.disconnect( _socket_address.c_str() );
-//        _running = false;
-//        // notify the GUI
-//        emit closed();
-//        return;
-//      }
+      try {
+        std::lock_guard<std::mutex> lock(mutex());
+//        _parser->parseMessage(sm["deviceState"].getDeviceState(), timestamp);
+      } catch (std::exception& err)
+      {
+        QMessageBox::warning(nullptr,
+                             tr("ZMQ Subscriber"),
+                             tr("Problem parsing the message. ZMQ Subscriber will be stopped.\n%1").arg(err.what()),
+                             QMessageBox::Ok);
+
+//        _zmq_socket.disconnect( _socket_address.c_str() );  // todo: do some disconnect?
+        _running = false;
+        // notify the GUI
+        emit closed();
+        return;
+      }
 //    }
   }
 }
