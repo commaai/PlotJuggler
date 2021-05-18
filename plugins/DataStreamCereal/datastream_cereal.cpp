@@ -28,7 +28,7 @@ StreamCerealDialog::~StreamCerealDialog()
 
 DataStreamCereal::DataStreamCereal():
   _running(false),
-  sm({"deviceState"})
+//  sm({"deviceState"})
 {
 }
 
@@ -169,15 +169,15 @@ void DataStreamCereal::receiveLoop()
   PJ::PlotData& _data_series = getSeries("");
   RlogMessageParser parser("", _data_series);
 
-//  std::vector<const char*> all_services;
+  std::vector<const char*> all_services;
 //  const char *test[2] = {"deviceState", "carState"};
 //
-//  for (auto field : event_struct_schema.getFields()) {
-//    std::string name = field.getProto().getName();
-//    all_services.push_back(name.c_str());
-//  }
+  for (auto field : event_struct_schema.getFields()) {
+    std::string name = field.getProto().getName();
+    all_services.push_back(name.c_str());
+  }
 
-//  SubMaster sm_all(std::initializer_list<const char *>({"modelV2", "controlsState"}));
+  SubMaster sm(all_services);
 
 
   qDebug() << "entering receive loop...";
