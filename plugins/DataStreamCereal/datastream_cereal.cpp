@@ -151,19 +151,40 @@ void DataStreamCereal::shutdown()
 
 void DataStreamCereal::receiveLoop()
 {
+  QString schema_path(std::getenv("BASEDIR"));
+  if(schema_path.isNull())
+  {
+    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot/openpilot"); // fallback to $HOME/openpilot (fixme: temp dir)
+  }
+  schema_path = QDir(schema_path).filePath("cereal/log.capnp");
+  schema_path.remove(0, 1);
+
+  // Parse the schema
+  auto fs = kj::newDiskFilesystem();
 
   capnp::SchemaParser schema_parser;
   capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(schema_path.toStdString()), nullptr);
   capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
 
-  RlogMessageParser parser("", plot_data);
+  PJ::PlotData& _data_series = getSeries("");
+  RlogMessageParser parser("", _data_series);
+
+//  std::vector<const char*> all_services;
+//  const char *test[2] = {"deviceState", "carState"};
+//
+//  for (auto field : event_struct_schema.getFields()) {
+//    std::string name = field.getProto().getName();
+//    all_services.push_back(name.c_str());
+//  }
+
+//  SubMaster sm_all(std::initializer_list<const char *>({"modelV2", "controlsState"}));
 
 
   qDebug() << "entering receive loop...";
   while( _running )
   {
     sm.update(0);
-    qDebug() << "battery temp:" << sm["deviceState"].getDeviceState().getBatteryTempC();
+//    qDebug() << "battery temp:" << sm["deviceState"].getDeviceState().getBatteryTempC();
 //    zmq::message_t recv_msg;
 //    zmq::recv_result_t result = _zmq_socket.recv(recv_msg);
 
@@ -171,7 +192,7 @@ void DataStreamCereal::receiveLoop()
 //    {
       using namespace std::chrono;
       auto ts = high_resolution_clock::now().time_since_epoch();
-      double timestamp = 1e-6* double( duration_cast<microseconds>(ts).count() );  // todo: use logMonoTime?
+      double timestamp = 1e-6* double( duration_cast<microseconds>(ts).count() );  // todo: use logMonoTime? or do we want to start at
 //
 //      PJ::MessageRef msg ( reinterpret_cast<uint8_t*>(recv_msg.data()), recv_msg.size() );
 //
