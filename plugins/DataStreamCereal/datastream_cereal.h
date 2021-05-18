@@ -6,7 +6,7 @@
 #include "PlotJuggler/datastreamer_base.h"
 #include "PlotJuggler/messageparser_base.h"
 #include "ui_datastream_cereal.h"
-//#include "cereal/gen/cpp/car.capnp.h"
+#include "cereal/gen/cpp/car.capnp.h"
 #include "cereal/messaging/messaging.h"
 
 class StreamCerealDialog : public QDialog

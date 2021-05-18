@@ -12,11 +12,24 @@ add_library(DataStreamCereal SHARED ${SRC} ${UI_SRC}  )
 
 target_include_directories(
     DataStreamCereal
-    PUBLIC /home/batman/openpilot/openpilot/cereal
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal/messaging
     )
+
+message("debug! ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal/messaging")
+
+add_library(cereal STATIC IMPORTED)
+# set_property(TARGET cereal PROPERTY IMPORTED_LOCATION "/home/batman/openpilot/PlotJuggler/3rdparty/cereal/libcereal_shared.so")
+set_target_properties(cereal PROPERTIES IMPORTED_LOCATION "/home/batman/openpilot/PlotJuggler/3rdparty/cereal/libcereal.a")
 
 target_link_libraries(DataStreamCereal
     ${Qt5Widgets_LIBRARIES}
+    capnpc.a
+    capnp.a
+    kj.a
+    # -lcereal
+    cereal
+    # -lmessaging
     plotjuggler_plugin_base
     )
 

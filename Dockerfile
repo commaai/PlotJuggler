@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   cmake \
   libbfd-dev \
   libdwarf-dev \
+  libzmq3-dev \
   libdw-dev \
   python3 \
   python3-pip \
