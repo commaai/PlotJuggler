@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 PROJECT(plotjuggler)
 
-# set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 add_definitions(
@@ -251,9 +251,9 @@ if(Rlog_FOUND)
     add_subdirectory( plugins/DataLoadRlog )
 endif()
 
-# if(Cereal_FOUND)
-#     add_subdirectory( plugins/DataStreamCereal )
-# endif()
+if(Cereal_FOUND)
+    add_subdirectory( plugins/DataStreamCereal )
+endif()
 
 add_subdirectory( src )
 

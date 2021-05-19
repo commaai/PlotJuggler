@@ -7,6 +7,8 @@
 #include <QDialog>
 #include <QIntValidator>
 #include <chrono>
+#include <assert.h>
+
 
 StreamCerealDialog::StreamCerealDialog(QWidget *parent) :
   QDialog(parent),
@@ -27,7 +29,7 @@ StreamCerealDialog::~StreamCerealDialog()
 }
 
 DataStreamCereal::DataStreamCereal():
-  _running(false),
+  _running(false)
 //  sm({"deviceState"})
 {
 }
@@ -70,31 +72,31 @@ bool DataStreamCereal::start(QStringList*)
   qDebug() << "started!";
 
   // load previous values
-//  QSettings settings;  // todo: could be useful
-//  QString address = settings.value("ZMQ_Subscriber::address", "localhost").toString();
-//  QString protocol = settings.value("ZMQ_Subscriber::protocol", "JSON").toString();
-//  int port = settings.value("ZMQ_Subscriber::port", 9872).toInt();
+  QSettings settings;  // todo: could be useful
+  QString address = settings.value("ZMQ_Subscriber::address", "localhost").toString();  // todo: need address
+  QString protocol = settings.value("ZMQ_Subscriber::protocol", "JSON").toString();  // todo: change this to toggle between zmq and msgq
+  int port = settings.value("ZMQ_Subscriber::port", 9872).toInt();
 
 
 //  dialog->ui->lineEditAddress->setText( address );
 //  dialog->ui->lineEditPort->setText( QString::number(port) );
 //
-//  std::shared_ptr<PJ::MessageParserCreator> parser_creator;
+  std::shared_ptr<PJ::MessageParserCreator> parser_creator;
 //
-//  connect(dialog->ui->comboBoxProtocol, qOverload<int>( &QComboBox::currentIndexChanged), this,
-//          [&](int index)
-//  {
-//    if( parser_creator ){
-//      QWidget*  prev_widget = parser_creator->optionsWidget();
-//      prev_widget->setVisible(false);
-//    }
-//    QString protocol = dialog->ui->comboBoxProtocol->itemText(index);
-//    parser_creator = availableParsers()->at( protocol );
-//
-//    if(auto widget = parser_creator->optionsWidget() ){
-//      widget->setVisible(true);
-//    }
-//  });
+  connect(dialog->ui->comboBoxProtocol, qOverload<int>( &QComboBox::currentIndexChanged), this,
+          [&](int index)
+  {
+    if( parser_creator ){
+      QWidget*  prev_widget = parser_creator->optionsWidget();
+      prev_widget->setVisible(false);
+    }
+    QString protocol = dialog->ui->comboBoxProtocol->itemText(index);
+    parser_creator = availableParsers()->at( protocol );
+
+    if(auto widget = parser_creator->optionsWidget() ){
+      widget->setVisible(true);
+    }
+  });
 //
 //  dialog->ui->comboBoxProtocol->setCurrentText(protocol);
 //
@@ -104,7 +106,7 @@ bool DataStreamCereal::start(QStringList*)
 //    _running = false;
 //    return false;
 //  }
-//
+
 //  address = dialog->ui->lineEditAddress->text();
 //  port = dialog->ui->lineEditPort->text().toUShort(&ok);
 //  protocol = dialog->ui->comboBoxProtocol->currentText();
@@ -152,7 +154,11 @@ void DataStreamCereal::shutdown()
 void DataStreamCereal::receiveLoop()
 {
   QString schema_path(std::getenv("BASEDIR"));
-  if(schema_path.isNull())
+  bool show_deprecated = std::getenv("SHOW_DEPRECATED");
+  Context * c = Context::create();  // todo: move this to creation of class and make sure to delete when exiting
+  Poller * poller = Poller::create();
+
+  if (schema_path.isNull())
   {
     schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot/openpilot"); // fallback to $HOME/openpilot (fixme: temp dir)
   }
@@ -166,52 +172,93 @@ void DataStreamCereal::receiveLoop()
   capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(schema_path.toStdString()), nullptr);
   capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
 
-  PJ::PlotData& _data_series = getSeries("");
-  RlogMessageParser parser("", _data_series);
+  PlotDataMapRef& plot_data = dataMap();
+  RlogMessageParser parser("", plot_data);
 
-  std::vector<const char*> all_services;
-//  const char *test[2] = {"deviceState", "carState"};
-//
-  for (auto field : event_struct_schema.getFields()) {
+
+  std::vector<std::string> service_list;
+  std::map<std::string, SubSocket *> services;
+//  std::map<std::string, SubSocket *> sockets;  # todo: messages (subsocket, submessage)
+
+  const char *address;
+
+
+  for (auto field : event_struct_schema.getUnionFields()) {
     std::string name = field.getProto().getName();
-    all_services.push_back(name.c_str());
+    service_list.push_back(name);
+
+    SubSocket *sock = SubSocket::create(c, name, address ? address : "127.0.0.1");  // no conflating
+    assert(sock != NULL);
+    poller->registerSocket(sock);
+
+    services[name] = sock;
+    qDebug() << "Added service and socket:" << name.c_str();
   }
-
-  SubMaster sm(all_services);
-
 
   qDebug() << "entering receive loop...";
   while( _running )
   {
-    sm.update(0);
-//    qDebug() << "battery temp:" << sm["deviceState"].getDeviceState().getBatteryTempC();
-//    zmq::message_t recv_msg;
-//    zmq::recv_result_t result = _zmq_socket.recv(recv_msg);
+//    sm.update(0);
+    using namespace std::chrono;
+    auto ts = high_resolution_clock::now().time_since_epoch();
+    double timestamp = 1e-6* double( duration_cast<microseconds>(ts).count() );  // todo: use logMonoTime? or do we always want to keep "real" time
 
-//    if( recv_msg.size() > 0 )  // todo: loop through each updated service only
-//    {
-      using namespace std::chrono;
-      auto ts = high_resolution_clock::now().time_since_epoch();
-      double timestamp = 1e-6* double( duration_cast<microseconds>(ts).count() );  // todo: use logMonoTime? or do we want to start at
-//
-//      PJ::MessageRef msg ( reinterpret_cast<uint8_t*>(recv_msg.data()), recv_msg.size() );
-//
-      try {
-        std::lock_guard<std::mutex> lock(mutex());
-//        _parser->parseMessage(sm["deviceState"].getDeviceState(), timestamp);
-      } catch (std::exception& err)
-      {
-        QMessageBox::warning(nullptr,
-                             tr("ZMQ Subscriber"),
-                             tr("Problem parsing the message. ZMQ Subscriber will be stopped.\n%1").arg(err.what()),
-                             QMessageBox::Ok);
+//    try {
+      std::lock_guard<std::mutex> lock(mutex());
+      for (auto sock : poller->poll(0)) {  // 10 for 100 hz? probably 0
+        // drain socket
+        while (_running) {
+          Message *msg = sock->receive(true);
+          if (!msg){
+            break;
+          }
 
-//        _zmq_socket.disconnect( _socket_address.c_str() );  // todo: do some disconnect?
-        _running = false;
-        // notify the GUI
-        emit closed();
-        return;
+          AlignedBuffer aligned_buf;
+//          capnp::FlatArrayMessageReader *msg_reader = new (malloc(sizeof(capnp::FlatArrayMessageReader))) capnp::FlatArrayMessageReader({});
+          capnp::FlatArrayMessageReader *msg_reader = new (malloc(sizeof(capnp::FlatArrayMessageReader))) capnp::FlatArrayMessageReader(aligned_buf.align(msg));
+          cereal::Event::Reader event = msg_reader->getRoot<cereal::Event>();
+//          event.getLogMonoTime();
+          double time_stamp = (double)event.getLogMonoTime() / 1e9;
+          parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+//          for (auto field : event.getUnionFields()) {
+//            std::string name = field.getProto().getName();
+//            qDebug() << name.c_str();
+//          }
+//          qDebug() << "here!";
+//          capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(msg);
+//          capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::ArrayPtr(msg.begin(), msg.getEnd()));
+//          capnp::DynamicStruct::Reader *tmsg = (capnp::DynamicStruct::Reader*)msg->getData();
+//          capnp::DynamicStruct::Reader event = tmsg->getRoot<capnp::DynamicStruct>(event_struct_schema);
+//          double time_stamp = (double)event->getLogMonoTime() / 1e9;
+
+        }
       }
+
+//      for (const std::string service_name : service_list)
+//      {
+////        qDebug() << "checking if" << service_name << "updated";
+//        if (sm.updated(service_name))
+//        {
+//          auto event = sm[service_name];
+//          double time_stamp = (double)event.getLogMonoTime() / 1e9;  // fixme: it's an int when printed?
+//          qDebug() << time_stamp;
+//
+//          parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+//        }
+//      }
+
+//    }
+//    catch (std::exception& err)  // todo: do some disconnect?
+//    {
+//      QMessageBox::warning(nullptr,
+//                           tr("ZMQ Subscriber"),
+//                           tr("Problem parsing the message. ZMQ Subscriber will be stopped.\n%1").arg(err.what()),
+//                           QMessageBox::Ok);
+//
+//      _running = false;
+//      // notify the GUI
+//      emit closed();
+//      return;
 //    }
   }
 }
