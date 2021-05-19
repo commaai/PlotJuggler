@@ -6,7 +6,7 @@
 	url = https://github.com/PlotJuggler/liblsl.git
 [submodule "3rdparty/cereal"]
 	path = 3rdparty/cereal
-	url = https://github.com/commaai/cereal
+	url = ../cereal
 [submodule "3rdparty/opendbc"]
 	path = 3rdparty/opendbc
-	url = https://github.com/commaai/opendbc
+	url = ../opendbc
