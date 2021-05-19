@@ -17,6 +17,8 @@
 #include <capnp/serialize-packed.h>
 #include <capnp/schema-parser.h>
 //#include <cereal_parser.hpp>
+#include "services.h"
+
 
 class StreamCerealDialog : public QDialog
 {
@@ -63,10 +65,13 @@ public:
 
 private:
   bool _running;
+  Context *c;
+  Poller *poller;
 //  SubMaster sm;  // todo: replace with sm and pm (or just sm if we make another plugin for publishing)
 //  zmq::socket_t _zmq_socket;
-  PJ::MessageParserPtr _parser;
-  std::string _socket_address;
+//  PJ::MessageParserPtr _parser;
+//  std::string zmq_address;
+//  std::string _socket_address;  # we need multiple socket addresses
   std::thread _receive_thread;
 
   void receiveLoop();

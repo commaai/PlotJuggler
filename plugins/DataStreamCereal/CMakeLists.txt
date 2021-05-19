@@ -33,6 +33,7 @@ target_include_directories(
 target_link_libraries(DataStreamCereal
     ${Qt5Widgets_LIBRARIES}
     ${Cereal_LIBRARIES}  # has libcereal.a and libmessaging.a
+    zmq
     capnpc.a
     capnp.a
     kj.a

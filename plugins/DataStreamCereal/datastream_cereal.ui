@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>350</width>
+    <height>175</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QGridLayout" name="gridLayout" columnstretch="0,2,1">
+    <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="font">
@@ -58,20 +58,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_4">
-       <property name="font">
-        <font>
-         <pointsize>11</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Port</string>
-       </property>
-      </widget>
-     </item>
+
      <item row="1" column="0">
       <widget class="QComboBox" name="comboBox">
        <item>
@@ -94,9 +81,6 @@
      <item row="1" column="1">
       <widget class="QLineEdit" name="lineEditAddress"/>
      </item>
-     <item row="1" column="2">
-      <widget class="QLineEdit" name="lineEditPort"/>
-     </item>
     </layout>
    </item>
    <item>
@@ -109,12 +93,9 @@
       </font>
      </property>
      <property name="text">
-      <string>Message Protocol:</string>
+      <string>Message Format: Cereal over ZMQ</string>
      </property>
     </widget>
-   </item>
-   <item>
-    <widget class="QComboBox" name="comboBoxProtocol"/>
    </item>
    <item>
     <widget class="QWidget" name="boxOptions" native="true">
@@ -131,34 +112,8 @@
       <property name="bottomMargin">
        <number>6</number>
       </property>
-      <item>
-       <widget class="QLabel" name="label_5">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Protocol options:</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>76</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
