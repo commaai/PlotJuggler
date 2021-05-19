@@ -204,67 +204,40 @@ void DataStreamCereal::receiveLoop()
   {
     auto start = std::chrono::high_resolution_clock::now();
 
-//    try {
-      std::lock_guard<std::mutex> lock(mutex());
-      for (auto sock : poller->poll(0)) {  // 10 for 100 hz? probably 0
-        // drain socket
+    try {
+      for (auto sock : poller->poll(0)) {
         while (_running) {
           Message *msg = sock->receive(true);
           if (!msg){
             break;
           }
 
-//          capnp::FlatArrayMessageReader *msg_reader = new (malloc(sizeof(capnp::FlatArrayMessageReader))) capnp::FlatArrayMessageReader({});
           capnp::FlatArrayMessageReader *msg_reader = new (allocated_msg_reader) capnp::FlatArrayMessageReader(aligned_buf.align(msg));
           cereal::Event::Reader event = msg_reader->getRoot<cereal::Event>();
-//          event.getLogMonoTime();
           double time_stamp = (double)event.getLogMonoTime() / 1e9;
+          std::lock_guard<std::mutex> lock(mutex());
           parser.parseMessageImpl("", event, time_stamp, show_deprecated);
-//          for (auto field : event.getUnionFields()) {
-//            std::string name = field.getProto().getName();
-//            qDebug() << name.c_str();
-//          }
-//          qDebug() << "here!";
-//          capnp::FlatArrayMessageReader cmsg = capnp::FlatArrayMessageReader(msg);
-//          capnp::FlatArrayMessageReader *tmsg = new capnp::FlatArrayMessageReader(kj::ArrayPtr(msg.begin(), msg.getEnd()));
-//          capnp::DynamicStruct::Reader *tmsg = (capnp::DynamicStruct::Reader*)msg->getData();
-//          capnp::DynamicStruct::Reader event = tmsg->getRoot<capnp::DynamicStruct>(event_struct_schema);
-//          double time_stamp = (double)event->getLogMonoTime() / 1e9;
-
         }
       }
+    }
+    catch (std::exception& err)  // todo: do some disconnect?
+    {
+      QMessageBox::warning(nullptr,
+                           tr("ZMQ Subscriber"),
+                           tr("Problem parsing the message. ZMQ Subscriber will be stopped.\n%1").arg(err.what()),
+                           QMessageBox::Ok);
 
-//      for (const std::string service_name : service_list)
-//      {
-////        qDebug() << "checking if" << service_name << "updated";
-//        if (sm.updated(service_name))
-//        {
-//          auto event = sm[service_name];
-//          double time_stamp = (double)event.getLogMonoTime() / 1e9;  // fixme: it's an int when printed?
-//          qDebug() << time_stamp;
-//
-//          parser.parseMessageImpl("", event, time_stamp, show_deprecated);
-//        }
-//      }
-
-//    }
-//    catch (std::exception& err)  // todo: do some disconnect?
-//    {
-//      QMessageBox::warning(nullptr,
-//                           tr("ZMQ Subscriber"),
-//                           tr("Problem parsing the message. ZMQ Subscriber will be stopped.\n%1").arg(err.what()),
-//                           QMessageBox::Ok);
-//
-//      _running = false;
-//      // notify the GUI
-//      emit closed();
-//      return;
-//    }
+      _running = false;
+      // notify the GUI
+      emit closed();
+      return;
+    }
 
   auto end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-  qDebug() << "Loop time:" << duration << "ms";
-
+  if (duration > 500.0) {
+    qDebug() << "Loop time:" << (float)duration / 1000.0 << "ms";
+  }
   }
 }
 
