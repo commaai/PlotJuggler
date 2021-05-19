@@ -67,30 +67,11 @@ RUN pyenv install 3.8.5 && \
 COPY 3rdparty/opendbc/requirements.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-
 WORKDIR /project
-
 COPY 3rdparty/cereal /project/cereal
 COPY 3rdparty/opendbc /project/opendbc
 COPY 3rdparty/opendbc/SConstruct /project/SConstruct
 COPY 3rdparty/opendbc/site_scons /project/site_scons
 
-#COPY 3rdparty/opendbc/SConstruct .
-#COPY 3rdparty/opendbc/site_scons /project/site_scons
-
-#WORKDIR /project/cereal
-#ENV PYTHONPATH=/project
-#RUN rm -rf .git && \
-#    scons -c && scons -j$(nproc)
-
-
-#COPY 3rdparty/opendbc /project/opendbc
-#COPY 3rdparty/opendbc/SConstruct /project
-#COPY 3rdparty/opendbc/site_scons /project/site_scons
-
-#COPY 3rdparty/opendbc /project/opendbc
-#COPY 3rdparty/cereal /project/cereal
-
-#WORKDIR /project/opendbc
 RUN rm -rf /project/opendbc/.git
 RUN scons -c && scons -j$(nproc)
