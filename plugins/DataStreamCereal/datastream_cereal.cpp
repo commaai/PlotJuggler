@@ -195,13 +195,14 @@ void DataStreamCereal::receiveLoop()
     qDebug() << "Added service and socket:" << name.c_str();
   }
 
+  void *allocated_msg_reader = nullptr;
+  AlignedBuffer aligned_buf;
+  allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader));
+
   qDebug() << "entering receive loop...";
   while( _running )
   {
-//    sm.update(0);
-    using namespace std::chrono;
-    auto ts = high_resolution_clock::now().time_since_epoch();
-    double timestamp = 1e-6* double( duration_cast<microseconds>(ts).count() );  // todo: use logMonoTime? or do we always want to keep "real" time
+    auto start = std::chrono::high_resolution_clock::now();
 
 //    try {
       std::lock_guard<std::mutex> lock(mutex());
@@ -213,9 +214,8 @@ void DataStreamCereal::receiveLoop()
             break;
           }
 
-          AlignedBuffer aligned_buf;
 //          capnp::FlatArrayMessageReader *msg_reader = new (malloc(sizeof(capnp::FlatArrayMessageReader))) capnp::FlatArrayMessageReader({});
-          capnp::FlatArrayMessageReader *msg_reader = new (malloc(sizeof(capnp::FlatArrayMessageReader))) capnp::FlatArrayMessageReader(aligned_buf.align(msg));
+          capnp::FlatArrayMessageReader *msg_reader = new (allocated_msg_reader) capnp::FlatArrayMessageReader(aligned_buf.align(msg));
           cereal::Event::Reader event = msg_reader->getRoot<cereal::Event>();
 //          event.getLogMonoTime();
           double time_stamp = (double)event.getLogMonoTime() / 1e9;
@@ -260,6 +260,11 @@ void DataStreamCereal::receiveLoop()
 //      emit closed();
 //      return;
 //    }
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  qDebug() << "Loop time:" << duration << "ms";
+
   }
 }
 
