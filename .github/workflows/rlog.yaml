@@ -11,11 +11,12 @@ jobs:
         submodules: true
     - name: build
       run: ./build.sh
-    - name: zip Rlog plugin
+    - name: zip PJ plugins
       run: |
         cd build/bin
         sudo tar -czf plotjuggler.tar.gz plotjuggler
         sudo tar -czf libDataLoadRlog.so.tar.gz libDataLoadRlog.so
+        sudo tar -czf libDataStreamCereal.so.tar.gz libDataStreamCereal.so
     - name: Upload libDataLoadRlog.so.tar.gz to release
       if: github.ref == 'refs/heads/rlog-release' && github.event_name == 'push'
       uses: svenstaro/upload-release-action@v2
@@ -23,6 +24,15 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: build/bin/libDataLoadRlog.so.tar.gz
         asset_name: libDataLoadRlog.so.tar.gz
+        tag: "latest"
+        overwrite: true
+    - name: Upload libDataStreamCereal.so.tar.gz to release
+      if: github.ref == 'refs/heads/rlog-release' && github.event_name == 'push'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/bin/libDataStreamCereal.so.tar.gz
+        asset_name: libDataStreamCereal.so.tar.gz
         tag: "latest"
         overwrite: true
     - name: Upload plotjuggler.tar.gz to release
