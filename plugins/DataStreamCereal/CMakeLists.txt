@@ -17,13 +17,6 @@ SET(SRC
 
 add_library(DataStreamCereal SHARED ${SRC} ${UI_SRC}  )
 
-execute_process(COMMAND cp opendbc/SConstruct .
-  COMMAND cp -r opendbc/site_scons .
-  COMMAND scons -j8
-  COMMAND ls -lah
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
-)
-
 target_link_libraries(DataStreamCereal
     ${Qt5Widgets_LIBRARIES}
     ${Cereal_LIBRARIES}  # has libcereal.a and libmessaging.a
