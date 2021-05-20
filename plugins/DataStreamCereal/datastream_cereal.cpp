@@ -1,8 +1,8 @@
 #include <assert.h>
 
-#include <chrono>
 #include <QDebug>
 #include <QDialog>
+#include <QElapsedTimer>
 #include <QIntValidator>
 #include <QMessageBox>
 #include <QSettings>
@@ -107,8 +107,8 @@ void DataStreamCereal::shutdown()
     {
       delete sock;
     }
-    sockets.clear();
 
+    sockets.clear();
     delete c;
     delete poller;
 
@@ -121,11 +121,11 @@ void DataStreamCereal::receiveLoop()
   PlotDataMapRef& plot_data = dataMap();
   RlogMessageParser parser("", plot_data);
   AlignedBuffer aligned_buf;
+  QElapsedTimer timer;
 
-  qDebug() << "Entering receive thread...";
   while (_running)
   {
-    auto start = std::chrono::high_resolution_clock::now();
+    timer.start();
     for (auto sock : poller->poll(-1))
     {
       while (_running)  // drain socket
@@ -153,11 +153,10 @@ void DataStreamCereal::receiveLoop()
         delete msg;
       }
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    if (duration > 5000)
+
+    if (timer.elapsed() >= 20)  // if double usual rate (100hz)
     {
-      qDebug() << "LAG --" << (float)duration / 1000.0 << "ms";
+      qDebug() << "LAG --" << timer.elapsed() << "ms";
     }
   }
 }
