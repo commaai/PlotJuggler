@@ -108,10 +108,6 @@ else()
     set(GUI_TYPE WIN32)
 ENDIF()
 
-find_package(ZMQ)
-find_package(Rlog)
-find_package(Cereal)
-
 include_directories(
     ${Qt5Core_INCLUDE_DIRS}
     ${Qt5Widgets_INCLUDE_DIRS}
@@ -245,6 +241,16 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/3rdparty/liblsl/CMakeLists.txt" AND NOT WIN32)
     add_subdirectory( 3rdparty/liblsl )
     add_subdirectory( plugins/DataStreamLSL )
 endif()
+
+add_custom_command(  # build cereal and opendbc before we search for required Cereal plugin libs
+    TARGET plotjuggler_plugin_base PRE_BUILD
+    COMMAND cp opendbc/SConstruct . && cp -r opendbc/site_scons . && scons -j8
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/
+)
+
+find_package(ZMQ)
+find_package(Rlog)
+find_package(Cereal)
 
 if(Rlog_FOUND)
     add_subdirectory( plugins/DataLoadRlog )
