@@ -78,7 +78,7 @@ bool DataStreamCereal::start(QStringList*)
     std::string name = std::string(it.name);
 
     SubSocket *socket;
-    socket = SubSocket::create(c, name, address.toStdString(), true, true);
+    socket = SubSocket::create(c, name, address.toStdString(), false, true);  // don't conflate
     assert(socket != 0);
     socket->setTimeout(0);
 
