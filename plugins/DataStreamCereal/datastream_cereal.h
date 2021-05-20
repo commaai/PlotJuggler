@@ -62,11 +62,10 @@ public:
 
 private:
   bool _running;
+  RlogMessageParser parser;
   Context *c;
   Poller *poller;
-  bool show_deprecated;
   std::vector<SubSocket *> sockets;
-  QString address;
   std::thread _receive_thread;
 
   void receiveLoop();

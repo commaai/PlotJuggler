@@ -30,7 +30,7 @@ StreamCerealDialog::~StreamCerealDialog()
 
 DataStreamCereal::DataStreamCereal():
   _running(false),
-  show_deprecated(std::getenv("SHOW_DEPRECATED"))
+  parser(RlogMessageParser("", dataMap(), std::getenv("SHOW_DEPRECATED")))
 {
 }
 
@@ -46,6 +46,7 @@ bool DataStreamCereal::start(QStringList*)
     return _running;
   }
 
+  QString address;
   StreamCerealDialog* dialog = new StreamCerealDialog();
   if (std::getenv("ZMQ"))
   {
@@ -115,9 +116,6 @@ void DataStreamCereal::shutdown()
 
 void DataStreamCereal::receiveLoop()
 {
-  PlotDataMapRef& plot_data = dataMap();
-  RlogMessageParser parser("", plot_data);
-
   std::string dbc_name;
   if (std::getenv("DBC_NAME") != nullptr) {
     dbc_name = std::getenv("DBC_NAME");
@@ -154,7 +152,7 @@ void DataStreamCereal::receiveLoop()
           } else if (event.has("sendcan")) {
             parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
           } else {
-            parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+            parser.parseMessageImpl("", event, time_stamp);
           }
         }
         catch (std::exception& err)
