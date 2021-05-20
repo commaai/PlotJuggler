@@ -124,14 +124,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         can_dialog_tried = true;
       }
 
-      double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
-      if (event.has("can")) {
-        parser.parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
-      } else if (event.has("sendcan")) {
-        parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
-      } else {
-        parser.parseMessageImpl("", event, time_stamp);
-      }
+      parser.parseMessageCereal(event);
     }
     catch (const kj::Exception& e)
     {

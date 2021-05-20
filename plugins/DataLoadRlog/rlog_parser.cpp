@@ -16,6 +16,18 @@ bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
   return false;
 }
 
+bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
+{
+  double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
+  if (event.has("can")) {
+    return parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
+  } else if (event.has("sendcan")) {
+    return parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
+  } else {
+    return parseMessageImpl("", event, time_stamp);
+  }
+}
+
 bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp)
 {
 

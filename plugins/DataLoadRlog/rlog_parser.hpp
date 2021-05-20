@@ -27,6 +27,7 @@ public:
 
   bool loadDBC(std::string dbc_str);
 
+  bool parseMessageCereal(capnp::DynamicStruct::Reader event);
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp);
   bool parseCanMessage(const std::string& topic_name, capnp::DynamicList::Reader node, double timestamp);
   bool parseMessage(const MessageRef serialized_msg, double timestamp);
