@@ -83,7 +83,7 @@ bool DataStreamCereal::start(QStringList*)
     socket->setTimeout(0);
 
     poller->registerSocket(socket);
-    _services.push_back(socket);
+    sockets.push_back(socket);
   }
 
   _running = true;
@@ -103,11 +103,11 @@ void DataStreamCereal::shutdown()
       _receive_thread.join();
     }
 
-    for (auto sock : _services)
+    for (auto sock : sockets)
     {
       delete sock;
     }
-    _services.clear();
+    sockets.clear();
 
     delete c;
     delete poller;

@@ -32,17 +32,4 @@ target_link_libraries(DataStreamCereal
     capnp.a
     kj.a
     plotjuggler_plugin_base
-    )
-
-
-if(COMPILING_WITH_CATKIN)
-    install(TARGETS DataStreamCereal
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION} )
-elseif(COMPILING_WITH_AMENT)
-    install(TARGETS DataStreamCereal
-            DESTINATION  lib/${PROJECT_NAME} )
-else()
-    install(TARGETS DataStreamCereal DESTINATION bin  )
-endif()
+)
