@@ -113,7 +113,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         std::string dbc_name;
         if (std::getenv("DBC_NAME") != nullptr) {
           dbc_name = std::getenv("DBC_NAME");
-          qDebug() << "got dbc name:" << dbc_name.c_str();
         }
         else {
           dbc_name = SelectDBCDialog();

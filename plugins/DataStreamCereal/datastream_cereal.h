@@ -16,7 +16,6 @@
 #include <PlotJuggler/datastreamer_base.h>
 #include <capnp/serialize-packed.h>
 #include <capnp/schema-parser.h>
-//#include <cereal_parser.hpp>
 #include "services.h"
 
 
@@ -69,10 +68,8 @@ private:
   Poller *poller;
   bool use_zmq;
   bool show_deprecated;
-//  SubMaster sm;  // todo: replace with sm and pm (or just sm if we make another plugin for publishing)
-//  zmq::socket_t _zmq_socket;
+  std::vector<SubSocket *> _services;
   QString address;
-//  std::string _socket_address;  # we need multiple socket addresses
   std::thread _receive_thread;
 
   void receiveLoop();
