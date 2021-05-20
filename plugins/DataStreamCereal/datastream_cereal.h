@@ -62,9 +62,9 @@ public:
 
 private:
   bool _running;
-  RlogMessageParser parser;
   Context *c;
   Poller *poller;
+  RlogMessageParser parser;
   std::vector<SubSocket *> sockets;
   std::thread _receive_thread;
 
