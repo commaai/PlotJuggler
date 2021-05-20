@@ -64,7 +64,7 @@ bool DataStreamCereal::start(QStringList*)
     address = dialog->ui->lineEditAddress->text();
     // save for next time
     settings.setValue("Cereal_Subscriber::address", address);
-    qDebug() << "Using address in start1:" << address.toStdString().c_str();
+    qDebug() << "Using address:" << address.toStdString().c_str();
   }
   else
   {
