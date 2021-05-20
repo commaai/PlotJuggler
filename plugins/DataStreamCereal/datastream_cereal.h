@@ -68,6 +68,7 @@ private:
   Poller *poller;
   bool use_zmq;
   bool show_deprecated;
+  std::vector<SubSocket *> _services;
   QString address;
   std::thread _receive_thread;
 
