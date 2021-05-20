@@ -144,11 +144,7 @@ void DataStreamCereal::receiveLoop()
         }
         catch (std::exception& err)
         {
-          QMessageBox::warning(nullptr,
-                               tr("Cereal Subscriber"),
-                               tr("Problem parsing the message. Cereal Subscriber will be stopped.\n%1").arg(err.what()),
-                               QMessageBox::Ok);
-
+          qWarning() << "Problem parsing the message. Cereal Subscriber will be stopped.";
           _running = false;
           // notify the GUI
           emit closed();

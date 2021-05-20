@@ -64,7 +64,7 @@ private:
   Context *c;
   Poller *poller;
   bool show_deprecated;
-  std::vector<SubSocket *> _services;
+  std::vector<SubSocket *> sockets;
   QString address;
   std::thread _receive_thread;
 
