@@ -242,7 +242,8 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/3rdparty/liblsl/CMakeLists.txt" AND NOT WIN32)
     add_subdirectory( plugins/DataStreamLSL )
 endif()
 
-add_custom_command(  # build cereal and opendbc before we search for required Cereal plugin libs
+# build cereal and opendbc before we search for required Cereal plugin libs below
+add_custom_command(
     TARGET plotjuggler_plugin_base PRE_BUILD
     COMMAND cp opendbc/SConstruct . && cp -r opendbc/site_scons . && scons -j8
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/
