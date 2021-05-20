@@ -8,6 +8,7 @@ QT5_WRAP_UI ( UI_SRC  datastream_cereal.ui  )
 
 SET(SRC
   datastream_cereal.cpp
+  ../DataLoadRlog/rlog_parser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/common.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/dbc.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/packer.cc
