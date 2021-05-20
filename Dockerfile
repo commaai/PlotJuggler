@@ -6,11 +6,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   cmake \
   libbfd-dev \
   libdwarf-dev \
+  libzmq3-dev \
   libdw-dev \
   python3 \
   python3-pip \
   wget \
-  software-properties-common
+  software-properties-common \
+  # opendbc/cereal
+  curl \
+  git \
+  python-openssl \
+  libssl-dev \
+  libffi-dev \
+  libreadline-dev \
+  libsqlite3-dev \
+  clang \
+  ocl-icd-opencl-dev \
+  opencl-headers
+
 
 RUN cd /tmp && \
     VERSION=0.7.0 && \
@@ -41,3 +54,14 @@ RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic main restric
     libqt5websockets5-dev \
     libqt5opengl5-dev \
     libqt5x11extras5-dev
+
+# opendbc and cereal
+RUN curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+ENV PATH="/root/.pyenv/bin:/root/.pyenv/shims:${PATH}"
+RUN pyenv install 3.8.5 && \
+    pyenv global 3.8.5 && \
+    pyenv rehash
+
+# installs scons, pycapnp, cython, etc.
+COPY 3rdparty/opendbc/requirements.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.txt

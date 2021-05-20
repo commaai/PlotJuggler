@@ -81,7 +81,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   progress_dialog.show();
 
   QString schema_path(std::getenv("BASEDIR"));
-  bool show_deprecated = std::getenv("SHOW_DEPRECATED");
 
   if(schema_path.isNull())
   {
@@ -97,7 +96,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(schema_path.toStdString()), nullptr);
   capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
 
-  RlogMessageParser parser("", plot_data);
+  RlogMessageParser parser("", plot_data, std::getenv("SHOW_DEPRECATED"));
 
   while(amsg.size() > 0)
   {
@@ -125,14 +124,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
         can_dialog_tried = true;
       }
 
-      double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
-      if (event.has("can")) {
-        parser.parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
-      } else if (event.has("sendcan")) {
-        parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
-      } else {
-        parser.parseMessageImpl("", event, time_stamp, show_deprecated);
-      }
+      parser.parseMessageCereal(event);
     }
     catch (const kj::Exception& e)
     {
