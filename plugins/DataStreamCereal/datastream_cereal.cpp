@@ -128,15 +128,11 @@ void DataStreamCereal::receiveLoop()
   qDebug() << "Entering receive thread...";
   while (_running)
   {
-    while (_running)
+    for (auto socket : poller->poll(0))
     {
-      auto sockets = poller->poll(0);
-      if (sockets.size() == 0)
-        break;
-
-      for (auto sock : sockets)
+      while (_running)  // drain socket
       {
-        Message * msg = sock->receive(true);
+        Message *msg = sock->receive(true);
         if (msg == nullptr)
           break;
 
