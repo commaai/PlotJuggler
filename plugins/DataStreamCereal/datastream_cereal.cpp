@@ -6,7 +6,6 @@
 #include <QSettings>
 #include <QDialog>
 #include <QIntValidator>
-#include <chrono>
 #include <assert.h>
 
 
@@ -129,7 +128,6 @@ void DataStreamCereal::receiveLoop()
   qDebug() << "Entering receive thread...";
   while (_running)
   {
-    auto start = std::chrono::high_resolution_clock::now();
     while (_running)
     {
       auto sockets = poller->poll(0);
@@ -165,14 +163,6 @@ void DataStreamCereal::receiveLoop()
           return;
         }
       }
-    }
-
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    if (duration > 1000)
-    {
-      if (duration > 5000) qDebug() << "Warning!";
-      qDebug() << "Greater than 1:" << (float)duration / 1000.0 << "ms";
     }
   }
 }
