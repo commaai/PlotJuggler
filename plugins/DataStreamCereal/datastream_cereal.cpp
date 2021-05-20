@@ -10,26 +10,6 @@
 #include <assert.h>
 
 
-int new_port(int port) {
-  int RESERVED_PORT = 8022;
-  int STARTING_PORT = 8001;
-  port += STARTING_PORT;
-  return port >= RESERVED_PORT ? port + 1 : port;
-}
-
-//struct SubMessage {  // todo: old
-//  std::string name;
-//  SubSocket *socket = nullptr;
-//  int freq = 0;
-//  bool updated = false, alive = false, valid = true, ignore_alive;
-//  uint64_t rcv_time = 0, rcv_frame = 0;
-//  void *allocated_msg_reader = nullptr;
-//  capnp::FlatArrayMessageReader *msg_reader = nullptr;
-//  AlignedBuffer aligned_buf;
-//  cereal::Event::Reader event;
-//};
-
-
 StreamCerealDialog::StreamCerealDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DataStreamCereal)
@@ -50,8 +30,10 @@ StreamCerealDialog::~StreamCerealDialog()
 
 DataStreamCereal::DataStreamCereal():
   _running(false),
+  c(Context::create()),  // todo: make sure to delete when exiting
   poller(Poller::create()),
-  c(Context::create())  // todo: make sure to delete when exiting
+  use_zmq(std::getenv("ZMQ")),
+  show_deprecated(std::getenv("SHOW_DEPRECATED"))
 {
 }
 
@@ -82,16 +64,10 @@ bool DataStreamCereal::start(QStringList*)
 //  qDebug() << "started!";
 
   // load previous values
-  QSettings settings;  // todo: could be useful
-  QString address = settings.value("ZMQ_Subscriber::address", "192.168.43.1").toString();
-  QString protocol = settings.value("ZMQ_Subscriber::protocol", "JSON").toString();  // todo: change this to toggle between zmq and msgq
-//  int port = settings.value("ZMQ_Subscriber::port", 9872).toInt();
 
-
-  dialog->ui->lineEditAddress->setText( address );
 //  dialog->ui->lineEditPort->setText( QString::number(port) );
 
-  std::shared_ptr<PJ::MessageParserCreator> parser_creator;
+//  std::shared_ptr<PJ::MessageParserCreator> parser_creator;
 
 //  connect(dialog->ui->comboBoxProtocol, qOverload<int>( &QComboBox::currentIndexChanged), this,
 //          [&](int index)
@@ -110,36 +86,50 @@ bool DataStreamCereal::start(QStringList*)
 
 //  dialog->ui->comboBoxProtocol->setCurrentText(protocol);
 
-  int res = dialog->exec();
-  if( res == QDialog::Rejected )
-  {
-    _running = false;
-    return false;
+  if (use_zmq) {
+    qDebug() << "Using ZMQ backend!";
+
+    QSettings settings;
+    address = settings.value("ZMQ_Subscriber::address", "192.168.43.1").toString();
+
+    dialog->ui->lineEditAddress->setText( address );
+
+    int res = dialog->exec();
+    if( res == QDialog::Rejected )
+    {
+      _running = false;
+      return false;
+    }
+    address = dialog->ui->lineEditAddress->text();
+    // save for next time
+    settings.setValue("ZMQ_Subscriber::address", address);  // todo: other settings code
+    qDebug() << "Using address in start1:" << address.toStdString().c_str();
+  } else {
+    qDebug() << "Using MSGQ backend!";
+    address = "127.0.0.1";
   }
 
-  address = dialog->ui->lineEditAddress->text();
-//  port = dialog->ui->lineEditPort->text().toUShort(&ok);
-//  protocol = dialog->ui->comboBoxProtocol->currentText();
+//  std::string use_address = address.toStdString();
+//  qDebug() << "Using address in start:" << use_address.c_str();
+  qDebug() << "Using address in start2:" << address.toStdString().c_str();
 
-//  _parser = parser_creator->createInstance({}, dataMap());  // TODO: replace with rlog parser
 
-  // save for next time
-  settings.setValue("ZMQ_Subscriber::address", address);  // todo: other settings code
-//  settings.setValue("ZMQ_Subscriber::protocol", protocol);
-//  settings.setValue("ZMQ_Subscriber::port", port);
+//  std::vector<SubSocket *> _services;  // TODO: we don't need to keep track of the sockets, just register with poller. remove?
 
-//  zmq_address = address.toStdString();
+  std::string use_address = address.toStdString();
+  qDebug() << "Using address:" << use_address.c_str();
 
-//  _socket_address =
-//      (dialog->ui->comboBox->currentText()+
-//      address+ ":" + QString::number(port)).toStdString();
+  for (const auto &it : services) {
+    std::string name = std::string(it.name);
 
-//  _zmq_socket.connect( _socket_address.c_str() );
-//  // subscribe to everything
-//  _zmq_socket.set(zmq::sockopt::subscribe, "");
-//  _zmq_socket.set(zmq::sockopt::rcvtimeo, 100);
+    SubSocket *socket;
+    socket = SubSocket::create(c, name, use_address, true, true);
+    assert(socket != 0);
+    poller->registerSocket(socket);
+//    _services.push_back(socket);
+  }
 
-//  qDebug() << "ZMQ listening on address" << QString::fromStdString( _socket_address );
+
   _running = true;
 
   _receive_thread = std::thread(&DataStreamCereal::receiveLoop, this);
@@ -165,70 +155,9 @@ void DataStreamCereal::shutdown()
 
 void DataStreamCereal::receiveLoop()
 {
-  QString schema_path(std::getenv("BASEDIR"));
-  bool show_deprecated = std::getenv("SHOW_DEPRECATED");
-
-  if (schema_path.isNull())
-  {
-    schema_path = QDir(getpwuid(getuid())->pw_dir).filePath("openpilot/openpilot"); // fallback to $HOME/openpilot (fixme: temp dir)
-  }
-  schema_path = QDir(schema_path).filePath("cereal/log.capnp");
-  schema_path.remove(0, 1);
-
-  // Parse the schema
-  auto fs = kj::newDiskFilesystem();
-
-  capnp::SchemaParser schema_parser;
-  capnp::ParsedSchema schema = schema_parser.parseFromDirectory(fs->getRoot(), kj::Path::parse(schema_path.toStdString()), nullptr);
-  capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
 
   PlotDataMapRef& plot_data = dataMap();
   RlogMessageParser parser("", plot_data);
-
-
-  std::vector<std::string> service_list;
-//  std::map<SubSocket *, SubMessage *> messages;
-//  std::map<std::string, SubMessage *> services;
-  std::vector<SubSocket *> _services;
-
-//  std::map<std::string, SubSocket *> sockets;  # todo: messages (subsocket, submessage)
-
-  // detect if zmq or not here, msgq address should be 127.0.0.1
-  std::string address = "192.168.43.1";
-//  std::string address = zmq_address;
-  bool use_zmq = true;
-  int idx = 0;
-//  for (auto field : event_struct_schema.getUnionFields()) {
-  for (const auto &it : services) {
-    std::string name = std::string(it.name);
-    service_list.push_back(name);
-
-    // todo: support zmq and custom addresses
-    int port = new_port(idx);
-    qDebug() << "port:" << port;
-
-
-    SubSocket *socket;
-
-//    std::string endpoint = std::string("tcp://192.168.43.1:") + std::to_string(port);
-//    qDebug() << "endpoint:" << endpoint.c_str();
-    socket = SubSocket::create(c, name, address, true, true);
-
-    assert(socket != 0);
-    poller->registerSocket(socket);
-//    SubMessage *m = new SubMessage{
-//      .name = name,
-//      .socket = socket,
-//      .freq = 0,
-//      .ignore_alive = true,
-//      .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader))};
-//    m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader({});
-//    messages[socket] = m;
-//    services[name] = m;
-    _services.push_back(socket);
-    qDebug() << "Added service and socket:" << name.c_str() << "with address:";
-    idx++;
-  }
 
   void *allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader));
   AlignedBuffer aligned_buf;
@@ -237,9 +166,7 @@ void DataStreamCereal::receiveLoop()
   qDebug() << "entering receive loop...";
   while( _running )
   {
-//    qDebug() << "loop";
     auto start = std::chrono::high_resolution_clock::now();
-
     try {
       while ( _running ) {
         auto sockets = poller->poll(0);

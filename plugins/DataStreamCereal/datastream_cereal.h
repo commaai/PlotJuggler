@@ -67,10 +67,11 @@ private:
   bool _running;
   Context *c;
   Poller *poller;
+  bool use_zmq;
+  bool show_deprecated;
 //  SubMaster sm;  // todo: replace with sm and pm (or just sm if we make another plugin for publishing)
 //  zmq::socket_t _zmq_socket;
-//  PJ::MessageParserPtr _parser;
-//  std::string zmq_address;
+  QString address;
 //  std::string _socket_address;  # we need multiple socket addresses
   std::thread _receive_thread;
 
