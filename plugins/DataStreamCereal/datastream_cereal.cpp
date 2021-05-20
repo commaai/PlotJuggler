@@ -147,7 +147,7 @@ void DataStreamCereal::receiveLoop()
         double time_stamp = (double)event.getLogMonoTime() / 1e9;
         try
         {
-         std::lock_guard<std::mutex> lock(mutex());
+          std::lock_guard<std::mutex> lock(mutex());
           parser.parseMessageImpl("", event, time_stamp, show_deprecated);
         }
         catch (std::exception& err)
