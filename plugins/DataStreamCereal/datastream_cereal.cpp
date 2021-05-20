@@ -117,6 +117,18 @@ void DataStreamCereal::receiveLoop()
 {
   PlotDataMapRef& plot_data = dataMap();
   RlogMessageParser parser("", plot_data);
+
+  std::string dbc_name;
+  if (std::getenv("DBC_NAME") != nullptr) {
+    dbc_name = std::getenv("DBC_NAME");
+  }
+
+  if (!dbc_name.empty()) {
+    if (!parser.loadDBC(dbc_name)) {
+      qDebug() << "Could not load specified DBC file:" << dbc_name.c_str();
+    }
+  }
+
   AlignedBuffer aligned_buf;
   // QElapsedTimer timer;
 
@@ -132,12 +144,19 @@ void DataStreamCereal::receiveLoop()
           break;
 
         capnp::FlatArrayMessageReader cmsg(aligned_buf.align(msg));
-        cereal::Event::Reader event = cmsg.getRoot<cereal::Event>();
-        double time_stamp = (double)event.getLogMonoTime() / 1e9;
+        capnp::DynamicStruct::Reader event = cmsg.getRoot<cereal::Event>();
+        double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
         try
         {
           std::lock_guard<std::mutex> lock(mutex());
-          parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+
+          if (event.has("can")) {
+            parser.parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
+          } else if (event.has("sendcan")) {
+            parser.parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
+          } else {
+            parser.parseMessageImpl("", event, time_stamp, show_deprecated);
+          }
         }
         catch (std::exception& err)
         {
