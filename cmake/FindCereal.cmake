@@ -3,6 +3,13 @@ if (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
   set(Cereal_FOUND TRUE)
 else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
 
+  # build cereal and opendbc before we search for required Cereal plugin libs below
+  add_custom_command(
+    TARGET plotjuggler_plugin_base PRE_BUILD
+    COMMAND cp opendbc/SConstruct . && cp -r opendbc/site_scons . && scons -j8
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/
+  )
+
   find_path(Cereal_INCLUDE_DIRS
     NAMES
       bzlib.h
