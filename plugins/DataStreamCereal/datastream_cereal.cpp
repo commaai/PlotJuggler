@@ -63,7 +63,7 @@ bool DataStreamCereal::start(QStringList*)
     }
     address = dialog->ui->lineEditAddress->text();
     // save for next time
-    settings.setValue("Cereal_Subscriber::address", address);  // todo: other settings code
+    settings.setValue("Cereal_Subscriber::address", address);
     qDebug() << "Using address in start1:" << address.toStdString().c_str();
   }
   else
@@ -84,7 +84,6 @@ bool DataStreamCereal::start(QStringList*)
     socket->setTimeout(0);
 
     poller->registerSocket(socket);
-    _services.push_back(socket);
   }
 
   _running = true;
@@ -104,10 +103,6 @@ void DataStreamCereal::shutdown()
       _receive_thread.join();
     }
 
-    for (auto sock : _services)
-    {
-      delete sock;
-    }
     delete c;
     delete poller;
 
@@ -153,8 +148,8 @@ void DataStreamCereal::receiveLoop()
         catch (std::exception& err)
         {
           QMessageBox::warning(nullptr,
-                               tr("ZMQ Subscriber"),
-                               tr("Problem parsing the message. ZMQ Subscriber will be stopped.\n%1").arg(err.what()),
+                               tr("Cereal Subscriber"),
+                               tr("Problem parsing the message. Cereal Subscriber will be stopped.\n%1").arg(err.what()),
                                QMessageBox::Ok);
 
           _running = false;

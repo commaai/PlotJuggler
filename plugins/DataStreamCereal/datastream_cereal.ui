@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ZMQ Subscriber</string>
+   <string>Cereal ZMQ Subscriber</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -93,7 +93,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Message Format: Cereal over ZMQ</string>
+      <string>Using Backend: Cereal over ZMQ</string>
      </property>
     </widget>
    </item>

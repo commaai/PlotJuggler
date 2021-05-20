@@ -35,7 +35,7 @@ target_link_libraries(DataStreamCereal
     )
 
 
-if(COMPILING_WITH_CATKIN)  # todo: copied from datastream plugin, remove?
+if(COMPILING_WITH_CATKIN)
     install(TARGETS DataStreamCereal
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
