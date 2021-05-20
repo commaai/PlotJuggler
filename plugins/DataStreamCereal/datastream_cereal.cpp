@@ -1,13 +1,14 @@
-#include "datastream_cereal.h"
-#include "ui_datastream_cereal.h"
+#include <assert.h>
 
-#include <QMessageBox>
+#include <chrono>
 #include <QDebug>
-#include <QSettings>
 #include <QDialog>
 #include <QIntValidator>
-#include <assert.h>
-#include <chrono>
+#include <QMessageBox>
+#include <QSettings>
+
+#include "datastream_cereal.h"
+#include "ui_datastream_cereal.h"
 
 
 StreamCerealDialog::StreamCerealDialog(QWidget *parent) :

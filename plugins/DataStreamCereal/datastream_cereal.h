@@ -1,22 +1,20 @@
 #pragma once
+#include <capnp/schema-parser.h>
+#include <capnp/serialize-packed.h>
+#include <pwd.h>
+#include <unistd.h>
+
+#include <thread>
 #include <QDialog>
 #include <QDir>
-#include <unistd.h>
-#include <pwd.h>
-
 #include <QtPlugin>
-#include <thread>
-#include "PlotJuggler/datastreamer_base.h"
-#include "PlotJuggler/messageparser_base.h"
-#include "ui_datastream_cereal.h"
-#include "../plugins/DataLoadRlog/rlog_parser.hpp"
 
 #include "cereal/messaging/messaging.h"
-#include <PlotJuggler/dataloader_base.h>
-#include <PlotJuggler/datastreamer_base.h>
-#include <capnp/serialize-packed.h>
-#include <capnp/schema-parser.h>
 #include "cereal/services.h"
+#include "PlotJuggler/datastreamer_base.h"
+#include "PlotJuggler/dataloader_base.h"
+#include "ui_datastream_cereal.h"
+#include "DataLoadRlog/rlog_parser.hpp"
 
 
 class StreamCerealDialog : public QDialog
