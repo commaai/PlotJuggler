@@ -126,7 +126,7 @@ void DataStreamCereal::receiveLoop()
   while (_running)
   {
     auto start = std::chrono::high_resolution_clock::now();
-    for (auto sock : poller->poll(0))
+    for (auto sock : poller->poll(-1))
     {
       while (_running)  // drain socket
       {
