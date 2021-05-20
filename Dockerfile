@@ -65,12 +65,3 @@ RUN pyenv install 3.8.5 && \
 # installs scons, pycapnp, cython, etc.
 COPY 3rdparty/opendbc/requirements.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
-
-WORKDIR /project
-COPY 3rdparty/cereal /project/cereal
-COPY 3rdparty/opendbc /project/opendbc
-COPY 3rdparty/opendbc/SConstruct /project/SConstruct
-COPY 3rdparty/opendbc/site_scons /project/site_scons
-
-RUN rm -rf /project/opendbc/.git
-RUN scons -c && scons -j$(nproc)

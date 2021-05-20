@@ -47,8 +47,7 @@ bool DataStreamCereal::start(QStringList*)
   }
 
   StreamCerealDialog* dialog = new StreamCerealDialog();
-  bool use_zmq = std::getenv("ZMQ");
-  if (use_zmq)
+  if (std::getenv("ZMQ"))
   {
     qDebug() << "Using ZMQ backend!";
 
@@ -65,7 +64,6 @@ bool DataStreamCereal::start(QStringList*)
     address = dialog->ui->lineEditAddress->text();
     // save for next time
     settings.setValue("Cereal_Subscriber::address", address);
-    qDebug() << "Using address:" << address.toStdString().c_str();
   }
   else
   {

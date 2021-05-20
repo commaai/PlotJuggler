@@ -29,7 +29,6 @@ public:
 
 };
 
-
 class DataStreamCereal : public PJ::DataStreamer
 {
   Q_OBJECT
