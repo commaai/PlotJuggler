@@ -160,10 +160,9 @@ void DataStreamCereal::receiveLoop()
     }
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    if (duration > 1000)
+    if (duration > 5000)
     {
-      if (duration > 5000) qDebug() << "Warning!";
-      qDebug() << "Greater than 1:" << (float)duration / 1000.0 << "ms";
+      qDebug() << "LAG --" << (float)duration / 1000.0 << "ms";
     }
   }
 }
