@@ -55,7 +55,6 @@ RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic main restric
     libqt5opengl5-dev \
     libqt5x11extras5-dev
 
-
 # opendbc and cereal
 RUN curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
 ENV PATH="/root/.pyenv/bin:/root/.pyenv/shims:${PATH}"
