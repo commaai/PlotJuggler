@@ -12,10 +12,10 @@
 
 #include "cereal/messaging/messaging.h"
 #include "cereal/services.h"
-#include "PlotJuggler/datastreamer_base.h"
-#include "PlotJuggler/dataloader_base.h"
-#include "ui_datastream_cereal.h"
 #include "DataLoadRlog/rlog_parser.hpp"
+#include "PlotJuggler/dataloader_base.h"
+#include "PlotJuggler/datastreamer_base.h"
+#include "ui_datastream_cereal.h"
 
 
 class StreamCerealDialog : public QDialog
