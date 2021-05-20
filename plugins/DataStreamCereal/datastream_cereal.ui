@@ -50,6 +50,20 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="label_6">
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Make sure to run bridge (cereal/messaging/bridge)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="boxOptions" native="true">
      <layout class="QVBoxLayout" name="layoutOptions">
       <property name="leftMargin">

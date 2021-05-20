@@ -61,8 +61,8 @@ bool DataStreamCereal::start(QStringList*)
       _running = false;
       return false;
     }
-    address = dialog->ui->lineEditAddress->text();
     // save for next time
+    address = dialog->ui->lineEditAddress->text();
     settings.setValue("Cereal_Subscriber::address", address);
   }
   else
@@ -78,7 +78,6 @@ bool DataStreamCereal::start(QStringList*)
     SubSocket *socket;
     socket = SubSocket::create(c, std::string(serv.name), address.toStdString(), false, true);  // don't conflate
     assert(socket != 0);
-    socket->setTimeout(0);
 
     poller->registerSocket(socket);
     sockets.push_back(socket);
@@ -105,8 +104,8 @@ void DataStreamCereal::shutdown()
     {
       delete sock;
     }
+    sockets.clear();  // clear deleted sockets
 
-    sockets.clear();
     delete c;
     delete poller;
 
@@ -142,11 +141,7 @@ void DataStreamCereal::receiveLoop()
         }
         catch (std::exception& err)
         {
-          qWarning() << "Problem parsing the message. Cereal Subscriber will be stopped.";
-          _running = false;
-          // notify the GUI
-          emit closed();
-          return;
+          qWarning() << "Cereal Streamer: problem parsing the message, continuing...";
         }
         delete msg;
       }
