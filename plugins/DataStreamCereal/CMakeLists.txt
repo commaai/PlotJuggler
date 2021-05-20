@@ -24,12 +24,6 @@ endforeach()
 
 add_library(DataStreamCereal SHARED ${SRC} ${UI_SRC}  )
 
-target_include_directories(
-    DataStreamCereal
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal  # todo: these two needed?
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/cereal/messaging
-    )
-
 target_link_libraries(DataStreamCereal
     ${Qt5Widgets_LIBRARIES}
     ${Cereal_LIBRARIES}  # has libcereal.a and libmessaging.a

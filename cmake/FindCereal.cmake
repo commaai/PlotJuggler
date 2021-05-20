@@ -3,7 +3,7 @@ if (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
   set(Cereal_FOUND TRUE)
 else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
 
-  find_path(Cereal_INCLUDE_DIRS  # todo: not sure if we need any of these. probably capnp at least
+  find_path(Cereal_INCLUDE_DIRS
     NAMES
       bzlib.h
       capnp
