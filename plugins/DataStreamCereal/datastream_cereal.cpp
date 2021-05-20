@@ -110,7 +110,6 @@ void DataStreamCereal::shutdown()
     }
     delete c;
     delete poller;
-    delete _services;
 
     _running = false;
   }
@@ -141,8 +140,10 @@ void DataStreamCereal::receiveLoop()
         if (msg == nullptr)
           break;
 
-        msg_reader->~FlatArrayMessageReader();
-        msg_reader = new (allocated_msg_reader) capnp::FlatArrayMessageReader(aligned_buf.align(msg));
+//        for (int i = 0; i<1000; i++) {
+          msg_reader->~FlatArrayMessageReader();
+          msg_reader = new (allocated_msg_reader) capnp::FlatArrayMessageReader(aligned_buf.align(msg));
+//        }
         delete msg;
         cereal::Event::Reader event = msg_reader->getRoot<cereal::Event>();
         double time_stamp = (double)event.getLogMonoTime() / 1e9;
