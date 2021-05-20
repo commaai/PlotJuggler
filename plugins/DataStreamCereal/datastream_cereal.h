@@ -16,7 +16,7 @@
 #include <PlotJuggler/datastreamer_base.h>
 #include <capnp/serialize-packed.h>
 #include <capnp/schema-parser.h>
-#include "services.h"
+#include "cereal/services.h"
 
 
 class StreamCerealDialog : public QDialog
