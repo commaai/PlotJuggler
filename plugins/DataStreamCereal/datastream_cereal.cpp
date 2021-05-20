@@ -7,6 +7,7 @@
 #include <QDialog>
 #include <QIntValidator>
 #include <assert.h>
+#include <chrono>
 
 
 StreamCerealDialog::StreamCerealDialog(QWidget *parent) :
@@ -120,14 +121,12 @@ void DataStreamCereal::receiveLoop()
 {
   PlotDataMapRef& plot_data = dataMap();
   RlogMessageParser parser("", plot_data);
-
-  void *allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader));
   AlignedBuffer aligned_buf;
-  capnp::FlatArrayMessageReader *msg_reader = new (allocated_msg_reader) capnp::FlatArrayMessageReader({});
 
   qDebug() << "Entering receive thread...";
   while (_running)
   {
+    auto start = std::chrono::high_resolution_clock::now();
     for (auto sock : poller->poll(0))
     {
       while (_running)  // drain socket
@@ -136,10 +135,8 @@ void DataStreamCereal::receiveLoop()
         if (msg == nullptr)
           break;
 
-        msg_reader->~FlatArrayMessageReader();
-        msg_reader = new (allocated_msg_reader) capnp::FlatArrayMessageReader(aligned_buf.align(msg));
-        delete msg;
-        cereal::Event::Reader event = msg_reader->getRoot<cereal::Event>();
+        capnp::FlatArrayMessageReader cmsg(aligned_buf.align(msg));
+        cereal::Event::Reader event = cmsg.getRoot<cereal::Event>();
         double time_stamp = (double)event.getLogMonoTime() / 1e9;
         try
         {
@@ -158,7 +155,15 @@ void DataStreamCereal::receiveLoop()
           emit closed();
           return;
         }
+        delete msg;
       }
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    if (duration > 1000)
+    {
+      if (duration > 5000) qDebug() << "Warning!";
+      qDebug() << "Greater than 1:" << (float)duration / 1000.0 << "ms";
     }
   }
 }
