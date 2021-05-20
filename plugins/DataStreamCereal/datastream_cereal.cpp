@@ -29,7 +29,6 @@ StreamCerealDialog::~StreamCerealDialog()
 
 DataStreamCereal::DataStreamCereal():
   _running(false),
-  use_zmq(std::getenv("ZMQ")),
   show_deprecated(std::getenv("SHOW_DEPRECATED"))
 {
 }
@@ -47,6 +46,7 @@ bool DataStreamCereal::start(QStringList*)
   }
 
   StreamCerealDialog* dialog = new StreamCerealDialog();
+  bool use_zmq = std::getenv("ZMQ");
   if (use_zmq)
   {
     qDebug() << "Using ZMQ backend!";

@@ -66,7 +66,6 @@ private:
   bool _running;
   Context *c;
   Poller *poller;
-  bool use_zmq;
   bool show_deprecated;
   std::vector<SubSocket *> _services;
   QString address;
