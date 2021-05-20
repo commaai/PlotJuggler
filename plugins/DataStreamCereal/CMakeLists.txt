@@ -15,13 +15,6 @@ SET(SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/parser.cc
 )
 
-file(GLOB dbc_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/*.dbc)
-foreach(dbc ${dbc_FILES})
-  string(REPLACE ".dbc" ".cc" dbc_out ${dbc})
-  string(REPLACE "/3rdparty/opendbc/" "/3rdparty/opendbc/can/dbc_out/" dbc_out ${dbc_out})
-  set(SRC ${SRC} ${dbc_out})
-endforeach()
-
 add_library(DataStreamCereal SHARED ${SRC} ${UI_SRC}  )
 
 target_link_libraries(DataStreamCereal
