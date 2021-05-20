@@ -149,7 +149,6 @@ void DataStreamCereal::receiveLoop()
         try
         {
           std::lock_guard<std::mutex> lock(mutex());
-
           if (event.has("can")) {
             parser.parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
           } else if (event.has("sendcan")) {
