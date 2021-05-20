@@ -151,3 +151,18 @@ bool RlogMessageParser::parseCanMessage(
   }
   return true;
 }
+
+std::string RlogMessageParser::SelectDBCDialog() {
+  QStringList dbc_items;
+  dbc_items.append("");
+  for (auto dbc : get_dbcs()) {
+    dbc_items.append(dbc->name);
+  }
+  bool dbc_selected;
+  QString selected_str = QInputDialog::getItem(
+    nullptr, QObject::tr("Select DBC"), QObject::tr("Parse CAN using DBC:"), dbc_items, 0, false, &dbc_selected);
+  if (dbc_selected && !selected_str.isEmpty()) {
+    return selected_str.toStdString();
+  }
+  return "";
+}

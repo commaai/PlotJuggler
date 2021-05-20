@@ -84,6 +84,23 @@ bool DataStreamCereal::start(QStringList*)
     sockets.push_back(socket);
   }
 
+  // Now get DBC name for CAN parsing
+  // TODO: use an env var to enable can parsing
+  std::string dbc_name;
+  qDebug() << "here1";
+  if (std::getenv("DBC_NAME") != nullptr) {
+    qDebug() << "here";
+    dbc_name = std::getenv("DBC_NAME");
+  } else {
+    dbc_name = parser.SelectDBCDialog();
+  }
+
+  if (!dbc_name.empty()) {
+    if (!parser.loadDBC(dbc_name)) {
+      qDebug() << "Could not load specified DBC file:" << dbc_name.c_str();
+    }
+  }
+
   _running = true;
   _receive_thread = std::thread(&DataStreamCereal::receiveLoop, this);
 
@@ -116,17 +133,6 @@ void DataStreamCereal::shutdown()
 
 void DataStreamCereal::receiveLoop()
 {
-  std::string dbc_name;
-  if (std::getenv("DBC_NAME") != nullptr) {
-    dbc_name = std::getenv("DBC_NAME");
-  }
-
-  if (!dbc_name.empty()) {
-    if (!parser.loadDBC(dbc_name)) {
-      qDebug() << "Could not load specified DBC file:" << dbc_name.c_str();
-    }
-  }
-
   AlignedBuffer aligned_buf;
   // QElapsedTimer timer;
 

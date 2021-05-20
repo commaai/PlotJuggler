@@ -114,9 +114,9 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
           dbc_name = std::getenv("DBC_NAME");
         }
         else {
-          dbc_name = SelectDBCDialog();
+          dbc_name = parser.SelectDBCDialog();
         }
-        if (!dbc_name.empty()) {
+        if (!dbc_name.empty()) {  // todo: move all this logic to the Rlog parser
           if (!parser.loadDBC(dbc_name)) {
             qDebug() << "Could not load specified DBC file";
           }
@@ -142,21 +142,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
   qDebug() << "Done reading Rlog data"; // unit tests rely on this signal
   return true;
-}
-
-std::string DataLoadRlog::SelectDBCDialog() {
-  QStringList dbc_items;
-  dbc_items.append("");
-  for (auto dbc : get_dbcs()) {
-    dbc_items.append(dbc->name);
-  }
-  bool dbc_selected;
-  QString selected_str = QInputDialog::getItem(
-    nullptr, tr("Select DBC"), tr("Parse CAN using DBC:"), dbc_items, 0, false, &dbc_selected);
-  if (dbc_selected && !selected_str.isEmpty()) {
-    return selected_str.toStdString();
-  }
-  return "";
 }
 
 bool DataLoadRlog::xmlSaveState(QDomDocument& doc, QDomElement& parent_element) const

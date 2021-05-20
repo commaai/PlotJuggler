@@ -5,6 +5,7 @@
 #include <capnp/schema.h>
 #include <capnp/serialize.h>
 #include <iostream>
+#include <QInputDialog>
 
 #ifndef DYNAMIC_CAPNP
 #define DYNAMIC_CAPNP  // Do not depend on generated log.capnp.h structure
@@ -25,6 +26,7 @@ public:
   RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data):
     MessageParser(topic_name, plot_data) { };
 
+  std::string SelectDBCDialog();
   bool loadDBC(std::string dbc_str);
   bool parseMessageCereal(capnp::DynamicStruct::Reader event);
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp, bool is_root);

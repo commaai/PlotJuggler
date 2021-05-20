@@ -2,7 +2,6 @@
 
 #include <QProgressDialog>
 #include <QComboBox>
-#include <QInputDialog>
 #include <QDir>
 
 #include <iostream>
@@ -31,8 +30,6 @@ public:
   virtual const char* name() const override { return "DataLoad Rlog"; }
   virtual bool xmlSaveState(QDomDocument& doc, QDomElement& parent_element) const override;
   virtual bool xmlLoadState(const QDomElement& parent_element) override;
-
-  std::string SelectDBCDialog();
 
 private:
   std::vector<const char*> _extensions;
