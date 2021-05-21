@@ -3,9 +3,7 @@
 
 void RlogMessageParser::initParser()
 {
-  qDebug() << "on init!";
   show_deprecated = std::getenv("SHOW_DEPRECATED");
-
   if (std::getenv("DBC_NAME") != nullptr)
   {
     can_dialog_needed = !loadDBC(std::getenv("DBC_NAME"));
