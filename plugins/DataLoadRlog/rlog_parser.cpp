@@ -5,12 +5,10 @@ void RlogMessageParser::initParser()
 {
   qDebug() << "on init!";
   show_deprecated = std::getenv("SHOW_DEPRECATED");
-  has_can = false;
 
   if (std::getenv("DBC_NAME") != nullptr)
   {
     can_dialog_needed = !loadDBC(std::getenv("DBC_NAME"));
-    has_can = true;
   }
 }
 
@@ -38,9 +36,7 @@ bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
 bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 {
   if (can_dialog_needed && (event.has("can") || event.has("sendcan"))) {
-    loadDBC(SelectDBCDialog());
-    can_dialog_needed = false;  // no way to verify selected dbc is correct, so don't ask again
-    has_can = true;
+    can_dialog_needed = !loadDBC(SelectDBCDialog());
   }
 
   double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;

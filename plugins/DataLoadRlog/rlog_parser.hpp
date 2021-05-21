@@ -24,7 +24,6 @@ private:
   void initParser();
   bool show_deprecated;
   bool can_dialog_needed = true;
-  bool has_can = false;
 public:
   RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data):
     MessageParser(topic_name, plot_data) { initParser(); };
