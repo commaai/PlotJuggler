@@ -108,22 +108,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
 
       capnp::DynamicStruct::Reader event = tmsg->getRoot<capnp::DynamicStruct>(event_struct_schema);
 
-      if (!can_dialog_tried && (event.has("can") || event.has("sendcan"))) {
-        std::string dbc_name;
-        if (std::getenv("DBC_NAME") != nullptr) {
-          dbc_name = std::getenv("DBC_NAME");
-        }
-        else {
-          dbc_name = parser.SelectDBCDialog();
-        }
-        if (!dbc_name.empty()) {  // todo: move all this logic to the Rlog parser
-          if (!parser.loadDBC(dbc_name)) {
-            qDebug() << "Could not load specified DBC file";
-          }
-        }
-        can_dialog_tried = true;
-      }
-
       parser.parseMessageCereal(event);
     }
     catch (const kj::Exception& e)

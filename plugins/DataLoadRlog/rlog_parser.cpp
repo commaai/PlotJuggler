@@ -1,13 +1,33 @@
 #include "rlog_parser.hpp"
 
-bool RlogMessageParser::loadDBC(std::string dbc_str) {
-  if (!dbc_str.empty()) {
-    if (dbc_lookup(dbc_str) == nullptr) {
+
+void RlogMessageParser::initParser()
+{
+  qDebug() << "on init!";
+  show_deprecated = std::getenv("SHOW_DEPRECATED");
+  has_can = false;
+
+  if (std::getenv("DBC_NAME") != nullptr)
+  {
+    dbc_name = std::getenv("DBC_NAME");
+    can_dialog_needed = !loadDBC(dbc_name);
+    has_can = true;
+  }
+}
+
+bool RlogMessageParser::loadDBC(std::string dbc_str)  // TODO: remove
+{
+  if (!dbc_name.empty())
+  {
+    if (dbc_lookup(dbc_name) == nullptr)
+    {
+      qDebug() << "Could not load specified DBC file:" << dbc_name.c_str();
       return false;
     }
     dbc_name = dbc_str;  // is used later to instantiate CANParser
     packer = std::make_shared<CANPacker>(dbc_name);
   }
+  qDebug() << "loaded DBC successfully!" << dbc_name.c_str();  // TODO: temp
   return true;
 }
 
@@ -18,10 +38,18 @@ bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
 
 bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 {
+  if (can_dialog_needed && (event.has("can") || event.has("sendcan"))) {
+    dbc_name = SelectDBCDialog();
+    can_dialog_needed = false;  // no way to verify selected dbc is correct, so don't ask again
+    has_can = true;
+  }
+//  qDebug() << "has can:" << !can_dialog_needed << (event.has("can") || event.has("sendcan"));
+
   double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
-  if (event.has("can")) {
+  // if can_dialog_needed is true, then we haven't seen a can message
+  if (!can_dialog_needed && event.has("can")) {
     return parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
-  } else if (event.has("sendcan")) {
+  } else if (!can_dialog_needed && event.has("sendcan")) {
     return parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
   } else {
     return parseMessageImpl("", event, time_stamp, true);

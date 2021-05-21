@@ -34,5 +34,4 @@ public:
 private:
   std::vector<const char*> _extensions;
   std::string _default_time_axis;
-  bool can_dialog_tried = false;
 };
