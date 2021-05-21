@@ -10,6 +10,7 @@
 #include "datastream_cereal.h"
 #include "ui_datastream_cereal.h"
 
+#define STD_TIMEOUT 100
 
 StreamCerealDialog::StreamCerealDialog(QWidget *parent) :
   QDialog(parent),
@@ -79,6 +80,7 @@ bool DataStreamCereal::start(QStringList*)
     SubSocket *socket;
     socket = SubSocket::create(c, std::string(serv.name), address.toStdString(), false, true);  // don't conflate
     assert(socket != 0);
+    socket->setTimeout(STD_TIMEOUT);
 
     poller->registerSocket(socket);
     sockets.push_back(socket);
@@ -133,7 +135,7 @@ void DataStreamCereal::receiveLoop()
   while (_running)
   {
     // timer.start();
-    for (auto sock : poller->poll(100))
+    for (auto sock : poller->poll(STD_TIMEOUT))
     {
       while (_running)  // drain socket
       {
