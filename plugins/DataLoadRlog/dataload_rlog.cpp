@@ -120,7 +120,7 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
     QApplication::processEvents();
     if(progress_dialog.wasCanceled())
     {
-      return false;
+      return true;  // display what we've already parsed
     }
   }
 
