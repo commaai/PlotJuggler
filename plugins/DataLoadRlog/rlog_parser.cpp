@@ -24,13 +24,12 @@ bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
   } else if (event.has("sendcan")) {
     return parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
   } else {
-    return parseMessageImpl("", event, time_stamp);
+    return parseMessageImpl("", event, time_stamp, true);
   }
 }
 
-bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp)
+bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp, bool is_root)
 {
-
   PJ::PlotData& _data_series = getSeries(topic_name);
 
   switch (value.getType()) 
@@ -65,7 +64,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       int i = 0;
       for(auto element : value.as<capnp::DynamicList>())
       {
-        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp);
+        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp, false);
         i++;
       }
       break;
@@ -81,13 +80,34 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
     case capnp::DynamicValue::STRUCT: 
     {
       auto structValue = value.as<capnp::DynamicStruct>();
-      for (auto field : structValue.getSchema().getFields()) 
+      std::string structName;
+      KJ_IF_MAYBE(e_, structValue.which())
       {
-        if (structValue.has(field))
+        structName = e_->getProto().getName();
+      }
+      // skips root structs that are deprecated
+      if (!show_deprecated && structName.find("DEPRECATED") != std::string::npos)
+      {
+        break;
+      }
+
+      for (const auto &field : structValue.getSchema().getFields())
+      {
+        std::string name = field.getProto().getName();
+        if (structValue.has(field) && (show_deprecated || name.find("DEPRECATED") == std::string::npos))
         {
-          std::string name = field.getProto().getName();
-          if (show_deprecated || name.find("DEPRECATED") == std::string::npos) {
-            parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp);
+          // field is in a union if discriminant is less than the size of the union
+          // https://github.com/capnproto/capnproto/blob/master/c++/src/capnp/schema.capnp
+          const int offset = structValue.getSchema().getProto().getStruct().getDiscriminantCount();
+          const bool in_union = field.getProto().getDiscriminantValue() < offset;
+
+          if (!is_root || in_union)
+          {
+            parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false);
+          }
+          else if (is_root && !in_union)
+          {
+            parseMessageImpl(topic_name + '/' + structName + "/event_" + name, structValue.get(field), time_stamp, false);
           }
         }
       }

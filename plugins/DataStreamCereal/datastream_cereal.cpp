@@ -30,7 +30,7 @@ StreamCerealDialog::~StreamCerealDialog()
 
 DataStreamCereal::DataStreamCereal():
   _running(false),
-  parser(RlogMessageParser("", dataMap(), std::getenv("SHOW_DEPRECATED")))
+  parser(RlogMessageParser("", dataMap()))
 {
 }
 
