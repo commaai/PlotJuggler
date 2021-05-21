@@ -48,7 +48,6 @@ bool DataStreamCereal::start(QStringList*)
 
   QString address;
   StreamCerealDialog* dialog = new StreamCerealDialog();
-  parser.show_deprecated = std::getenv("SHOW_DEPRECATED");
   if (std::getenv("ZMQ"))
   {
     qDebug() << "Using ZMQ backend!";

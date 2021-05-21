@@ -97,7 +97,6 @@ bool DataLoadRlog::readDataFromFile(FileLoadInfo* fileload_info, PlotDataMapRef&
   capnp::StructSchema event_struct_schema = schema.getNested("Event").asStruct();
 
   RlogMessageParser parser("", plot_data);
-  parser.show_deprecated = std::getenv("SHOW_DEPRECATED");
 
   while(amsg.size() > 0)
   {

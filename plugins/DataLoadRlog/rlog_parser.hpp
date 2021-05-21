@@ -30,5 +30,5 @@ public:
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp, bool is_root);
   bool parseCanMessage(const std::string& topic_name, capnp::DynamicList::Reader node, double timestamp);
   bool parseMessage(const MessageRef serialized_msg, double timestamp);
-  bool show_deprecated;
+  bool show_deprecated = std::getenv("SHOW_DEPRECATED");
 };
