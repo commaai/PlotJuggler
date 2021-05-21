@@ -97,7 +97,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
         for (const auto &field : structValue.getSchema().getNonUnionFields())
         {  // add root fields to root struct (valid, logMonoTime, etc.)
           std::string name = field.getProto().getName();
-          parseMessageImpl(topic_name + '/' + structName + "/event_" + name, structValue.get(field), time_stamp, false, show_deprecated);
+          parseMessageImpl(topic_name + '/' + structName + "/event_" + name, structValue.get(field), time_stamp, false);
         }
       }
 
