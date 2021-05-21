@@ -101,11 +101,11 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
           const int offset = structValue.getSchema().getProto().getStruct().getDiscriminantCount();
           const bool in_union = field.getProto().getDiscriminantValue() < offset;
 
-          if (!is_root || in_union)  // skip adding root non-union fields
+          if (!is_root || in_union)
           {
             parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false);
           }
-          else if (is_root && !in_union)  // adds root fields to each sub-struct
+          else if (is_root && !in_union)
           {
             parseMessageImpl(topic_name + '/' + structName + "/event_" + name, structValue.get(field), time_stamp, false);
           }
