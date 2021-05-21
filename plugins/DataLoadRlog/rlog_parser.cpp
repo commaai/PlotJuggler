@@ -12,22 +12,13 @@ void RlogMessageParser::initParser()
 
 bool RlogMessageParser::loadDBC(std::string dbc_str)
 {
-  if (!dbc_str.empty())
-  {
-    if (dbc_lookup(dbc_str) == nullptr)
-    {
-      qDebug() << "Could not load specified DBC file:" << dbc_str.c_str();
-      return false;
-    }
+  if (!dbc_str.empty() && dbc_lookup(dbc_str) != nullptr) {
     dbc_name = dbc_str;  // is used later to instantiate CANParser
     packer = std::make_shared<CANPacker>(dbc_name);
+    qDebug() << "Loaded DBC:" << dbc_name.c_str();
+    return true;
   }
-  qDebug() << "Loaded DBC:" << dbc_name.c_str();
-  return true;
-}
-
-bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
-{
+  qDebug() << "Could not load specified DBC file:" << dbc_str.c_str();
   return false;
 }
 
