@@ -10,7 +10,6 @@
 #include "datastream_cereal.h"
 #include "ui_datastream_cereal.h"
 
-#define STD_TIMEOUT 100
 
 StreamCerealDialog::StreamCerealDialog(QWidget *parent) :
   QDialog(parent),
@@ -134,7 +133,7 @@ void DataStreamCereal::receiveLoop()
   while (_running)
   {
     // timer.start();
-    for (auto sock : poller->poll(STD_TIMEOUT))
+    for (auto sock : poller->poll(100))
     {
       while (_running)  // drain socket
       {
