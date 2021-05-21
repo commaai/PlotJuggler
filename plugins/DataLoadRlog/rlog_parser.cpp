@@ -22,9 +22,9 @@ bool RlogMessageParser::loadDBC(std::string dbc_str)
       return false;
     }
     dbc_name = dbc_str;  // is used later to instantiate CANParser
-    packer = std::make_shared<CANPacker>(dbc_str);
+    packer = std::make_shared<CANPacker>(dbc_name);
   }
-  qDebug() << "Loaded DBC:" << dbc_str.c_str();
+  qDebug() << "Loaded DBC:" << dbc_name.c_str();
   return true;
 }
 
@@ -33,10 +33,18 @@ bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
   return false;
 }
 
+void RlogMessageParser::showDBCDialog()
+{
+  if (can_dialog_needed)
+  {
+    can_dialog_needed = !loadDBC(SelectDBCDialog());
+  }
+}
+
 bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 {
   if (can_dialog_needed && (event.has("can") || event.has("sendcan"))) {
-    can_dialog_needed = !loadDBC(SelectDBCDialog());
+    showDBCDialog();
   }
 
   double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;

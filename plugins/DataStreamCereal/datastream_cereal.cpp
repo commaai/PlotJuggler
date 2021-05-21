@@ -2,7 +2,7 @@
 
 #include <QDebug>
 #include <QDialog>
-#include <QElapsedTimer>
+//#include <QElapsedTimer>
 #include <QIntValidator>
 #include <QMessageBox>
 #include <QSettings>
@@ -84,23 +84,7 @@ bool DataStreamCereal::start(QStringList*)
     sockets.push_back(socket);
   }
 
-  // Now get DBC name for CAN parsing
-  // TODO: use an env var to enable can parsing
-  std::string dbc_name;
-  qDebug() << "here1";
-  if (std::getenv("DBC_NAME") != nullptr) {
-    qDebug() << "here";
-    dbc_name = std::getenv("DBC_NAME");
-  } else {
-    dbc_name = parser.SelectDBCDialog();
-  }
-
-  if (!dbc_name.empty()) {
-    if (!parser.loadDBC(dbc_name)) {
-      qDebug() << "Could not load specified DBC file:" << dbc_name.c_str();
-    }
-  }
-
+  parser.showDBCDialog();  // can't show dialog in a thread
   _running = true;
   _receive_thread = std::thread(&DataStreamCereal::receiveLoop, this);
 
