@@ -14,7 +14,7 @@ void RlogMessageParser::initParser()
   }
 }
 
-bool RlogMessageParser::loadDBC(std::string dbc_str)  // TODO: remove
+bool RlogMessageParser::loadDBC(std::string dbc_str)
 {
   if (!dbc_str.empty())
   {
@@ -26,7 +26,7 @@ bool RlogMessageParser::loadDBC(std::string dbc_str)  // TODO: remove
     dbc_name = dbc_str;  // is used later to instantiate CANParser
     packer = std::make_shared<CANPacker>(dbc_str);
   }
-  qDebug() << "loaded DBC successfully!" << dbc_str.c_str();  // TODO: temp
+  qDebug() << "Loaded DBC:" << dbc_str.c_str();
   return true;
 }
 
@@ -42,13 +42,11 @@ bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
     can_dialog_needed = false;  // no way to verify selected dbc is correct, so don't ask again
     has_can = true;
   }
-//  qDebug() << "has can:" << !can_dialog_needed << (event.has("can") || event.has("sendcan"));
 
   double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
-  // if can_dialog_needed is true, then we haven't seen a can message
-  if (!can_dialog_needed && event.has("can")) {
+  if (event.has("can")) {
     return parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp);
-  } else if (!can_dialog_needed && event.has("sendcan")) {
+  } else if (event.has("sendcan")) {
     return parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp);
   } else {
     return parseMessageImpl("", event, time_stamp, true);
