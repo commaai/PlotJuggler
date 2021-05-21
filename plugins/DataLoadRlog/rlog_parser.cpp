@@ -30,7 +30,6 @@ bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 
 bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp, bool is_root)
 {
-
   PJ::PlotData& _data_series = getSeries(topic_name);
 
   switch (value.getType()) 
@@ -86,30 +85,29 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       {
         structName = e_->getProto().getName();
       }
-
+      // skips root structs that are deprecated
       if (!show_deprecated && structName.find("DEPRECATED") != std::string::npos)
       {
         break;
       }
 
-      if (is_root)
-      {
-        for (const auto &field : structValue.getSchema().getNonUnionFields())
-        {  // add root fields to root struct (valid, logMonoTime, etc.)
-          std::string name = field.getProto().getName();
-          parseMessageImpl(topic_name + '/' + structName + "/event_" + name, structValue.get(field), time_stamp, false);
-        }
-      }
-
       for (const auto &field : structValue.getSchema().getFields())
       {
-        // skip adding root non-union fields
-        if (structValue.has(field) && (!is_root || (structValue.get(field).getType() == capnp::DynamicValue::STRUCT)))
+        std::string name = field.getProto().getName();
+        if (structValue.has(field) && (show_deprecated || name.find("DEPRECATED") == std::string::npos))
         {
-          std::string name = field.getProto().getName();
-          if (show_deprecated || name.find("DEPRECATED") == std::string::npos)
+          // field is in a union if discriminant is less than the size of the union
+          // https://github.com/capnproto/capnproto/blob/master/c++/src/capnp/schema.capnp
+          const int offset = structValue.getSchema().getProto().getStruct().getDiscriminantCount();
+          const bool in_union = field.getProto().getDiscriminantValue() < offset;
+
+          if (!is_root || in_union)  // skip adding root non-union fields
           {
             parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false);
+          }
+          else if (is_root && !in_union)  // adds root fields to each sub-struct
+          {
+            parseMessageImpl(topic_name + '/' + structName + "/event_" + name, structValue.get(field), time_stamp, false);
           }
         }
       }
