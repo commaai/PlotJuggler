@@ -9,25 +9,24 @@ void RlogMessageParser::initParser()
 
   if (std::getenv("DBC_NAME") != nullptr)
   {
-    dbc_name = std::getenv("DBC_NAME");
-    can_dialog_needed = !loadDBC(dbc_name);
+    can_dialog_needed = !loadDBC(std::getenv("DBC_NAME"));
     has_can = true;
   }
 }
 
 bool RlogMessageParser::loadDBC(std::string dbc_str)  // TODO: remove
 {
-  if (!dbc_name.empty())
+  if (!dbc_str.empty())
   {
-    if (dbc_lookup(dbc_name) == nullptr)
+    if (dbc_lookup(dbc_str) == nullptr)
     {
-      qDebug() << "Could not load specified DBC file:" << dbc_name.c_str();
+      qDebug() << "Could not load specified DBC file:" << dbc_str.c_str();
       return false;
     }
     dbc_name = dbc_str;  // is used later to instantiate CANParser
-    packer = std::make_shared<CANPacker>(dbc_name);
+    packer = std::make_shared<CANPacker>(dbc_str);
   }
-  qDebug() << "loaded DBC successfully!" << dbc_name.c_str();  // TODO: temp
+  qDebug() << "loaded DBC successfully!" << dbc_str.c_str();  // TODO: temp
   return true;
 }
 
@@ -39,7 +38,7 @@ bool RlogMessageParser::parseMessage(const MessageRef msg, double time_stamp)
 bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 {
   if (can_dialog_needed && (event.has("can") || event.has("sendcan"))) {
-    dbc_name = SelectDBCDialog();
+    loadDBC(SelectDBCDialog());
     can_dialog_needed = false;  // no way to verify selected dbc is correct, so don't ask again
     has_can = true;
   }
