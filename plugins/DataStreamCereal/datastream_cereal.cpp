@@ -132,8 +132,9 @@ void DataStreamCereal::receiveLoop()
 
   while (_running)
   {
+    qDebug() << "main loop";
     // timer.start();
-    for (auto sock : poller->poll(-1))
+    for (auto sock : poller->poll(100))
     {
       while (_running)  // drain socket
       {
