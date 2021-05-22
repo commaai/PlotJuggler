@@ -1,13 +1,13 @@
 #pragma once
 #include <bzlib.h>
-#include <capnp/schema-parser.h>
-#include <capnp/serialize-packed.h>
-#include <PlotJuggler/dataloader_base.h>
+#include <iostream>
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <iostream>
+#include <capnp/schema-parser.h>
+#include <capnp/serialize-packed.h>
+#include <PlotJuggler/dataloader_base.h>
 #include <QComboBox>
 #include <QDir>
 #include <QProgressDialog>

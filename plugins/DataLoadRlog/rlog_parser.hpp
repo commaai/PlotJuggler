@@ -1,6 +1,5 @@
 #pragma once
 #include <PlotJuggler/messageparser_base.h>
-
 #include <QInputDialog>
 
 #ifndef DYNAMIC_CAPNP
