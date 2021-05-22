@@ -1,7 +1,8 @@
 #include "rlog_parser.hpp"
 
 
-void RlogMessageParser::initParser()
+RlogMessageParser::RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data) :
+  MessageParser(topic_name, plot_data)
 {
   show_deprecated = std::getenv("SHOW_DEPRECATED");
   if (std::getenv("DBC_NAME") != nullptr)

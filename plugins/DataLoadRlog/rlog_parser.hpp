@@ -19,12 +19,10 @@ private:
   std::shared_ptr<CANPacker> packer;
   std::string SelectDBCDialog();
   bool loadDBC(std::string dbc_str);
-  void initParser();
   bool show_deprecated;
   bool can_dialog_needed = true;
 public:
-  RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data):
-    MessageParser(topic_name, plot_data) { initParser(); };
+  RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data);
 
   bool parseMessageCereal(capnp::DynamicStruct::Reader event);
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp, bool is_root);
