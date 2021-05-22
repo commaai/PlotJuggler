@@ -1,7 +1,4 @@
 #pragma once
-#include <capnp/dynamic.h>
-#include <capnp/schema.h>
-#include <capnp/serialize.h>
 #include <PlotJuggler/messageparser_base.h>
 
 #include <QInputDialog>
