@@ -26,7 +26,7 @@ bool RlogMessageParser::loadDBC(std::string dbc_str)
 bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 {
   if (can_dialog_needed && (event.has("can") || event.has("sendcan"))) {
-    selectDBCDialog();
+    selectDBCDialog();  // prompts for and loads DBC
   }
 
   double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
