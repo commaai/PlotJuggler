@@ -84,7 +84,7 @@ bool DataStreamCereal::start(QStringList*)
     sockets.push_back(socket);
   }
 
-  parser.showDBCDialog();  // can't show dialog in a thread so show it now
+  parser.selectDBCDialog();  // can't show dialog in a thread so show it now
   _running = true;
   _receive_thread = std::thread(&DataStreamCereal::receiveLoop, this);
 

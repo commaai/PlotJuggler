@@ -23,18 +23,10 @@ bool RlogMessageParser::loadDBC(std::string dbc_str)
   return false;
 }
 
-void RlogMessageParser::showDBCDialog()
-{
-  if (can_dialog_needed)
-  {
-    can_dialog_needed = !loadDBC(SelectDBCDialog());
-  }
-}
-
 bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 {
   if (can_dialog_needed && (event.has("can") || event.has("sendcan"))) {
-    showDBCDialog();
+    selectDBCDialog();
   }
 
   double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
@@ -171,17 +163,19 @@ bool RlogMessageParser::parseCanMessage(
   return true;
 }
 
-std::string RlogMessageParser::SelectDBCDialog() {
-  QStringList dbc_items;
-  dbc_items.append("");
-  for (auto dbc : get_dbcs()) {
-    dbc_items.append(dbc->name);
+void RlogMessageParser::selectDBCDialog() {
+  if (can_dialog_needed)
+  {
+    QStringList dbc_items;
+    dbc_items.append("");
+    for (auto dbc : get_dbcs()) {
+      dbc_items.append(dbc->name);
+    }
+    bool dbc_selected;
+    QString selected_str = QInputDialog::getItem(
+      nullptr, QObject::tr("Select DBC"), QObject::tr("Parse CAN using DBC:"), dbc_items, 0, false, &dbc_selected);
+    if (dbc_selected && !selected_str.isEmpty()) {
+      can_dialog_needed = !loadDBC(selected_str.toStdString());
+    }
   }
-  bool dbc_selected;
-  QString selected_str = QInputDialog::getItem(
-    nullptr, QObject::tr("Select DBC"), QObject::tr("Parse CAN using DBC:"), dbc_items, 0, false, &dbc_selected);
-  if (dbc_selected && !selected_str.isEmpty()) {
-    return selected_str.toStdString();
-  }
-  return "";
 }
