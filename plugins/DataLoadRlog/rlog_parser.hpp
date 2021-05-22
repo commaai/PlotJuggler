@@ -1,15 +1,15 @@
 #pragma once
-
-#include <PlotJuggler/messageparser_base.h>
 #include <capnp/dynamic.h>
 #include <capnp/schema.h>
 #include <capnp/serialize.h>
-#include <iostream>
+#include <PlotJuggler/messageparser_base.h>
+
 #include <QInputDialog>
 
 #ifndef DYNAMIC_CAPNP
 #define DYNAMIC_CAPNP  // Do not depend on generated log.capnp.h structure
 #endif
+
 #include "common.h"
 #include "common_dbc.h"
 
