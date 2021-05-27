@@ -102,6 +102,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
         break;
       }
 
+      const int offset = structValue.getSchema().getProto().getStruct().getDiscriminantCount();
       for (const auto &field : structValue.getSchema().getFields())
       {
         std::string name = field.getProto().getName();
@@ -109,7 +110,6 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
         {
           // field is in a union if discriminant is less than the size of the union
           // https://github.com/capnproto/capnproto/blob/master/c++/src/capnp/schema.capnp
-          const int offset = structValue.getSchema().getProto().getStruct().getDiscriminantCount();
           const bool in_union = field.getProto().getDiscriminantValue() < offset;
 
           if (!is_root || in_union)
