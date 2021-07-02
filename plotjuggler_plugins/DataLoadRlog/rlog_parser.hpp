@@ -1,6 +1,7 @@
 #pragma once
 #include <PlotJuggler/messageparser_base.h>
 #include <QInputDialog>
+#include <QDebug>
 
 #ifndef DYNAMIC_CAPNP
 #define DYNAMIC_CAPNP  // Do not depend on generated log.capnp.h structure
@@ -26,6 +27,6 @@ public:
   bool parseMessageCereal(capnp::DynamicStruct::Reader event);
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp, bool is_root);
   bool parseCanMessage(const std::string& topic_name, capnp::DynamicList::Reader node, double timestamp);
-  bool parseMessage(const MessageRef serialized_msg, double timestamp) { return false; };  // not implemented
+  bool parseMessage(const MessageRef serialized_msg, double &timestamp) { return false; };  // not implemented
   void selectDBCDialog();
 };
