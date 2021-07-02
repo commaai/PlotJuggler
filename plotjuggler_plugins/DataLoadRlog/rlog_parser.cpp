@@ -1,8 +1,8 @@
 #include "rlog_parser.hpp"
 
 
-RlogMessageParser::RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data) :
-  MessageParser(topic_name, plot_data)
+RlogMessageParser::RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data, const bool streaming) :
+  MessageParser(topic_name, plot_data), streaming(streaming)
 {
   show_deprecated = std::getenv("SHOW_DEPRECATED");
   if (std::getenv("DBC_NAME") != nullptr)
@@ -25,7 +25,7 @@ bool RlogMessageParser::loadDBC(std::string dbc_str)
 
 bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 {
-  if (can_dialog_needed && (event.has("can") || event.has("sendcan"))) {
+  if (can_dialog_needed && !streaming && (event.has("can") || event.has("sendcan"))) {
     selectDBCDialog();  // prompts for and loads DBC
   }
 

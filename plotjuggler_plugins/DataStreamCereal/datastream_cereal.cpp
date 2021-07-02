@@ -30,7 +30,7 @@ StreamCerealDialog::~StreamCerealDialog()
 
 DataStreamCereal::DataStreamCereal():
   _running(false),
-  parser(RlogMessageParser("", dataMap()))
+  parser(RlogMessageParser("", dataMap(), true))
 {
 }
 
@@ -137,6 +137,7 @@ void DataStreamCereal::receiveLoop()
         {
           std::lock_guard<std::mutex> lock(mutex());
           parser.parseMessageCereal(event);
+          emit this->dataReceived();
         }
         catch (std::exception& err)
         {
