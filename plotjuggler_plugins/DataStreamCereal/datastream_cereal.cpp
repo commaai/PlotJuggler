@@ -30,7 +30,7 @@ StreamCerealDialog::~StreamCerealDialog()
 
 DataStreamCereal::DataStreamCereal():
   _running(false),
-  parser(RlogMessageParser("", dataMap()))
+  parser(RlogMessageParser("", dataMap(), true))
 {
 }
 

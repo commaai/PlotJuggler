@@ -21,8 +21,9 @@ private:
   bool loadDBC(std::string dbc_str);
   bool show_deprecated;
   bool can_dialog_needed = true;
+  const bool streaming;
 public:
-  RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data);
+  RlogMessageParser(const std::string& topic_name, PJ::PlotDataMapRef& plot_data, const bool streaming = false);
 
   bool parseMessageCereal(capnp::DynamicStruct::Reader event);
   bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp, bool is_root);
