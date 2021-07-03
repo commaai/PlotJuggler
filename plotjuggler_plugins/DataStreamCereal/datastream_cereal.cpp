@@ -137,6 +137,7 @@ void DataStreamCereal::receiveLoop()
         {
           std::lock_guard<std::mutex> lock(mutex());
           parser.parseMessageCereal(event);
+          emit this->dataReceived();
         }
         catch (std::exception& err)
         {
