@@ -118,7 +118,7 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
           }
           else if (is_root && !in_union)
           {
-            parseMessageImpl(topic_name + '/' + structName + "/event_" + name, structValue.get(field), time_stamp, false);
+            parseMessageImpl(topic_name + '/' + structName + "/__" + name, structValue.get(field), time_stamp, false);
           }
         }
       }
