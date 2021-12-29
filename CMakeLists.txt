@@ -246,7 +246,7 @@ add_subdirectory( plotjuggler_plugins/DataStreamSample )
 add_subdirectory( plotjuggler_plugins/DataStreamWebsocket )
 add_subdirectory( plotjuggler_plugins/DataStreamUDP )
 add_subdirectory( plotjuggler_plugins/DataStreamMQTT )
-#add_subdirectory( plotjuggler_plugins/DataStreamZMQ )
+add_subdirectory( plotjuggler_plugins/DataStreamZMQ )
 
 add_subdirectory( plotjuggler_plugins/StatePublisherCSV )
 add_subdirectory( plotjuggler_plugins/VideoViewer )
@@ -256,14 +256,5 @@ add_subdirectory( plotjuggler_plugins/ToolboxFFT )
 
 add_subdirectory( plotjuggler_plugins/ParserProtobuf )
 
-if( ZMQ_FOUND )
-  add_subdirectory( plotjuggler_plugins/DataStreamZMQ )
-endif()
-
-if (Rlog_FOUND)
-  add_subdirectory( plotjuggler_plugins/DataLoadRlog )
-endif()
-
-if(Cereal_FOUND)
-    add_subdirectory( plotjuggler_plugins/DataStreamCereal )
-endif()
+add_subdirectory( plotjuggler_plugins/DataLoadRlog )
+add_subdirectory( plotjuggler_plugins/DataStreamCereal )
