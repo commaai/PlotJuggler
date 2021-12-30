@@ -14,6 +14,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
     set(Rlog_capnpc_LIBRARIES ${capnpc_LIBRARIES})
 
   else(capnp_FOUND AND capnpc_FOUND)
+
     #### capnp
     find_path(Rlog_capnp_INCLUDE_DIR
       NAMES capnp/serialize.h
@@ -45,7 +46,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
 
   endif(capnp_FOUND AND capnpc_FOUND)
 
-  # find bzlib
+  #### find bzlib
   find_package(bzip2 CONFIG QUIET)
   if(bzip2_FOUND)
     set(Rlog_bzip2_INCLUDE_DIR ${bzip2_INCLUDE_DIRS})
@@ -71,7 +72,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
     )
   endif(bzip2_FOUND)
 
-  # find opendbc common
+  #### find opendbc common
   find_path(Rlog_opendbc_INCLUDE_DIR
     NAMES common.h
     PATHS ${CMAKE_SOURCE_DIR}/3rdparty/opendbc/can
@@ -82,10 +83,38 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
           /sw/include
   )
 
+  #### find kj
+  find_package(kj CONFIG QUIET)
+  if(kj_FOUND)
+    set(Rlog_kj_INCLUDE_DIR ${kj_INCLUDE_DIRS})
+    set(Rlog_kj_LIBRARIES ${kj_LIBRARIES})
+
+  else(kj_FOUND)
+    find_path(Rlog_kj_INCLUDE_DIR
+      NAMES kj/main.h
+      PATHS /usr/include
+            /usr/local/include
+            /opt/local/include
+            /opt/homebrew/include
+            /sw/include
+    )
+
+    find_library(Rlog_kj_LIBRARIES
+      NAMES kj
+      PATHS /usr/lib
+            /usr/local/lib
+            /opt/local/lib
+            /opt/homebrew/lib
+            /sw/lib
+    )
+  endif(kj_FOUND)
+
+  ## FindRlog.cmake variables
   set(Rlog_INCLUDE_DIRS
     ${Rlog_capnp_INCLUDE_DIR}
     ${Rlog_bzip2_INCLUDE_DIR}
     ${Rlog_opendbc_INCLUDE_DIR}
+    ${Rlog_kj_INCLUDE_DIR}
     CACHE INTERNAL "Rlog include dependencies"
     FORCE
   )
@@ -94,6 +123,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
     ${Rlog_capnp_LIBRARIES}
     ${Rlog_capnpc_LIBRARIES}
     ${Rlog_bzip2_LIBRARIES}
+    ${Rlog_kj_LIBRARIES}
     CACHE INTERNAL "Rlog link dependencies"
     FORCE
   )

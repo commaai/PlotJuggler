@@ -1,9 +1,8 @@
 find_package(Cereal)
 find_package(Rlog)
 find_package(ZeroMQ)
-find_package(Kj)
 
-if(Cereal_FOUND AND Rlog_FOUND AND ZeroMQ_FOUND AND Kj_FOUND)
+if(Cereal_FOUND AND Rlog_FOUND AND ZeroMQ_FOUND)
   include_directories(../ ${Rlog_INCLUDE_DIRS})
 
   add_definitions(${QT_DEFINITIONS})
@@ -39,10 +38,9 @@ if(Cereal_FOUND AND Rlog_FOUND AND ZeroMQ_FOUND AND Kj_FOUND)
 
   target_link_libraries(DataStreamCereal
       ${Qt5Widgets_LIBRARIES}
-      ${Cereal_LIBRARIES}  # has libcereal.a and libmessaging.a
       ${ZeroMQ_LIBRARIES} # has libzmq.a
-      ${Rlog_LIBRARIES} # has libbz2.a and capnp.a
-      ${Kj_LIBRARIES} # has libkj.a
+      ${Cereal_LIBRARIES}  # has libcereal.a and libmessaging.a
+      ${Rlog_LIBRARIES} # has bz2, capnp, kj
       plotjuggler_base
   )
 
