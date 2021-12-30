@@ -1,7 +1,8 @@
 find_package(Rlog)
+find_package(Kj)
 
-if(Rlog_FOUND)
-  include_directories(  ../ )
+if(Rlog_FOUND AND Kj_FOUND)
+  include_directories(  ../ ${Rlog_INCLUDE_DIRS} )
 
   find_package(PythonInterp REQUIRED)
 
@@ -43,10 +44,8 @@ if(Rlog_FOUND)
   target_link_libraries(DataLoadRlog
     ${Qt5Widgets_LIBRARIES}
     ${Qt5Xml_LIBRARIES}
-    bz2
-    capnpc
-    capnp
-    kj
+    ${Rlog_LIBRARIES} # has bz2, capnp, capnpc
+    ${Kj_LIBRARIES}
     plotjuggler_base)
 
   install(TARGETS DataLoadRlog DESTINATION bin  )

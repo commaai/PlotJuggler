@@ -29,14 +29,14 @@ else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
     NAMES
       cereal
     PATHS
-      ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cereal
+      ${CMAKE_SOURCE_DIR}/3rdparty/cereal
   )
 
   find_library(Cereal_LIBRARY_MESSAGING
     NAMES
       messaging
     PATHS
-      ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cereal
+      ${CMAKE_SOURCE_DIR}/3rdparty/cereal
   )
 
   set(Cereal_LIBRARIES
