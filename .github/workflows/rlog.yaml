@@ -1,0 +1,46 @@
+name: openpilot plugins
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: build
+      run: ./build.sh
+    - name: zip plugins
+      run: |
+        cd build/bin
+        sudo tar -czf plotjuggler.tar.gz plotjuggler
+        sudo tar -czf libDataLoadRlog.so.tar.gz libDataLoadRlog.so
+        sudo tar -czf libDataStreamCereal.so.tar.gz libDataStreamCereal.so
+    - name: Upload libDataLoadRlog.so.tar.gz to release
+      if: github.ref == 'refs/heads/comma-master' && github.event_name == 'push'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/bin/libDataLoadRlog.so.tar.gz
+        asset_name: libDataLoadRlog.so.tar.gz
+        tag: "latest"
+        overwrite: true
+    - name: Upload libDataStreamCereal.so.tar.gz to release
+      if: github.ref == 'refs/heads/comma-master' && github.event_name == 'push'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/bin/libDataStreamCereal.so.tar.gz
+        asset_name: libDataStreamCereal.so.tar.gz
+        tag: "latest"
+        overwrite: true
+    - name: Upload plotjuggler.tar.gz to release
+      if: github.ref == 'refs/heads/comma-master' && github.event_name == 'push'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/bin/plotjuggler.tar.gz
+        asset_name: plotjuggler.tar.gz
+        tag: "latest"
+        overwrite: true
