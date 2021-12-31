@@ -78,6 +78,14 @@ if (NOT WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fno-omit-frame-pointer")
 endif()
 
+if(APPLE)
+    message(STATUS "--------------------------------------------------")
+    execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(CMAKE_OSX_ARCHITECTURES "${arch}" CACHE INTERNAL "OSX Architecture" FORCE)
+    string(TOLOWER ${arch} HOST_ARCHITECTURE CACHE STRING "Apple architecture")
+    message(STATUS "Building for Apple: arch=${HOST_ARCHITECTURE}")
+endif()
+
 if(APPLE AND EXISTS /usr/local/opt/qt5)
     # Homebrew installs Qt5 (up to at least 5.9.1) in
     # /usr/local/qt5, ensure it can be found by CMake since
