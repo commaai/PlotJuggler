@@ -1,4 +1,5 @@
-find_package(ZeroMQ)
+
+find_package(ZeroMQ CONFIG QUIET)
 
 if(ZeroMQ_FOUND)
     include_directories(../ ${ZeroMQ_INCLUDE_DIR})

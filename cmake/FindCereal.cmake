@@ -39,10 +39,16 @@ else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
       ${CMAKE_SOURCE_DIR}/3rdparty/cereal
   )
 
+  find_library(Cereal_LIBRARY_ZMQ
+    NAMES
+      zmq
+  )
+
   set(Cereal_LIBRARIES
       ${Cereal_LIBRARIES}
       ${Cereal_LIBRARY_CEREAL}
       ${Cereal_LIBRARY_MESSAGING}
+      ${Cereal_LIBRARY_ZMQ}
   )
 
   include(FindPackageHandleStandardArgs)

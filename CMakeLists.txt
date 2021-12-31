@@ -78,14 +78,6 @@ if (NOT WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fno-omit-frame-pointer")
 endif()
 
-if(APPLE)
-    message(STATUS "--------------------------------------------------")
-    execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
-    set(CMAKE_OSX_ARCHITECTURES "${arch}" CACHE INTERNAL "OSX Architecture" FORCE)
-    string(TOLOWER ${arch} HOST_ARCHITECTURE CACHE STRING "Apple architecture")
-    message(STATUS "Building for Apple: arch=${HOST_ARCHITECTURE}")
-endif()
-
 if(APPLE AND EXISTS /usr/local/opt/qt5)
     # Homebrew installs Qt5 (up to at least 5.9.1) in
     # /usr/local/qt5, ensure it can be found by CMake since
@@ -93,8 +85,8 @@ if(APPLE AND EXISTS /usr/local/opt/qt5)
     # source: https://github.com/Homebrew/homebrew-core/issues/8392#issuecomment-325226494
     list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
     set(CMAKE_MACOSX_RPATH 1)
-elseif(APPLE AND EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@5)
-    list(APPEND CMAKE_PREFIX_PATH "$ENV{HOMEBREW_PREFIX}/opt/qt@5")
+elseif(APPLE AND EXISTS /opt/homebrew/opt/qt@5)
+    list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/qt@5")
     set(CMAKE_MACOSX_RPATH 1)
 endif()
 
@@ -134,7 +126,6 @@ else()
     set(GUI_TYPE WIN32)
 ENDIF()
 
-find_package(ZMQ)
 find_package(Rlog)
 find_package(Cereal)
 
@@ -254,7 +245,7 @@ add_subdirectory( plotjuggler_plugins/DataStreamSample )
 add_subdirectory( plotjuggler_plugins/DataStreamWebsocket )
 add_subdirectory( plotjuggler_plugins/DataStreamUDP )
 add_subdirectory( plotjuggler_plugins/DataStreamMQTT )
-add_subdirectory( plotjuggler_plugins/DataStreamZMQ )
+#add_subdirectory( plotjuggler_plugins/DataStreamZMQ )
 
 add_subdirectory( plotjuggler_plugins/StatePublisherCSV )
 add_subdirectory( plotjuggler_plugins/VideoViewer )
