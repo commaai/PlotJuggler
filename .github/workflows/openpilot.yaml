@@ -1,0 +1,60 @@
+name: openpilot plugins
+
+on: [push, pull_request]
+
+env:
+  ZIP: |
+    cd $GITHUB_WORKSPACE/build/bin
+    sudo tar -czf $(uname -s)-$(uname -m).tar.gz plotjuggler libDataLoadRlog.* libDataStreamCereal.*
+
+jobs:
+  build_ubuntu:
+    name: build ubuntu
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: build
+      run: ./build.sh
+    - name: zip plugins
+      run: eval "$ZIP"
+    - name: upload
+      if: github.ref == 'refs/heads/comma-master' && github.event_name == 'push'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/bin/*.tar.gz
+        file_glob: true
+        tag: "latest"
+        overwrite: true
+
+  build_mac:
+    name: build mac
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+    - name: setup dependencies
+      run: |
+        brew install cmake bzip2 capnp qt@5 zeromq protobuf
+        sudo pip3 install --no-cache-dir -r 3rdparty/opendbc/requirements.txt
+    - name: build
+      run: |
+        export PYTHONPATH=$PWD/3rdparty
+        mkdir -p build && cd build && cmake .. && make -j8
+    - name: zip plugins
+      run: eval "$ZIP"
+    - name: upload
+      if: github.ref == 'refs/heads/comma-master' && github.event_name == 'push'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/bin/*.tar.gz
+        file_glob: true
+        tag: "latest"
+        overwrite: true
