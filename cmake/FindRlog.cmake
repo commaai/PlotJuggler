@@ -21,7 +21,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
       PATHS /usr/include
             /usr/local/include
             /opt/local/include
-            /opt/homebrew/include
+            $ENV{HOMEBREW_PREFIX}/include
             /sw/include
     )
 
@@ -30,7 +30,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
       PATHS /usr/lib
             /usr/local/lib
             /opt/local/lib
-            /opt/homebrew/lib
+            $ENV{HOMEBREW_PREFIX}/lib
             /sw/lib
     )
 
@@ -40,7 +40,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
       PATHS /usr/lib
             /usr/local/lib
             /opt/local/lib
-            /opt/homebrew/lib
+            $ENV{HOMEBREW_PREFIX}/lib
             /sw/lib
     )
 
@@ -58,7 +58,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
       PATHS /usr/include
             /usr/local/include
             /opt/local/include
-            /opt/homebrew/include
+            $ENV{HOMEBREW_PREFIX}/include
             /sw/include
     )
 
@@ -67,7 +67,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
       PATHS /usr/lib
             /usr/local/lib
             /opt/local/lib
-            /opt/homebrew/lib
+            $ENV{HOMEBREW_PREFIX}/lib
             /sw/lib
     )
   endif(bzip2_FOUND)
@@ -79,7 +79,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
           /usr/include
           /usr/local/include
           /opt/local/include
-          /opt/homebrew/include
+          $ENV{HOMEBREW_PREFIX}/include
           /sw/include
   )
 
@@ -95,7 +95,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
       PATHS /usr/include
             /usr/local/include
             /opt/local/include
-            /opt/homebrew/include
+            $ENV{HOMEBREW_PREFIX}/include
             /sw/include
     )
 
@@ -104,7 +104,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
       PATHS /usr/lib
             /usr/local/lib
             /opt/local/lib
-            /opt/homebrew/lib
+            $ENV{HOMEBREW_PREFIX}/lib
             /sw/lib
     )
   endif(kj_FOUND)
