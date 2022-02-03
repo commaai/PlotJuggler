@@ -8,6 +8,7 @@
 #include <QStandardItemModel>
 #include <QTableView>
 #include <QItemSelection>
+#include <unordered_set>
 
 #include "transforms/custom_function.h"
 #include "tree_completer.h"
@@ -31,7 +32,7 @@ public:
 
   void clear();
 
-  void addCurve(const std::string& plot_name);
+  bool addCurve(const std::string& plot_name);
 
   void addCustom(const QString& item_name);
 
@@ -51,7 +52,7 @@ public:
 
   virtual void keyPressEvent(QKeyEvent* event) override;
 
-  void updateColors();
+  void updateAppearance();
 
 private slots:
 
@@ -90,6 +91,7 @@ private:
 
   CurveTableView* _custom_view;
   CurveTreeView* _tree_view;
+  std::unordered_set<std::string> _tree_view_items;
 
   double _tracker_time = 0;
 

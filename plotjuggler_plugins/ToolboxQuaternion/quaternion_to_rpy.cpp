@@ -15,7 +15,7 @@ void QuaternionToRollPitchYaw::reset()
   _roll_offset = 0;
   _pitch_offset = 0;
   _yaw_offset = 0;
-  _last_timestamp = -std::numeric_limits<double>::max();
+  _last_timestamp = std::numeric_limits<double>::lowest();
 }
 
 void QuaternionToRollPitchYaw::calculate()

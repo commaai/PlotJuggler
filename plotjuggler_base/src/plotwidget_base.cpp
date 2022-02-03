@@ -185,12 +185,14 @@ void PlotWidgetBase::resetZoom()
 Range PlotWidgetBase::getVisualizationRangeX() const
 {
   double left = std::numeric_limits<double>::max();
-  double right = -std::numeric_limits<double>::max();
+  double right = std::numeric_limits<double>::lowest();
 
   for (auto& it : curveList())
   {
     if (!it.curve->isVisible())
+    {
       continue;
+    }
 
     auto series = dynamic_cast<QwtSeriesWrapper*>(it.curve->data());
     const auto max_range_X = series->getVisualizationRangeX();
@@ -222,17 +224,19 @@ Range PlotWidgetBase::getVisualizationRangeX() const
 
 Range PlotWidgetBase::getVisualizationRangeY(Range range_X) const
 {
-  double top = -std::numeric_limits<double>::max();
+  double top = std::numeric_limits<double>::lowest();
   double bottom = std::numeric_limits<double>::max();
 
   for (auto& it : curveList())
   {
     if (!it.curve->isVisible())
+    {
       continue;
+    }
 
     auto series = dynamic_cast<QwtSeriesWrapper*>(it.curve->data());
 
-    const auto max_range_X = series->plotData()->rangeX();
+    auto max_range_X = series->getVisualizationRangeX();
     if (!max_range_X)
     {
       continue;
@@ -372,7 +376,8 @@ PlotWidgetBase::~PlotWidgetBase()
 }
 
 PlotWidgetBase::CurveInfo* PlotWidgetBase::addCurve(const std::string& name,
-                                                    PlotData& data, QColor color)
+                                                    PlotDataXY& data,
+                                                    QColor color)
 {
   const auto qname = QString::fromStdString(name);
 
@@ -386,7 +391,14 @@ PlotWidgetBase::CurveInfo* PlotWidgetBase::addCurve(const std::string& name,
   auto curve = new QwtPlotCurve(qname);
   try
   {
-    auto plot_qwt = createTimeSeries("", &data);
+    QwtSeriesWrapper* plot_qwt = nullptr;
+    if(auto ts_data = dynamic_cast<const PlotData*>(&data) )
+    {
+      plot_qwt = new QwtTimeseries(ts_data);
+    }
+    else{
+      plot_qwt = new QwtSeriesWrapper(&data);
+    }
 
     curve->setPaintAttribute(QwtPlotCurve::ClipPolygons, true);
     curve->setPaintAttribute(QwtPlotCurve::FilterPointsAggressive, true);
@@ -443,7 +455,9 @@ void PlotWidgetBase::removeCurve(const QString& title)
   if (it != p->curve_list.end())
   {
     it->curve->detach();
+    delete it->curve;
     it->marker->detach();
+    delete it->marker;
     p->curve_list.erase(it);
 
     emit curveListChanged();
@@ -590,14 +604,14 @@ bool PlotWidgetBase::eventFilter(QObject* obj, QEvent* event)
   return false;
 }
 
-QColor PlotWidgetBase::getColorHint(PlotData* data)
+QColor PlotWidgetBase::getColorHint(PlotDataXY* data)
 {
   QSettings settings;
   bool remember_color = settings.value("Preferences::remember_color", true).toBool();
 
   if (data)
   {
-    auto colorHint = data->attribute("ColorHint");
+    auto colorHint = data->attribute(COLOR_HINT);
     if (remember_color && colorHint.isValid())
     {
       return colorHint.value<QColor>();
@@ -644,7 +658,7 @@ QColor PlotWidgetBase::getColorHint(PlotData* data)
   }
   if (data)
   {
-    data->setAttribute("ColorHint", color);
+    data->setAttribute(COLOR_HINT, color);
   }
 
   return color;
@@ -748,7 +762,9 @@ void PlotWidgetBase::removeAllCurves()
   for (auto& it : curveList())
   {
     it.curve->detach();
+    delete it.curve;
     it.marker->detach();
+    delete it.marker;
   }
 
   curveList().clear();
@@ -777,7 +793,7 @@ void PlotWidgetBase::updateMaximumZoomArea()
   max_rect.setLeft(rangeX.min);
   max_rect.setRight(rangeX.max);
 
-  rangeX.min = -std::numeric_limits<double>::max();
+  rangeX.min = std::numeric_limits<double>::lowest();
   rangeX.max = std::numeric_limits<double>::max();
   auto rangeY = getVisualizationRangeY(rangeX);
   max_rect.setBottom(rangeY.min);

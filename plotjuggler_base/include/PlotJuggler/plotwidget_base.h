@@ -38,18 +38,20 @@ public:
 
   PlotWidgetBase(QWidget* parent);
 
-  ~PlotWidgetBase();
+  virtual ~PlotWidgetBase();
 
-  virtual CurveInfo* addCurve(const std::string& name, PlotData& src_data,
+  virtual CurveInfo* addCurve(const std::string& name,
+                              PlotDataXY &src_data,
                               QColor color = Qt::transparent);
 
   virtual void removeCurve(const QString& title);
 
   const std::list<CurveInfo>& curveList() const;
+  std::list<CurveInfo>& curveList();
 
   bool isEmpty() const;
 
-  QColor getColorHint(PlotData* data);
+  QColor getColorHint(PlotDataXY *data);
 
   std::map<QString, QColor> getCurveColors() const;
 
@@ -112,6 +114,7 @@ signals:
 
   void legendSizeChanged(int new_size);
 
+
 protected:
   class QwtPlotPimpl;
   QwtPlotPimpl* p = nullptr;
@@ -120,8 +123,6 @@ protected:
 
   QwtPlot* qwtPlot();
   const QwtPlot* qwtPlot() const;
-
-  std::list<CurveInfo>& curveList();
 
   PlotLegend* legend();
   PlotZoomer* zoomer();

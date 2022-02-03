@@ -212,6 +212,7 @@ bool TabbedPlotWidget::xmlLoadState(QDomElement& tabbed_area)
   // remove old ones
   for (int i = 0; i < prev_count; i++)
   {
+    tabWidget()->widget(0)->deleteLater();
     tabWidget()->removeTab(0);
   }
 

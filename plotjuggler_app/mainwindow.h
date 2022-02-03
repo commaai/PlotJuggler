@@ -22,6 +22,7 @@
 #include "PlotJuggler/statepublisher_base.h"
 #include "PlotJuggler/toolbox_base.h"
 #include "PlotJuggler/datastreamer_base.h"
+#include "PlotJuggler/util/delayed_callback.hpp"
 #include "transforms/custom_function.h"
 #include "transforms/function_editor.h"
 
@@ -115,6 +116,7 @@ private:
   std::map<QString, DataLoaderPtr> _data_loader;
   std::map<QString, StatePublisherPtr> _state_publisher;
   std::map<QString, DataStreamerPtr> _data_streamer;
+  std::map<QString, ToolboxPluginPtr> _toolboxes;
 
   QString _default_streamer;
 
@@ -145,7 +147,7 @@ private:
 
   QTimer* _replot_timer;
   QTimer* _publish_timer;
-  QTimer* _tracker_delaty_timer;
+  PJ::DelayedCallback _tracker_delay;
 
   QDateTime _prev_publish_time;
 
@@ -207,6 +209,8 @@ private:
   void loadStyleSheet(QString file_path);
 
   void updateDerivedSeries();
+
+  void updateReactivePlots();
 
 signals:
   void dataSourceRemoved(const std::string& name);

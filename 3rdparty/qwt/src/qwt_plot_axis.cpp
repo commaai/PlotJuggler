@@ -35,6 +35,9 @@ namespace
 
         ~AxisData()
         {
+            if( scaleWidget ) {
+                delete scaleWidget;
+            }
             delete scaleEngine;
         }
 

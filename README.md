@@ -7,7 +7,7 @@
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=I%20use%20PlotJuggler%20and%20it%20is%20amazing%0D%0A&url=https://github.com/facontidavide/PlotJuggler&via=facontidavide&hashtags=dataviz,plotjuggler,GoROS,PX4)
 **Gold Sponsor**: [Greenzie](https://www.greenzie.com/)
 
-# PlotJuggler 3.3
+# PlotJuggler 3.4
 
 PlotJuggler is a tool to visualize time series that is **fast**, **powerful** and  **intuitive**.
 
@@ -77,21 +77,17 @@ If you want a simple example to learn how to write your own plugins, have a look
 
 ### Binary installers (with basic plugins)
 
-**Linux AppImage** (compatible with Ubuntu 18.04 or later: 
-[PlotJuggler-3.2.0-x86_64.AppImage](https://github.com/facontidavide/PlotJuggler/releases/download/3.2.0/PlotJuggler-3.2.0-x86_64.AppImage)
+**Linux AppImage** (compatible with Ubuntu 18.04 or later): 
+[PlotJuggler-3.4.0-x86_64.AppImage](https://github.com/facontidavide/PlotJuggler/releases/download/3.4.0/PlotJuggler-3.4.0-x86_64.AppImage)
 
 **Windows Installer**: 
-[PlotJuggler-Windows-3.1.1-installer](https://github.com/facontidavide/PlotJuggler/releases/download/3.3.0/PlotJuggler-Windows-3.3.0-installer.exe)
+[PlotJuggler-Windows-3.4.0-installer](https://github.com/facontidavide/PlotJuggler/releases/download/3.4.0/PlotJuggler-Windows-3.4.0-installer.exe)
 
 ### For ROS User
 
 Install the debian packages using: 
 
      sudo apt install ros-<distro>-plotjuggler-ros
-
-Alternatively, you may download the Snaps version that include the ROS1 plugins:
-
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/plotjuggler)
 
 ## How to build
 

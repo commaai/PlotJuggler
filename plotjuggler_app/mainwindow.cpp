@@ -40,9 +40,10 @@
 #include "transforms/function_editor.h"
 #include "transforms/lua_custom_function.h"
 #include "utils.h"
-#include "PlotJuggler/svg_util.h"
 #include "stylesheet.h"
 #include "dummy_data.h"
+#include "PlotJuggler/svg_util.h"
+#include "PlotJuggler/reactive_function.h"
 
 #include "ui_aboutdialog.h"
 #include "ui_support_dialog.h"
@@ -151,10 +152,7 @@ MainWindow::MainWindow(const QCommandLineParser& commandline_parser, QWidget* pa
     _animated_streaming_movie->jumpToFrame(0);
   });
 
-  _tracker_delaty_timer = new QTimer();
-  _tracker_delaty_timer->setSingleShot(true);
-
-  connect(_tracker_delaty_timer, &QTimer::timeout, this, [this]() {
+  _tracker_delay.connectCallback([this]() {
     updatedDisplayTime();
     onUpdateLeftTableValues();
   });
@@ -457,15 +455,14 @@ void MainWindow::onTimeSlider_valueChanged(double abs_time)
 
 void MainWindow::onTrackerTimeUpdated(double absolute_time, bool do_replot)
 {
-  if (!_tracker_delaty_timer->isActive())
-  {
-    _tracker_delaty_timer->start(100);  // 10 Hz at most
-  }
+  _tracker_delay.triggerSignal(100);
 
   for (auto& it : _state_publisher)
   {
     it.second->updateState(absolute_time);
   }
+
+  updateReactivePlots();
 
   forEachWidget([&](PlotWidget* plot) {
     plot->setTrackerPosition(_tracker_time);
@@ -637,7 +634,7 @@ QStringList MainWindow::initializePlugins(QString directory_name)
       else if (toolbox)
       {
         plugin_name = toolbox->name();
-        plugin_type = "MessageParser";
+        plugin_type = "Toolbox";
       }
 
       QString message = QString("%1 is a %2 plugin").arg(filename).arg(plugin_type);
@@ -773,6 +770,8 @@ QStringList MainWindow::initializePlugins(QString directory_name)
       {
         toolbox->init(_mapped_plot_data, _transform_functions);
 
+        _toolboxes.insert(std::make_pair(plugin_name, toolbox));
+
         auto action = ui->menuTools->addAction(toolbox->name());
 
         int new_index = ui->widgetStack->count();
@@ -789,7 +788,11 @@ QStringList MainWindow::initializePlugins(QString directory_name)
                 [=]() { ui->widgetStack->setCurrentIndex(0); });
 
         connect(toolbox, &ToolboxPlugin::plotCreated, this,
-                [=](std::string name) { _curvelist_widget->addCurve(name); });
+                [=](std::string name) {
+                  _curvelist_widget->addCurve(name);
+                  _curvelist_widget->updateAppearance();
+                }
+                );
       }
     }
     else
@@ -982,8 +985,7 @@ void MainWindow::checkAllCurvesFromLayout(const QDomElement& root)
   std::set<std::string> curves;
 
   for (QDomElement tw = root.firstChildElement("tabbed_widget"); !tw.isNull();
-       tw = tw.nextSiblingElement("tabbed_"
-                                  "widget"))
+       tw = tw.nextSiblingElement("tabbed_widget"))
   {
     for (QDomElement pm = tw.firstChildElement("plotmatrix"); !pm.isNull();
          pm = pm.nextSiblingElement("plotmatrix"))
@@ -1062,11 +1064,9 @@ bool MainWindow::xmlLoadState(QDomDocument state_document)
   size_t num_floating = 0;
   std::map<QString, QDomElement> tabbed_widgets_with_name;
 
-  for (QDomElement tw = root.firstChildElement("tabbed_widget"); tw.isNull() == false;
-       tw = tw.nextSiblingElement("tabb"
-                                  "ed_"
-                                  "widg"
-                                  "et"))
+  for (QDomElement tw = root.firstChildElement("tabbed_widget");
+       tw.isNull() == false;
+       tw = tw.nextSiblingElement("tabbed_widget"))
   {
     if (tw.attribute("parent") != ("main_window"))
     {
@@ -1098,10 +1098,7 @@ bool MainWindow::xmlLoadState(QDomDocument state_document)
   //-----------------------------------------------------
 
   for (QDomElement tw = root.firstChildElement("tabbed_widget"); tw.isNull() == false;
-       tw = tw.nextSiblingElement("tabb"
-                                  "ed_"
-                                  "widg"
-                                  "et"))
+       tw = tw.nextSiblingElement("tabbed_widget"))
   {
     TabbedPlotWidget* tabwidget = TabbedPlotWidget::instance(tw.attribute("name"));
     tabwidget->xmlLoadState(tw);
@@ -1286,6 +1283,7 @@ void MainWindow::importPlotDataMap(PlotDataMapRef& new_data, bool remove_old)
       }
     };
 
+    ClearOldSeries(_mapped_plot_data.scatter_xy, new_data.scatter_xy);
     ClearOldSeries(_mapped_plot_data.numeric, new_data.numeric);
     ClearOldSeries(_mapped_plot_data.strings, new_data.strings);
   }
@@ -1544,6 +1542,10 @@ std::unordered_set<std::string> MainWindow::loadDataFromFile(const FileLoadInfo&
 
 void MainWindow::on_buttonStreamingNotifications_clicked()
 {
+  if(_data_streamer.empty())
+  {
+    return;
+  }
   auto streamer = _data_streamer.at(ui->comboStreaming->currentText());
   QAction* notification_button_action = streamer->notificationAction().first;
   if (notification_button_action != nullptr)
@@ -1727,7 +1729,7 @@ void MainWindow::loadStyleSheet(QString file_path)
 
     forEachWidget([&](PlotWidget* plot) { plot->replot(); });
 
-    _curvelist_widget->updateColors();
+    _curvelist_widget->updateAppearance();
     emit stylesheetChanged(theme);
   }
   catch (std::runtime_error& err)
@@ -1742,6 +1744,41 @@ void MainWindow::updateDerivedSeries()
   {
 
   }
+}
+
+void MainWindow::updateReactivePlots()
+{
+  std::unordered_set<std::string> updated_curves;
+
+  bool curve_added = false;
+  for (auto& it : _transform_functions)
+  {
+    if( auto reactive_function = std::dynamic_pointer_cast<PJ::ReactiveLuaFunction>(it.second))
+    {
+      reactive_function->setTimeTracker(_tracker_time);
+      reactive_function->calculate();
+
+      for(auto& name: reactive_function->createdCurves())
+      {
+        curve_added |= _curvelist_widget->addCurve(name);
+        updated_curves.insert(name);
+      }
+    }
+  }
+  if(curve_added)
+  {
+    _curvelist_widget->refreshColumns();
+  }
+
+  forEachWidget([&](PlotWidget* plot) {
+    for(auto& curve: plot->curveList())
+    {
+      if( updated_curves.count(curve.src_name) != 0)
+      {
+        plot->zoomOut(false);
+      }
+    }
+  });
 }
 
 void MainWindow::on_stylesheetChanged(QString theme)
@@ -1802,6 +1839,10 @@ void MainWindow::loadPluginState(const QDomElement& root)
     {
       _data_streamer[plugin_name]->xmlLoadState(plugin_elem);
     }
+    if (_toolboxes.find(plugin_name) != _toolboxes.end())
+    {
+      _toolboxes[plugin_name]->xmlLoadState(plugin_elem);
+    }
     if (_state_publisher.find(plugin_name) != _state_publisher.end())
     {
       StatePublisherPtr publisher = _state_publisher[plugin_name];
@@ -1819,51 +1860,27 @@ QDomElement MainWindow::savePluginState(QDomDocument& doc)
 {
   QDomElement list_plugins = doc.createElement("Plugins");
 
-  auto CheckValidFormat = [this](const QString& expected_name, const QDomElement& elem) {
-    if (elem.nodeName() != "plugin" || elem.attribute("ID") != expected_name)
+  auto AddPlugins = [&](auto& plugins)
+  {
+    for (auto& [name, plugin] : plugins)
     {
-      QMessageBox::warning(this, tr("Error saving Plugin State to Layout"),
-                           tr("The method xmlSaveState() returned\n<plugin "
-                              "ID=\"%1\">\ninstead of\n<plugin ID=\"%2\">")
-                               .arg(elem.attribute("ID"))
-                               .arg(expected_name));
+      QDomElement elem = plugin->xmlSaveState(doc);
+      list_plugins.appendChild(elem);
     }
   };
 
-  for (auto& it : _data_loader)
-  {
-    const DataLoaderPtr dataloader = it.second;
-    QDomElement plugin_elem = dataloader->xmlSaveState(doc);
-    if (!plugin_elem.isNull())
-    {
-      list_plugins.appendChild(plugin_elem);
-      CheckValidFormat(it.first, plugin_elem);
-    }
-  }
-
-  for (auto& it : _data_streamer)
-  {
-    const DataStreamerPtr datastreamer = it.second;
-    QDomElement plugin_elem = datastreamer->xmlSaveState(doc);
-    if (!plugin_elem.isNull())
-    {
-      list_plugins.appendChild(plugin_elem);
-      CheckValidFormat(it.first, plugin_elem);
-    }
-  }
+  AddPlugins(_data_loader);
+  AddPlugins(_data_streamer);
+  AddPlugins(_toolboxes);
+  AddPlugins(_state_publisher);
 
   for (auto& it : _state_publisher)
   {
-    const StatePublisherPtr state_publisher = it.second;
+    const auto& state_publisher = it.second;
     QDomElement plugin_elem = state_publisher->xmlSaveState(doc);
-    if (!plugin_elem.isNull())
-    {
-      list_plugins.appendChild(plugin_elem);
-      CheckValidFormat(it.first, plugin_elem);
-    }
-
     plugin_elem.setAttribute("status", state_publisher->enabled() ? "active" : "idle");
   }
+
   return list_plugins;
 }
 
@@ -1871,7 +1888,7 @@ std::tuple<double, double, int> MainWindow::calculateVisibleRangeX()
 {
   // find min max time
   double min_time = std::numeric_limits<double>::max();
-  double max_time = -std::numeric_limits<double>::max();
+  double max_time = std::numeric_limits<double>::lowest();
   int max_steps = 0;
 
   forEachWidget([&](const PlotWidget* widget) {
@@ -2264,9 +2281,16 @@ void MainWindow::updateDataAndReplot(bool replot_hidden_tabs)
               return a->order() < b->order();
             });
 
+  // Update the reactive plots
+  updateReactivePlots();
+
+  // update all transforms, but not the ReactiveLuaFunction
   for (auto& function : transforms)
   {
-    function->calculate();
+    if( dynamic_cast<ReactiveLuaFunction*>(function) == nullptr)
+    {
+      function->calculate();
+    }
   }
 
   forEachWidget([](PlotWidget* plot)
@@ -2538,6 +2562,11 @@ void MainWindow::closeEvent(QCloseEvent* event)
   settings.setValue("MainWindow.streamingBufferValue", ui->streamingSpinBox->value());
   settings.setValue("MainWindow.timeTrackerSetting", (int)_tracker_param);
   settings.setValue("MainWindow.splitterWidth", ui->mainSplitter->sizes()[0]);
+
+  _data_loader.clear();
+  _data_streamer.clear();
+  _state_publisher.clear();
+  _toolboxes.clear();
 }
 
 void MainWindow::onAddCustomPlot(const std::string& plot_name)
@@ -3251,6 +3280,10 @@ void MainWindow::on_buttonRecentData_clicked()
 
 void MainWindow::on_buttonStreamingOptions_clicked()
 {
+  if(_data_streamer.empty())
+  {
+    return;
+  }
   auto streamer = _data_streamer.at(ui->comboStreaming->currentText());
 
   PopupMenu* menu = new PopupMenu(ui->buttonStreamingOptions, this);

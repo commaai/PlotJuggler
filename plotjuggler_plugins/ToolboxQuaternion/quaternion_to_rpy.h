@@ -49,7 +49,7 @@ private:
   double _yaw_offset = 0;
   double _scale = 1.0;
   bool _wrap = true;
-  double _last_timestamp = -std::numeric_limits<double>::max();
+  double _last_timestamp = std::numeric_limits<double>::lowest();
 };
 
 #endif  // QUATERNION_TO_RPY_H

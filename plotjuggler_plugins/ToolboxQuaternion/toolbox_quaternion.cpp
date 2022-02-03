@@ -155,7 +155,7 @@ void ToolboxQuaternion::autoFill(QString prefix)
   }
 }
 
-void ToolboxQuaternion::generateRPY(GenerateType type)
+bool ToolboxQuaternion::generateRPY(GenerateType type)
 {
   using namespace PJ;
 
@@ -163,15 +163,31 @@ void ToolboxQuaternion::generateRPY(GenerateType type)
   double unit_scale = ui->radioButtonDegrees->isChecked() ? (180.0 / M_PI) : 1.0;
   auto transform = std::make_shared<QuaternionToRollPitchYaw>();
 
-  auto src_data = getSrcData();
+  std::vector<const PlotData*> src_data;
+  {
+    for(QLineEdit* line: {ui->lineEditX, ui->lineEditY, ui->lineEditZ, ui->lineEditW })
+    {
+      auto it = _plot_data->numeric.find( line->text().toStdString() );
+      if( it == _plot_data->numeric.end() )
+      {
+        return false;
+      }
+      src_data.push_back(&it->second);
+    }
+  }
 
   std::string prefix = ui->lineEditOut->text().toStdString();
 
-  PlotData data_roll(prefix + "roll", {});
-  PlotData data_pitch(prefix + "pitch", {});
-  PlotData data_yaw(prefix + "yaw", {});
-  std::vector<PlotData*> dst_vector = { &data_roll, &data_pitch, &data_yaw };
+  // remove previous cruves bvefore creating new one
+  _plot_widget->removeAllCurves();
 
+  _preview_data_roll.reset( new PlotData(prefix + "roll", {}) );
+  _preview_data_pitch.reset( new PlotData(prefix + "pitch", {}) );
+  _preview_data_yaw.reset( new PlotData(prefix + "yaw", {}) );
+
+  std::vector<PlotData*> dst_vector = { _preview_data_roll.get(),
+                                        _preview_data_pitch.get(),
+                                        _preview_data_yaw.get() };
   if (type == SAVE)
   {
     dst_vector[0] = &_plot_data->getOrCreateNumeric(prefix + "roll", {});
@@ -188,7 +204,7 @@ void ToolboxQuaternion::generateRPY(GenerateType type)
   if (type == PREVIEW)
   {
     _plot_widget->removeAllCurves();
-    for (const auto& dst_data : dst_vector)
+    for (auto dst_data : dst_vector)
     {
       _plot_widget->addCurve(dst_data->plotName(), *dst_data);
     }
@@ -203,23 +219,13 @@ void ToolboxQuaternion::generateRPY(GenerateType type)
     emit plotCreated(prefix + "pitch");
     emit plotCreated(prefix + "yaw");
   }
-}
-
-std::vector<const PlotData*> ToolboxQuaternion::getSrcData()
-{
-  PlotData& data_x = _plot_data->getOrCreateNumeric(ui->lineEditX->text().toStdString());
-  PlotData& data_y = _plot_data->getOrCreateNumeric(ui->lineEditY->text().toStdString());
-  PlotData& data_z = _plot_data->getOrCreateNumeric(ui->lineEditZ->text().toStdString());
-  PlotData& data_w = _plot_data->getOrCreateNumeric(ui->lineEditW->text().toStdString());
-
-  return { &data_x, &data_y, &data_z, &data_w };
+  return true;
 }
 
 void ToolboxQuaternion::on_pushButtonSave_clicked()
 {
   generateRPY(SAVE);
 
-  ui->pushButtonSave->setEnabled(false);
   ui->lineEditX->setText({});
   ui->lineEditY->setText({});
   ui->lineEditZ->setText({});
@@ -236,9 +242,11 @@ void ToolboxQuaternion::onParametersChanged()
       ui->lineEditZ->text().isEmpty() || ui->lineEditW->text().isEmpty() ||
       ui->lineEditOut->text().isEmpty())
   {
+    ui->pushButtonSave->setEnabled(false);
     return;
   }
-  generateRPY(PREVIEW);
+  bool valid = generateRPY(PREVIEW);
+  ui->pushButtonSave->setEnabled(valid);
 }
 
 void ToolboxQuaternion::onClosed()

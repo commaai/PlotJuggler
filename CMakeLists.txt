@@ -9,8 +9,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 add_definitions(
     -DPJ_MAJOR_VERSION="3"
-    -DPJ_MINOR_VERSION="3"
-    -DPJ_PATCH_VERSION="4" )
+    -DPJ_MINOR_VERSION="4"
+    -DPJ_PATCH_VERSION="0" )
 
 # You can add some command line arguments at compilation time
 # Use _0x3b_ instead of semicolon
@@ -18,9 +18,11 @@ add_definitions(
 #set(PJ_DEFAULT_ARGS "-n --enabled_plugins=libDataLoadCSV_0x3b_libDataStreamSample")
 #add_definitions( -DPJ_DEFAULT_ARGS="${PJ_DEFAULT_ARGS}")
 
-IF (NOT WIN32)
-  set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-  set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
+
+IF (NOT WIN32 AND ENABLE_ASAN)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
+  set (CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
 include_directories( plotjuggler_base/include )
@@ -157,6 +159,7 @@ qt5_wrap_cpp(PLOTJUGGLER_BASE_MOCS
   plotjuggler_base/include/PlotJuggler/datastreamer_base.h
   plotjuggler_base/include/PlotJuggler/transform_function.h
   plotjuggler_base/include/PlotJuggler/plotwidget_base.h
+  plotjuggler_base/include/PlotJuggler/lua_highlighter.h
 )
 
 add_library( plotjuggler_base
@@ -169,6 +172,8 @@ add_library( plotjuggler_base
      plotjuggler_base/src/plotmagnifier.cpp
      plotjuggler_base/src/plotlegend.cpp
      plotjuggler_base/src/timeseries_qwt.cpp
+     plotjuggler_base/src/reactive_function.cpp
+     plotjuggler_base/src/lua_highlighter.cpp
      )
 # target_link_libraries(plotjuggler_base plotjuggler_qwt)
 
@@ -252,6 +257,7 @@ add_subdirectory( plotjuggler_plugins/VideoViewer )
 
 add_subdirectory( plotjuggler_plugins/ToolboxQuaternion )
 add_subdirectory( plotjuggler_plugins/ToolboxFFT )
+add_subdirectory( plotjuggler_plugins/ToolboxLuaEditor )
 
 add_subdirectory( plotjuggler_plugins/ParserProtobuf )
 

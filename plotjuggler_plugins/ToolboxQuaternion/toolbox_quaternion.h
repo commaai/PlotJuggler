@@ -59,13 +59,15 @@ private:
 
   PJ::TransformsMap* _transforms = nullptr;
 
+  std::unique_ptr<PlotData> _preview_data_roll;
+  std::unique_ptr<PlotData> _preview_data_pitch;
+  std::unique_ptr<PlotData> _preview_data_yaw;
+
   enum GenerateType
   {
     PREVIEW,
     SAVE
   };
 
-  void generateRPY(GenerateType type);
-
-  std::vector<const PlotData*> getSrcData();
+  bool generateRPY(GenerateType type);
 };

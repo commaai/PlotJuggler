@@ -95,7 +95,7 @@ void CustomFunction::calculate()
   // clean up old data
   dst_data->setMaximumRangeX(main_data_source->maximumRangeX());
 
-  double last_updated_stamp = -std::numeric_limits<double>::max();
+  double last_updated_stamp = std::numeric_limits<double>::lowest();
   if (dst_data->size() != 0)
   {
     last_updated_stamp = dst_data->back().x;
