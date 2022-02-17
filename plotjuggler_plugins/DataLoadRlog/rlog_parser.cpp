@@ -171,7 +171,6 @@ bool RlogMessageParser::parseCanMessage(
     return false;
   }
 
-  // TODO: see if the way parser.cc does it is faster or not
   std::set<uint8_t> updated_busses;
   for(auto elem : listValue) {
     auto value = elem.as<capnp::DynamicStruct>();
