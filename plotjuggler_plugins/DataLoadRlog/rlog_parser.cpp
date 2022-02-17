@@ -170,7 +170,6 @@ bool RlogMessageParser::parseCanMessage(
   if (dbc_name.empty()) {
     return false;
   }
-
   std::set<uint8_t> updated_busses;
   for(auto elem : listValue) {
     auto value = elem.as<capnp::DynamicStruct>();

@@ -19,7 +19,6 @@ class RlogMessageParser : MessageParser
 private:
   std::string dbc_name;
   std::unordered_map<uint8_t, std::shared_ptr<CANParser>> parsers;
-//  std::unordered_map<uint8_t, std::shared_ptr<CANParser>> parsers;
   std::shared_ptr<CANPacker> packer;
   bool loadDBC(std::string dbc_str);
   bool show_deprecated;
