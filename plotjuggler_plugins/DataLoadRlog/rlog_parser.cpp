@@ -58,11 +58,12 @@ bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
     selectDBCDialog();  // prompts for and loads DBC
   }
 
-  double time_stamp = (double)event.get("logMonoTime").as<uint64_t>() / 1e9;
+  uint64_t last_sec = event.get("logMonoTime").as<uint64_t>();
+  double time_stamp = (double)last_sec / 1e9;
   if (event.has("can")) {
-    return parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp, event.get("logMonoTime").as<uint64_t>());
+    return parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp, last_sec);
   } else if (event.has("sendcan")) {
-    return parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp, event.get("logMonoTime").as<uint64_t>());
+    return parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp, last_sec);
   } else {
     return parseMessageImpl("", event, time_stamp, true);
   }
@@ -164,11 +165,12 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 }
 
 bool RlogMessageParser::parseCanMessage(
-  const std::string& topic_name, capnp::DynamicList::Reader listValue, double time_stamp, uint64_t _log_mono_time)
+  const std::string& topic_name, capnp::DynamicList::Reader listValue, double time_stamp, uint64_t last_sec)
 {
   if (dbc_name.empty()) {
     return false;
   }
+
   // TODO: see if the way parser.cc does it is faster or not
   std::set<uint8_t> updated_busses;
   for(auto elem : listValue) {
@@ -180,21 +182,16 @@ bool RlogMessageParser::parseCanMessage(
     }
 
     updated_busses.insert(bus);
-    parsers[bus]->UpdateCans(_log_mono_time, value);
+    parsers[bus]->UpdateCans(last_sec, value);
   }
   for (uint8_t bus : updated_busses) {
-    // TODO: use true monologtime
-    parsers[bus]->last_sec = _log_mono_time;
+    parsers[bus]->last_sec = last_sec;
     for (auto& sg : parsers[bus]->query_latest()) {
-      // TODO: use all values
-      // qDebug() << sg.all_values;
+      // TODO: plot all updated values
       PJ::PlotData& _data_series = getSeries(topic_name + '/' + std::to_string(bus) + '/' +
           packer->lookup_message(sg.address)->name + '/' + sg.name);
       _data_series.pushBack({time_stamp, (double)sg.value});
     }
-//    qDebug() << time_stamp;
-//    qDebug() << time_stamp * 1e9;
-
   }
   return true;
 }
