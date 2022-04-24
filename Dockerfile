@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -15,7 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   wget \
   software-properties-common \
 
-  qt5-default \
+  qtchooser \
+  qt5-qmake \
+  qtbase5-dev-tools\
   qtbase5-dev \
   libqt5svg5-dev \
   libqt5websockets5-dev \
@@ -26,7 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   capnproto \
   curl \
   git \
-  python-openssl \
+  python3-openssl \
   libbz2-dev \
   libcapnp-dev \
   libssl-dev \
