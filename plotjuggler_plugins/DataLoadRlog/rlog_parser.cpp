@@ -98,7 +98,6 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
       if (topic_name == "/can" || topic_name == "/sendcan")
       {
         parseCanMessage(topic_name, value.as<capnp::DynamicList>(), time_stamp, last_sec);
-        break;
       }
       else
       {
