@@ -32,7 +32,7 @@ public:
 
   capnp::StructSchema getSchema();
   bool parseMessageCereal(capnp::DynamicStruct::Reader event);
-  bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp, bool is_root);
+  bool parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader node, double timestamp, uint64_t last_sec, bool is_root);
   bool parseCanMessage(const std::string& topic_name, capnp::DynamicList::Reader node, double timestamp, uint64_t last_sec);
   bool parseMessage(const MessageRef serialized_msg, double &timestamp) { return false; };  // not implemented
   void selectDBCDialog();

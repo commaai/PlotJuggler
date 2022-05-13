@@ -7,7 +7,7 @@ env:
     cd $GITHUB_WORKSPACE/build/bin
     sudo tar -czf $(uname -s)-$(uname -m).tar.gz plotjuggler libDataLoadRlog.* libDataStreamCereal.*
 
-jobs:dajkls
+jobs:
   build_ubuntu:
     name: build ubuntu
     runs-on: ubuntu-20.04

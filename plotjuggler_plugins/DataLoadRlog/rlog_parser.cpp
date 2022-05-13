@@ -60,16 +60,10 @@ bool RlogMessageParser::parseMessageCereal(capnp::DynamicStruct::Reader event)
 
   uint64_t last_sec = event.get("logMonoTime").as<uint64_t>();
   double time_stamp = (double)last_sec / 1e9;
-  if (event.has("can")) {
-    return parseCanMessage("/can", event.get("can").as<capnp::DynamicList>(), time_stamp, last_sec);
-  } else if (event.has("sendcan")) {
-    return parseCanMessage("/sendcan", event.get("sendcan").as<capnp::DynamicList>(), time_stamp, last_sec);
-  } else {
-    return parseMessageImpl("", event, time_stamp, true);
-  }
+  return parseMessageImpl("", event, time_stamp, last_sec, true);
 }
 
-bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp, bool is_root)
+bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::DynamicValue::Reader value, double time_stamp, uint64_t last_sec, bool is_root)
 {
   PJ::PlotData& _data_series = getSeries(topic_name);
 
@@ -101,12 +95,20 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 
     case capnp::DynamicValue::LIST:
     {
-      // TODO: Parse lists properly
-      int i = 0;
-      for(auto element : value.as<capnp::DynamicList>())
+      if (topic_name == "/can" || topic_name == "/sendcan")
       {
-        parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp, false);
-        i++;
+        parseCanMessage(topic_name, value.as<capnp::DynamicList>(), time_stamp, last_sec);
+        break;
+      }
+      else
+      {
+        // TODO: Parse lists properly
+        int i = 0;
+        for(auto element : value.as<capnp::DynamicList>())
+        {
+          parseMessageImpl(topic_name + '/' + std::to_string(i), element, time_stamp, last_sec, false);
+          i++;
+        }
       }
       break;
     }
@@ -144,11 +146,11 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
 
           if (!is_root || in_union)
           {
-            parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, false);
+            parseMessageImpl(topic_name + '/' + name, structValue.get(field), time_stamp, last_sec, false);
           }
           else if (is_root && !in_union)
           {
-            parseMessageImpl(topic_name + '/' + structName + "/__" + name, structValue.get(field), time_stamp, false);
+            parseMessageImpl(topic_name + '/' + structName + "/__" + name, structValue.get(field), time_stamp, last_sec, false);
           }
         }
       }
