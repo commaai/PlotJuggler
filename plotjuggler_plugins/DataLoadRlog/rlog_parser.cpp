@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <vector>
+
 #include <QDir>
 #include <QString>
 
@@ -185,12 +187,14 @@ bool RlogMessageParser::parseCanMessage(
     parsers[bus]->UpdateCans(last_sec, value);
   }
   for (uint8_t bus : updated_busses) {
+    std::vector<SignalValue> signal_values;
     parsers[bus]->last_sec = last_sec;
-    for (auto& sg : parsers[bus]->query_latest()) {
+    parsers[bus]->query_latest(signal_values, last_sec);
+    for (auto& sg : signal_values) {
       // TODO: plot all updated values
       PJ::PlotData& _data_series = getSeries(topic_name + '/' + std::to_string(bus) + '/' +
           packer->lookup_message(sg.address)->name + '/' + sg.name);
-      _data_series.pushBack({time_stamp, (double)sg.value});
+      _data_series.pushBack({time_stamp, (double) sg.value});
     }
 
     // parser state
