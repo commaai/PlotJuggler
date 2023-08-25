@@ -184,12 +184,13 @@ bool RlogMessageParser::parseCanMessage(
     }
 
     updated_busses.insert(bus);
-    parsers[bus]->UpdateCans(last_sec, value);
     parsers[bus]->last_sec = last_sec;
+    parsers[bus]->UpdateCans(last_sec, value);
+    parsers[bus]->UpdateValid(last_sec);
   }
   for (uint8_t bus : updated_busses) {
     std::vector<SignalValue> signal_values;
-    parsers[bus]->query_latest(signal_values, last_sec);
+    parsers[bus]->query_latest(signal_values);
     for (auto& sg : signal_values) {
       // TODO: plot all updated values
       PJ::PlotData& _data_series = getSeries(topic_name + '/' + std::to_string(bus) + '/' +
