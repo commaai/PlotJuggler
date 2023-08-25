@@ -47,6 +47,7 @@ jobs:
     - name: build
       run: |
         export PYTHONPATH=$PWD/3rdparty
+        # force usage of protobuf@3 instead of protobuf
         mkdir -p build && cd build && cmake -DCMAKE_PREFIX_PATH="$(brew --prefix)/opt/protobuf@3" .. && make -j8
     - name: zip plugins
       run: eval "$ZIP"
