@@ -5,7 +5,7 @@ else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
 
   # build cereal before we search for required Cereal plugin libs below
   execute_process(
-    COMMAND scons -j8 --minimal
+    COMMAND scons -j$(nproc) --minimal
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal
   )
 
