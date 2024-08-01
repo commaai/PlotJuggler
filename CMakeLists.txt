@@ -162,7 +162,9 @@ include_directories(
     ./3rdparty/lua-5.4.3/src
     ./3rdparty/QCodeEditor/include
     ./3rdparty/lz4
-    ./3rdparty/opendbc/can
+    ./3rdparty/opendbc
+    ./3rdparty/opendbc/opendbc
+    ./3rdparty/opendbc/opendbc/can
     ./3rdparty/cereal/messaging
     ./3rdparty/cereal
 )

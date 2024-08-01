@@ -75,7 +75,7 @@ else (Rlog_INCLUDE_DIRS AND Rlog_LIBRARIES)
   #### find opendbc common
   find_path(Rlog_opendbc_INCLUDE_DIR
     NAMES common.h
-    PATHS ${CMAKE_SOURCE_DIR}/3rdparty/opendbc/can
+    PATHS ${CMAKE_SOURCE_DIR}/3rdparty/opendbc/opendbc/can
           /usr/include
           /usr/local/include
           /opt/local/include

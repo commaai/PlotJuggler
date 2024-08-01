@@ -8,15 +8,15 @@ if(Rlog_FOUND)
   add_definitions(${QT_DEFINITIONS})
   add_definitions(-DQT_PLUGIN)
   add_definitions(-DDYNAMIC_CAPNP)
-  add_definitions(-DDBC_FILE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc")
+  add_definitions(-DDBC_FILE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/opendbc/dbc")
 
   SET(SRC
     rlog_parser.cpp
     dataload_rlog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/common.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/dbc.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/packer.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/can/parser.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/opendbc/can/common.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/opendbc/can/dbc.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/opendbc/can/packer.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/opendbc/opendbc/can/parser.cc
   )
 
   add_definitions(-L /usr/local/lib)
