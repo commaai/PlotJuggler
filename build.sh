@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 docker build -f Dockerfile -t plotjuggler:latest .
-# docker build -f 3rdparty/cereal -t cereal:latest .
 
 docker run \
   --rm \
