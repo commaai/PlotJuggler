@@ -37,9 +37,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ocl-icd-opencl-dev \
   opencl-headers
 
+RUN curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+ENV PATH="/root/.pyenv/bin:/root/.pyenv/shims:${PATH}"
+RUN pyenv install 3.11.4 && \
+    pyenv global 3.11.4 && \
+    pyenv rehash && \
+    pip3 install --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy
+
 RUN pip3 install pkgconfig jinja2
 
 # installs scons, pycapnp, cython, etc.
 ENV PYTHONPATH /tmp/plotjuggler/3rdparty
 COPY 3rdparty/opendbc/requirements.txt /tmp/
 RUN pip3 install Cython && pip3 install --no-cache-dir -r /tmp/requirements.txt
+#RUN apt install python3.9 -y --no-install-recommends
+#RUN alias python3=python3.9
