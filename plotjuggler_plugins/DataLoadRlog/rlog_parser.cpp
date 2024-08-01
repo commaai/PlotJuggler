@@ -190,7 +190,7 @@ bool RlogMessageParser::parseCanMessage(
     parsers[bus]->last_nanos = last_nanos;
 
     auto dat = value.get("dat").as<capnp::Data>();
-    if (dat.size() > 64) continue; // shouldn't ever happen
+    if (dat.size() > 64) continue;  // shouldn't ever happen
 
     auto &frame = can_data.frames.emplace_back();
     frame.src = bus;
