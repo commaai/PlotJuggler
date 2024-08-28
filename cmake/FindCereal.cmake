@@ -37,13 +37,6 @@ else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
       ${CMAKE_SOURCE_DIR}/3rdparty/openpilot/cereal
   )
 
-  find_library(Cereal_LIBRARY_COMMON
-    NAMES
-      common
-    PATHS
-      ${CMAKE_SOURCE_DIR}/3rdparty/openpilot/common
-  )
-
   find_library(Cereal_LIBRARY_MSGQ
     NAMES
       msgq
@@ -59,7 +52,6 @@ else (Cereal_LIBRARIES AND Cereal_INCLUDE_DIRS)
   set(Cereal_LIBRARIES
       ${Cereal_LIBRARIES}
       ${Cereal_LIBRARY_CEREAL}
-      ${Cereal_LIBRARY_COMMON}
       ${Cereal_LIBRARY_MSGQ}
       ${Cereal_LIBRARY_ZMQ}
   )
