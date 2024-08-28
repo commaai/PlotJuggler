@@ -49,11 +49,14 @@ jobs:
     - name: setup dependencies
       run: |
         brew install cmake bzip2 capnp qt@5 zeromq protobuf@3 gnu-tar
-        sudo pip3 install --no-cache-dir -r 3rdparty/opendbc_repo/requirements.txt
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        uv venv
+        uv pip install 3rdparty/opendbc_repo
     - name: build
       run: |
         export PYTHONPATH=$PWD/3rdparty
         # force usage of protobuf@3 instead of protobuf
+        source .venv/bin/activate
         mkdir -p build && cd build && cmake -DCMAKE_PREFIX_PATH="$(brew --prefix)/opt/protobuf@3" .. && make -j8
     - name: zip plugins
       run: eval "$ZIP"
