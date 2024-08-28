@@ -48,10 +48,10 @@ jobs:
         python-version: '3.11.x'
     - name: setup dependencies
       run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
         uv venv
         uv pip install 3rdparty/openpilot/opendbc_repo
         brew install cmake bzip2 capnp qt@5 zeromq protobuf@3 gnu-tar
-        curl -LsSf https://astral.sh/uv/install.sh | sh
     - name: build
       run: |
         export PYTHONPATH=$PWD/3rdparty
