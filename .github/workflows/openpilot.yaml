@@ -16,12 +16,12 @@ jobs:
         arch: ${{ fromJson(
            ((github.repository == 'commaai/plotjuggler') &&
               ((github.event_name != 'pull_request') || 
-               (github.event.pull_request.head.repo.full_name == 'commaai/plotjuggler'))) && '["x86_64", "aarch64"]' || '["x86_64"]' ) }}    
+               (github.event.pull_request.head.repo.full_name == 'commaai/plotjuggler'))) && '["x86_64", "aarch64"]' || '["x86_64"]' ) }}
     runs-on: ${{ (matrix.arch == 'aarch64') && 'buildjet-4vcpu-ubuntu-2204-arm' || 'ubuntu-20.04' }}
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: true
+        submodules: recursive
     - name: build
       run: ./build.sh
     - name: zip plugins
@@ -42,7 +42,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: true
+        submodules: recursive
     - uses: actions/setup-python@v2
       with:
         python-version: '3.11.x'
