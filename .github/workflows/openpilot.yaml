@@ -6,7 +6,8 @@ env:
   ZIP: |
     cd $GITHUB_WORKSPACE/build/bin
     export PATH=/usr/local/opt/gnu-tar/libexec/gnubin:$PATH
-    sudo tar -czf $(uname -s)-$(uname -m).tar.gz plotjuggler libDataLoadRlog.* libDataStreamCereal.*
+    PLUGINS="libDataLoadRlog.* libDataStreamCereal.* ${PLUGINS_EXTRA}"
+    sudo tar -czf $(uname -s)-$(uname -m).tar.gz plotjuggler ${PLUGINS}
 
 jobs:
   build_ubuntu:
@@ -25,7 +26,9 @@ jobs:
     - name: build
       run: ./build.sh
     - name: zip plugins
-      run: eval "$ZIP"
+      run: |
+        export PLUGINS_EXTRA='libPublisherVideoViewer.*'
+        eval "$ZIP"
     - name: upload
       if: github.ref == 'refs/heads/comma-master' && github.event_name == 'push'
       uses: svenstaro/upload-release-action@v2
