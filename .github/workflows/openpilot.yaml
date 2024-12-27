@@ -1,6 +1,13 @@
 name: openpilot plugins
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+
+  # needs to run on a schedule since we push commits here
+  # infrequently, but the macOS brew libs get updated frequently
+  schedule:
+    - cron: '0 0 * * *'
 
 env:
   ZIP: |
@@ -34,7 +41,7 @@ jobs:
     - name: zip plugins
       run: eval "$ZIP"
     - name: upload
-      if: github.ref == 'refs/heads/comma-master' && github.event_name == 'push'
+      if: (github.ref == 'refs/heads/comma-master' && github.event_name == 'push') || github.event_name == 'schedule'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +52,7 @@ jobs:
 
   build_mac:
     name: build mac
-    runs-on: macOS-latest
+    runs-on: macOS-15
     steps:
     - uses: actions/checkout@v2
       with:
@@ -68,7 +75,7 @@ jobs:
     - name: zip plugins
       run: eval "$ZIP"
     - name: upload
-      if: github.ref == 'refs/heads/comma-master' && github.event_name == 'push'
+      if: (github.ref == 'refs/heads/comma-master' && github.event_name == 'push') || github.event_name == 'schedule'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
