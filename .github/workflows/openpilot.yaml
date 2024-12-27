@@ -69,6 +69,7 @@ jobs:
         python-version: '3.11.x'
     - name: setup dependencies
       run: |
+        brew update --force
         brew install cmake bzip2 capnp qt@5 zeromq protobuf@3 gnu-tar portaudio
         brew upgrade
         curl -LsSf https://astral.sh/uv/install.sh | sh
