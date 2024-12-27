@@ -72,7 +72,6 @@ jobs:
         brew install cmake bzip2 capnp qt@5 zeromq protobuf@3 gnu-tar portaudio
         brew upgrade
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        source $HOME/.local/bin/env || true
         uv venv
         uv pip install 3rdparty/openpilot 3rdparty/openpilot/opendbc_repo
     - name: build
