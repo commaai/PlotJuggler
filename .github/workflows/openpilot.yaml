@@ -33,9 +33,10 @@ jobs:
       run: |
         cd /tmp/
         mkdir tmp
-        wget http://launchpadlibrarian.net/472650221/libcapnp-0.7.0_0.7.0-6_amd64.deb
+        wget ${{ (matrix.arch == 'aarch64') && ('http://launchpadlibrarian.net/472654321/libcapnp-0.7.0_0.7.0-6_arm64.deb' ||
+                                                'http://launchpadlibrarian.net/472650221/libcapnp-0.7.0_0.7.0-6_amd64.deb') }}
         dpkg-deb -R lib*.deb tmp
-        sudo cp tmp/usr/lib/x86_64-linux-gnu/lib*.so $GITHUB_WORKSPACE/build/bin
+        sudo cp tmp/usr/lib/**/lib*.so $GITHUB_WORKSPACE/build/bin
     - name: zip plugins
       run: eval "$ZIP"
     - name: upload
@@ -77,7 +78,7 @@ jobs:
         export PYTHONPATH=$PWD/3rdparty
         # force usage of protobuf@3 instead of protobuf
         source .venv/bin/activate
-        mkdir -p build && cd build && cmake -DCMAKE_PREFIX_PATH="$(brew --prefix)/opt/protobuf@3" .. && make -j8
+        mkdir -p build && cd build && cmake -DCMAKE_PREFIX_PATH="$(brew --prefix)/opt/protobuf@3" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && make -j8
     - name: zip plugins
       run: eval "$ZIP"
     - name: upload
