@@ -33,8 +33,7 @@ jobs:
       run: |
         cd /tmp/
         mkdir tmp
-        wget ${{ (matrix.arch == 'aarch64') && ('http://launchpadlibrarian.net/472654321/libcapnp-0.7.0_0.7.0-6_arm64.deb' ||
-                                                'http://launchpadlibrarian.net/472650221/libcapnp-0.7.0_0.7.0-6_amd64.deb') }}
+        wget ${{ (matrix.arch == 'aarch64') && 'http://launchpadlibrarian.net/472654321/libcapnp-0.7.0_0.7.0-6_arm64.deb' || 'http://launchpadlibrarian.net/472650221/libcapnp-0.7.0_0.7.0-6_amd64.deb' }}
         dpkg-deb -R lib*.deb tmp
         sudo cp tmp/usr/lib/**/lib*.so $GITHUB_WORKSPACE/build/bin
     - name: zip plugins
