@@ -152,6 +152,9 @@ bool RlogMessageParser::parseMessageImpl(const std::string& topic_name, capnp::D
           else if (is_root && !in_union)
           {
             parseMessageImpl(topic_name + '/' + structName + "/__" + name, structValue.get(field), time_stamp, last_nanos, false);
+            if (name == "logMonoTime") {
+              parseMessageImpl(topic_name + '/' + structName + "/__logMonoTimeSeconds", ((double)structValue.get(field).as<double>())*1e-9, time_stamp, last_nanos, false);
+            }
           }
         }
       }
