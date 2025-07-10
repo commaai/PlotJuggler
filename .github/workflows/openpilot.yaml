@@ -3,6 +3,7 @@ name: openpilot plugins
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
   # needs to run on a schedule since we push commits here
   # infrequently, but the macOS brew libs get updated frequently
@@ -67,7 +68,7 @@ jobs:
     - name: setup dependencies
       run: |
         brew update --force
-        brew install cmake bzip2 capnp qt@5 zeromq protobuf@3 gnu-tar portaudio
+        brew install cmake bzip2 capnp qt@5 zeromq protobuf gnu-tar portaudio
         brew upgrade
         curl -LsSf https://astral.sh/uv/install.sh | sh
         uv venv
