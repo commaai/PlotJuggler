@@ -68,8 +68,10 @@ jobs:
     - name: setup dependencies
       run: |
         brew update --force
-        brew install cmake bzip2 capnp qt@5 zeromq protobuf gnu-tar portaudio
+        brew install llvm@15 cmake bzip2 capnp qt@5 zeromq protobuf gnu-tar portaudio
         brew upgrade
+        echo "$(brew --prefix llvm@15)/bin" >> $GITHUB_PATH
+        echo "CC=$(brew --prefix llvm@15)/bin/clang" >> $GITHUB_ENV
         curl -LsSf https://astral.sh/uv/install.sh | sh
         uv venv
         uv pip install 3rdparty/openpilot 3rdparty/openpilot/opendbc_repo
