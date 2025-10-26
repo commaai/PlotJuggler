@@ -57,7 +57,7 @@ jobs:
     #     # 15 = M1, 13 = Intel
     #     os: [macOS-13, macOS-15]
     # runs-on: ${{ matrix.os }}
-    runs-on: macOS-15
+    runs-on: macOS-14
     steps:
     - uses: actions/checkout@v4
       with:
