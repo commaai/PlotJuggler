@@ -76,8 +76,6 @@ jobs:
     - name: build
       run: |
         export PYTHONPATH=$PWD/3rdparty
-        export CC=gcc-15
-        export CPP=gcc-15
         # force usage of protobuf@3 instead of protobuf
         source .venv/bin/activate
         mkdir -p build && cd build && cmake -DCMAKE_PREFIX_PATH="$(brew --prefix)/opt/protobuf@3" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && make -j8
