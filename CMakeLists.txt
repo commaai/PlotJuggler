@@ -7,10 +7,6 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/opt/homebrew/opt/llvm/include/c++/v1")
-endif()
-
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -32,6 +28,10 @@ option(BASE_AS_SHARED "Build the base library as a shared libary" OFF)
 IF (NOT WIN32 AND ENABLE_ASAN)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
   set (CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
+endif()
+
+if (APPLE)
+    include_directories( /opt/homebrew/opt/llvm/include/c++/v1 )
 endif()
 
 include_directories( plotjuggler_base/include )
