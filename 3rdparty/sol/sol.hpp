@@ -6752,8 +6752,7 @@ namespace sol {
 			static_assert(std::is_constructible<T, Args&&...>::value, "T must be constructible with Args");
 
 			*this = nullopt;
-			// comma hax: local fix until commaai/PlotJuggler can be brought current with upstream
-			this->emplace(std::forward<Args>(args)...);
+			this->construct(std::forward<Args>(args)...);
 		}
 
 		/// Swaps this optional with the other.
