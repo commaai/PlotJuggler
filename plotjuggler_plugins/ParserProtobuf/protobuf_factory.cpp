@@ -83,7 +83,7 @@ void ParserFactoryProtobuf::importFile(QString filename)
 
   for(int i=0; i < info.file_descriptor->message_type_count(); i++)
   {
-    const std::string& type_name = info.file_descriptor->message_type(i)->name();
+    auto type_name = info.file_descriptor->message_type(i)->name();
     auto descriptor = info.file_descriptor->FindMessageTypeByName(type_name);
     QString type_qname = QString::fromStdString(type_name);
     info.descriptors.insert({type_qname, descriptor });
