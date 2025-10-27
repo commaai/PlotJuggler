@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python-is-python3 \
   wget \
   software-properties-common \
+  libzstd-dev \
 
   qt5-default \
   qtbase5-dev \
