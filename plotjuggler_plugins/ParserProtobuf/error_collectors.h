@@ -10,11 +10,11 @@
 class IoErrorCollector: public google::protobuf::io::ErrorCollector
 {
 public:
-  virtual void AddError(int line, google::protobuf::io::ColumnNumber column,
-                const std::string& message) = 0;
+  void AddError(int line, google::protobuf::io::ColumnNumber column,
+                const std::string& message) override;
 
-  virtual void AddWarning(int line, google::protobuf::io::ColumnNumber column,
-                  const std::string& message) = 0;
+  void AddWarning(int line, google::protobuf::io::ColumnNumber column,
+                  const std::string& message) override;
 
   const QStringList& errors()
   {
@@ -28,11 +28,11 @@ private:
 class FileErrorCollector: public google::protobuf::compiler::MultiFileErrorCollector
 {
 public:
-  virtual void AddError(const std::string& filename, int line, int,
-                const std::string& message) = 0;
+  void AddError(const std::string& filename, int line, int,
+                const std::string& message) override;
 
-  virtual void AddWarning(const std::string& filename, int line, int,
-                  const std::string& message) = 0;
+  void AddWarning(const std::string& filename, int line, int,
+                  const std::string& message) override;
 
   const QStringList& errors()
   {
