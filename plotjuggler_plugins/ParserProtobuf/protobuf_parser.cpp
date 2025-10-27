@@ -65,7 +65,7 @@ bool ProtobufParser::parseMessage(const MessageRef serialized_msg,
     {
       auto field = descriptor->field(index);
 
-      std::string key = prefix.empty() ?
+      std::string_view key = prefix.empty() ?
                           field->name():
                           fmt::format("{}/{}", prefix, field->name() );
       std::string suffix;
