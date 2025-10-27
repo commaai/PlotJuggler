@@ -143,7 +143,7 @@ bool ProtobufParser::parseMessage(const MessageRef serialized_msg,
             auto tmp = !repeated ? reflection->GetEnum(msg, field) :
                                    reflection->GetRepeatedEnum(msg, field, index);
 
-            auto& series = this->getStringSeries(key + suffix);
+            auto& series = this->getStringSeries(std::string(key) + suffix);
             series.pushBack({timestamp, tmp->name()});
             is_double = false;
           }break;
