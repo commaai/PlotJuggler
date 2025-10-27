@@ -68,7 +68,7 @@ jobs:
     - name: setup dependencies
       run: |
         brew update --force
-        brew install cmake bzip2 capnp qt@5 zeromq protobuf gnu-tar portaudio
+        brew install cmake bzip2 capnp qt@5 zeromq gnu-tar portaudio
         brew upgrade
         curl -LsSf https://astral.sh/uv/install.sh | sh
         uv venv
