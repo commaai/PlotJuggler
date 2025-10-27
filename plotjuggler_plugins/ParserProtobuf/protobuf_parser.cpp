@@ -65,9 +65,9 @@ bool ProtobufParser::parseMessage(const MessageRef serialized_msg,
     {
       auto field = descriptor->field(index);
 
-      std::string key(prefix.empty() ?
+      std::string key = prefix.empty() ?
                           field->name():
-                          fmt::format("{}/{}", prefix, field->name() ));
+                          fmt::format("{}/{}", prefix, field->name() );
       std::string suffix;
 
       if (!field)
@@ -143,7 +143,7 @@ bool ProtobufParser::parseMessage(const MessageRef serialized_msg,
             auto tmp = !repeated ? reflection->GetEnum(msg, field) :
                                    reflection->GetRepeatedEnum(msg, field, index);
 
-            auto& series = this->getStringSeries(std::string(key) + suffix);
+            auto& series = this->getStringSeries(key + suffix);
             series.pushBack({timestamp, tmp->name()});
             is_double = false;
           }break;
